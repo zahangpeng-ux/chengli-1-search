@@ -1,0 +1,292 @@
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MockStore } from '@ngrx/store/testing';
+import { ToastrModule } from 'ngx-toastr';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
+import * as models from '@models';
+import { nisar, sentinel_1 } from '@models/datasets';
+import { ProductService } from '@services/product.service';
+import { SAVER } from '@services/saver.provider';
+import * as scenesStore from '@store/scenes';
+import { productFactory } from '@testing/product-factory';
+import testProviders from '@testing/providers';
+
+import { SceneFilesComponent } from './scene-files.component';
+
+describe('SceneFilesComponent', () => {
+  let component: SceneFilesComponent;
+  let fixture: ComponentFixture<SceneFilesComponent>;
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      imports: [
+        SceneFilesComponent,
+        ToastrModule.forRoot({
+          positionClass: 'toast-bottom-right',
+        }),
+      ],
+      providers: [...testProviders],
+    });
+  });
+
+  beforeEach(() => {
+    fixture = TestBed.createComponent(SceneFilesComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it('should create', () => {
+    expect(component).toBeDefined();
+  });
+
+  it('should be able to generate params for L2 GSLC equivalent of L1 RSLC products', () =>
+    expect(
+      component.getNisarL2Params(
+        'NISAR_L1_PR_RSLC_088_039_D_114_2005_SHSH_A_20251114T222008_20251114T222017_T05000_N_P_J_001',
+        'RSLC',
+      ),
+    ).toEqual({
+      granule_list:
+        'NISAR_L2_PR_GSLC_088_039_D_114_2005_SHSH_A_20251114T222008_20251114T222017_T05000_N_P_J_001',
+    }));
+  it('should be able to generate params for L2 GUNW equivalent of L1 RUNW products', () =>
+    expect(
+      component.getNisarL2Params(
+        'NISAR_L1_PR_RUNW_015_156_A_010_016_2000_SV_20230619T000803_20230619T000817_20230701T000803_20230701T000817_T00406_N_P_J_001',
+        'RUNW',
+      ),
+    ).toEqual({
+      granule_list:
+        'NISAR_L2_PR_GUNW_015_156_A_010_016_2000_SV_20230619T000803_20230619T000817_20230701T000803_20230701T000817_T00406_N_P_J_001',
+    }));
+  it('should be able to generate params for L2 GOFF equivalent of L1 ROFF products', () =>
+    expect(
+      component.getNisarL2Params(
+        'NISAR_L1_PR_ROFF_039_002_D_123_040_4000_SH_20240403T084941_20240403T084954_20240415T084941_20240415T084954_T00408_N_P_J_001',
+        'ROFF',
+      ),
+    ).toEqual({
+      granule_list:
+        'NISAR_L2_PR_GOFF_039_002_D_123_040_4000_SH_20240403T084941_20240403T084954_20240415T084941_20240415T084954_T00408_N_P_J_001',
+    }));
+  it('should be able to generate params for L2 UR equivalent of L1 UR products', () =>
+    expect(
+      component.getNisarL2Params(
+        'NISAR_L1_UR_ROFF_039_002_D_121_040_7700_SH_20240403T084849_20240403T084905_20240415T084849_20240415T084905_T00408_F_P_J_001',
+        'ROFF',
+      ),
+    ).toEqual({
+      granule_list:
+        'NISAR_L2_UR_GOFF_039_002_D_121_040_7700_SH_20240403T084849_20240403T084905_20240415T084849_20240415T084905_T00408_F_P_J_001',
+    }));
+});
+
+describe('SceneFilesComponent file grouping', () => {
+  let component: SceneFilesComponent;
+  let fixture: ComponentFixture<SceneFilesComponent>;
+  let store: MockStore;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      imports: [
+        SceneFilesComponent,
+        ToastrModule.forRoot({
+          positionClass: 'toast-bottom-right',
+        }),
+      ],
+      providers: [...testProviders, { provide: SAVER, useValue: vi.fn() }],
+    });
+
+    store = TestBed.inject(MockStore);
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  const buildNisarProduct = (
+    id: string,
+    productTypeDisplay: string,
+  ): models.CMRProduct => {
+    const productService = TestBed.inject(ProductService);
+    const product = productFactory
+      .withBasicInfo(id)
+      .withDatasetFull(nisar)
+      .build();
+
+    return {
+      ...product,
+      id,
+      productTypeDisplay,
+      productTypeGroup: productService.productTypeToGroup(
+        product,
+        productTypeDisplay,
+      ),
+    };
+  };
+
+  const setup = async (
+    scene: models.CMRProduct | null,
+    products: models.CMRProduct[],
+  ) => {
+    store.overrideSelector(scenesStore.getSelectedScene, scene);
+    store.overrideSelector(scenesStore.getSelectedSceneProducts, products);
+
+    vi.useFakeTimers();
+    fixture = TestBed.createComponent(SceneFilesComponent);
+    component = fixture.componentInstance;
+    fixture.autoDetectChanges();
+    // Advance fake timers so the debounced streams flush deterministically
+    await vi.advanceTimersByTimeAsync(120);
+    vi.useRealTimers();
+    await fixture.whenStable();
+    fixture.detectChanges();
+  };
+
+  const buildNisarSceneWithFiles = () => {
+    const base = buildNisarProduct('test-nisar-scene', 'L2 GSLC HDF5');
+    const subproducts = [
+      'Runconfig YAML',
+      'ISO Metadata XML',
+      'Browse Image PNG',
+      'QA Summary CSV',
+      'QA Report PDF',
+      'QA Statistics HDF5',
+      'Log File',
+      'Bin File',
+    ].map((display, i) => buildNisarProduct(`subproduct-${i}`, display));
+    const scene = {
+      ...base,
+      metadata: { ...base.metadata, subproducts },
+    };
+
+    return { scene, products: [scene, ...subproducts] };
+  };
+
+  it('buckets NISAR files into groups, ungrouped files in default', async () => {
+    const { scene, products } = buildNisarSceneWithFiles();
+    await setup(scene, products);
+
+    expect(component.groups()).toEqual([
+      'default',
+      'FILE_GROUP_METADATA',
+      'FILE_GROUP_VISUALIZATIONS',
+      'FILE_GROUP_DOCUMENTATION',
+    ]);
+
+    const displaysIn = (group: string) =>
+      component.selectedSceneGroups()[group].map((p) => p.productTypeDisplay);
+
+    expect(displaysIn('default')).toEqual(['L2 GSLC HDF5', 'Bin File']);
+    expect(displaysIn('FILE_GROUP_METADATA')).toEqual([
+      'Runconfig YAML',
+      'ISO Metadata XML',
+      'QA Summary CSV',
+      'QA Report PDF',
+      'QA Statistics HDF5',
+    ]);
+    expect(displaysIn('FILE_GROUP_VISUALIZATIONS')).toEqual([
+      'Browse Image PNG',
+    ]);
+    expect(displaysIn('FILE_GROUP_DOCUMENTATION')).toEqual(['Log File']);
+  });
+
+  it('renders ungrouped files in an expanded Data panel and a panel per non-empty group', async () => {
+    const { scene, products } = buildNisarSceneWithFiles();
+    await setup(scene, products);
+
+    const element = fixture.nativeElement as HTMLElement;
+    expect(element.querySelectorAll('app-scene-group-file')).toHaveLength(2);
+    expect(element.querySelectorAll('mat-nested-tree-node')).toHaveLength(4);
+
+    const dataPanel = element.querySelector('mat-nested-tree-node');
+    const dataHeader = dataPanel.querySelector('.group-title').textContent;
+    expect(dataHeader).toContain('Data');
+    expect(dataHeader).toContain('(2');
+    expect(
+      dataPanel.querySelector('.group-header').classList.contains('expanded'),
+    ).toBe(true);
+    expect(dataPanel.querySelectorAll('app-scene-group-file')).toHaveLength(2);
+
+    const headers = [...element.querySelectorAll('.group-title')].map(
+      (title) => title.textContent,
+    );
+    expect(headers[1]).toContain('Metadata');
+    expect(headers[1]).toContain('(5');
+
+    const metadataHeader = element.querySelectorAll('.group-header')[1];
+    (metadataHeader as HTMLElement).click();
+    fixture.detectChanges();
+    expect(element.querySelectorAll('app-scene-group-file')).toHaveLength(7);
+  });
+
+  it('does not render panels for empty groups', async () => {
+    const base = buildNisarProduct('test-nisar-scene', 'L2 GSLC HDF5');
+    const subproduct = buildNisarProduct('subproduct-0', 'Runconfig YAML');
+    const scene = {
+      ...base,
+      metadata: { ...base.metadata, subproducts: [subproduct] },
+    };
+    await setup(scene, [scene, subproduct]);
+
+    expect(
+      fixture.nativeElement.querySelectorAll('mat-nested-tree-node'),
+    ).toHaveLength(2);
+  });
+
+  it('keeps the flat file list for non-NISAR scenes', async () => {
+    const scene = productFactory
+      .withBasicInfo('test-s1-scene')
+      .withDatasetFull(sentinel_1)
+      .build();
+    await setup(scene, [scene]);
+
+    expect(component.groups()).toBe(null);
+    expect(fixture.nativeElement.querySelector('mat-tree')).toBe(null);
+    expect(
+      fixture.nativeElement.querySelectorAll('app-scene-file'),
+    ).toHaveLength(1);
+  });
+
+  it('does not crash when no scene is selected', async () => {
+    await setup(null, []);
+
+    expect(component.groups()).toBe(null);
+    expect(fixture.nativeElement.querySelector('mat-tree')).toBe(null);
+  });
+
+  it('shows the DISP-S1 footprint warning for DISP-S1 products', async () => {
+    const scene = productFactory
+      .withBasicInfo('disp-s1-scene')
+      .withMetadata({ productType: 'DISP-S1' })
+      .build();
+    await setup(scene, [scene]);
+
+    expect(component.sceneFilesWarning()).toBeTruthy();
+    expect(fixture.nativeElement.querySelector('.dem-warning')).not.toBe(null);
+  });
+
+  it('shows the DEM warning for ALOS RTC products', async () => {
+    let scene = productFactory
+      .withBasicInfo('alos rtc')
+      .withMetadata({ productType: 'ALPSRP279071390-RTC_LOW_RES' })
+      .build();
+
+    scene = { ...scene, dataset: 'ALOS' };
+
+    await setup(scene, [scene]);
+
+    expect(component.sceneFilesWarning()).toBeTruthy();
+    expect(fixture.nativeElement.querySelector('.dem-warning')).not.toBe(null);
+  });
+
+  it('does not show the DISP-S1 footprint warning for other product types', async () => {
+    const scene = productFactory
+      .withBasicInfo('disp-s1-static-scene')
+      .withMetadata({ productType: 'DISP-S1-STATIC' })
+      .build();
+    await setup(scene, [scene]);
+
+    expect(component.sceneFilesWarning()).toBe(null);
+    expect(fixture.nativeElement.querySelector('.dem-warning')).toBe(null);
+  });
+});

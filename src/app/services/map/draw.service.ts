@@ -1,0 +1,232 @@
+import { Injectable, inject } from '@angular/core';
+import { Store } from '@ngrx/store';
+import { Feature, Map } from 'ol';
+import { Extent } from 'ol/extent';
+import Circle from 'ol/geom/Circle';
+import Geometry, { Type as GeometryType } from 'ol/geom/Geometry';
+import { fromCircle } from 'ol/geom/Polygon';
+import { createBox } from 'ol/interaction/Draw.js';
+import { Draw, Modify, Snap } from 'ol/interaction.js';
+import { Vector as VectorLayer } from 'ol/layer';
+import { Vector as VectorSource } from 'ol/source';
+import { BehaviorSubject } from 'rxjs';
+
+import * as models from '@models';
+import { AppState } from '@store';
+import { SetGeocode } from '@store/filters';
+import { DrawNewPolygon } from '@store/map';
+
+import * as polygonStyle from './polygon.style';
+
+// Declare GTM dataLayer array.
+declare global {
+  interface Window {
+    dataLayer: any[];
+  }
+}
+
+@Injectable({
+  providedIn: 'root',
+})
+export class DrawService {
+  private store$ = inject<Store<AppState>>(Store);
+
+  private source: VectorSource;
+  private layer: VectorLayer<VectorSource>;
+
+  private draw: Draw;
+  private modify: Modify;
+  private snap: Snap;
+
+  private defaultStyle = polygonStyle.valid;
+  private drawEndCallback;
+
+  public polygon$ = new BehaviorSubject<Feature<Geometry> | null>(null);
+  public isDrawing$ = new BehaviorSubject<boolean>(false);
+
+  public currentDrawMode: models.MapDrawModeType;
+
+  constructor() {
+    this.source = new VectorSource({
+      wrapX: models.mapOptions.wrapX,
+    });
+
+    this.layer = new VectorLayer({
+      source: this.source,
+      style: polygonStyle.valid,
+    });
+  }
+
+  public getLayer(): VectorLayer<VectorSource> {
+    return this.layer;
+  }
+
+  public getExtent(): Extent | null {
+    return this.source.getFeatures().length ? this.source.getExtent() : null;
+  }
+
+  public setInteractionMode(map: Map, mode: models.MapInteractionModeType) {
+    map.removeInteraction(this.snap);
+    map.removeInteraction(this.modify);
+    map.removeInteraction(this.draw);
+
+    if (mode === models.MapInteractionModeType.DRAW) {
+      map.addInteraction(this.draw);
+      map.once('pointermove', (_) => {
+        map.getViewport().style.cursor = 'default';
+      });
+    } else if (mode === models.MapInteractionModeType.EDIT) {
+      map.addInteraction(this.snap);
+      map.addInteraction(this.modify);
+
+      this.modify.on('modifystart', () => {
+        map.getViewport().style.cursor = 'pointer';
+      });
+
+      this.modify.on('modifyend', () => {
+        map.getViewport().style.cursor = 'default';
+      });
+
+      map.once('pointermove', (_) => {
+        map.getViewport().style.cursor = 'default';
+      });
+    }
+  }
+
+  public setDrawMode(map: Map, mode: models.MapDrawModeType): void {
+    map.removeInteraction(this.draw);
+
+    this.setInteraction(mode);
+    map.addInteraction(this.draw);
+  }
+
+  public setInteraction(mode: models.MapDrawModeType): void {
+    this.draw = this.create(mode);
+  }
+
+  public setDrawStyle(style: models.DrawPolygonStyle): void {
+    switch (style) {
+      case models.DrawPolygonStyle.VALID: {
+        this.setValidStyle();
+        break;
+      }
+      case models.DrawPolygonStyle.VALID_DISPLACEMENT: {
+        this.setValidDisplacementStyle();
+        break;
+      }
+      case models.DrawPolygonStyle.INVALID: {
+        this.setInvalidStyle();
+        break;
+      }
+      case models.DrawPolygonStyle.OMITTED: {
+        this.setOmittedStyle();
+        break;
+      }
+    }
+  }
+
+  public setFeature(feature, _): void {
+    this.drawEndCallback(feature);
+    this.source.clear();
+    this.source.addFeature(feature);
+    this.layer.setStyle(this.defaultStyle);
+
+    this.polygon$.next(feature);
+  }
+
+  public clear = (): void => {
+    this.source.clear();
+    this.setValidStyle();
+    this.polygon$.next(null);
+  };
+
+  public setDrawEndCallback(callback): void {
+    this.drawEndCallback = callback;
+  }
+
+  private create(drawMode: models.MapDrawModeType): Draw {
+    let draw: Draw;
+    this.currentDrawMode = drawMode;
+    this.isDrawing$.next(false);
+
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({
+      event: 'draw',
+      'draw-mode': drawMode,
+    });
+
+    if (drawMode === models.MapDrawModeType.BOX) {
+      draw = new Draw({
+        source: this.source,
+        type: 'Circle' as GeometryType, // Actually a box...
+        geometryFunction: createBox(),
+      });
+    } else {
+      draw = new Draw({
+        source: this.source,
+        type: drawMode.valueOf() as GeometryType,
+      });
+    }
+
+    draw.on('drawstart', (_) => {
+      this.isDrawing$.next(true);
+      this.clear();
+    });
+
+    draw.on('drawend', (e) => {
+      e.feature?.setId(this.currentDrawMode);
+      e.feature?.set('drawMode', this.currentDrawMode);
+      if (e.feature?.getGeometry().getType() === 'Circle') {
+        const circle = e.feature.getGeometry() as Circle;
+        e.feature.setGeometry(fromCircle(circle));
+      }
+      this.drawEndCallback(e.feature);
+
+      this.isDrawing$.next(false);
+      this.polygon$.next(e.feature);
+      this.store$.dispatch(new DrawNewPolygon());
+      this.store$.dispatch(new SetGeocode(''));
+    });
+
+    this.snap = new Snap({ source: this.source });
+    this.modify = this.createModify();
+
+    return draw;
+  }
+
+  private createModify(): Modify {
+    const modify = new Modify({ source: this.source });
+
+    modify.on('modifyend', (e) => {
+      const feature = e.features.getArray()[0];
+
+      this.drawEndCallback(feature);
+
+      this.setDrawStyle(models.DrawPolygonStyle.VALID);
+      this.polygon$.next(feature);
+      this.store$.dispatch(new SetGeocode(''));
+      this.store$.dispatch(new DrawNewPolygon());
+    });
+
+    return modify;
+  }
+
+  private setValidStyle(): void {
+    this.defaultStyle = polygonStyle.valid;
+    this.layer.setStyle(this.defaultStyle);
+  }
+
+  private setValidDisplacementStyle(): void {
+    this.defaultStyle = polygonStyle.validDisplacement;
+    this.layer.setStyle(this.defaultStyle);
+  }
+
+  private setOmittedStyle() {
+    this.defaultStyle = polygonStyle.omitted;
+    this.layer.setStyle(this.defaultStyle);
+  }
+
+  private setInvalidStyle(): void {
+    this.layer.setStyle(polygonStyle.invalid);
+  }
+}

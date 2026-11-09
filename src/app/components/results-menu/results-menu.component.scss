@@ -1,0 +1,220 @@
+@use "asf-theme-variables" as *;
+
+.results-pane {
+  min-height: 0;
+}
+
+.rectangle-wrapper {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  background: #ffffff;
+}
+
+#result-div {
+  z-index: 0;
+  display: flex;
+  flex-direction: column;
+  background-color: #ffffff;
+}
+
+.results-menu--layout {
+  display: flex;
+}
+
+.no-results {
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+}
+
+.mobile-menu-offset {
+  position: relative;
+  bottom: 100px;
+  z-index: 2000;
+}
+
+.mobile-displacement-menu-offset {
+  bottom: 0;
+  z-index: 2000;
+}
+
+.displacement-results {
+  min-height: 425px;
+}
+
+.desktop-menu-offset {
+  bottom: 0;
+  z-index: 2000;
+}
+
+.results-menu--background {
+  pointer-events: auto;
+}
+
+.header {
+  height: 30px;
+  min-height: 30px;
+  margin-bottom: 0;
+  font-family: Roboto, sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  text-align: center;
+  border-left: none;
+
+  @include themify($themes) {
+    color: themed('dark-primary-text');
+    background-color: themed('primary-light');
+  }
+}
+
+.app-scene-list {
+  width: 100%;
+  height: 100%;
+}
+
+.small-size {
+  height: calc(100% - 24px);
+}
+
+.mwlResizable {
+  box-sizing: border-box; // required for the enableGhostResize option to work
+}
+
+.no-left-border {
+  border-left: none;
+  box-shadow: none !important;
+}
+
+.left-border {
+  box-shadow: none !important;
+
+  @include themify($themes) {
+    border-left: themed('primary-light') 1px solid;
+  }
+}
+
+.no-box-shadow {
+  border-bottom: none !important;
+  box-shadow: none !important;
+}
+
+.scroll-y {
+  overflow-y: auto;
+}
+
+.scroll-x {
+  overflow-x: auto;
+}
+
+.resize-min,
+.resize-max {
+  z-index: 10;
+  flex: 0 0 40px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.resize-handle-filler {
+  z-index: 9;
+  display: grid;
+  place-content: center;
+  width: 56px;
+  height: 25px;
+  cursor: ns-resize;
+  background-repeat: no-repeat;
+  background-position: center;
+
+  // background-image: url("/assets/div-handles/hgrip.svg");
+  @include themify($themes) {
+    background-color: themed('primary-light');
+  }
+}
+
+.hgrip-icon {
+  @include themify($themes) {
+    stroke: themed('dark-primary-text');
+  }
+
+  width: 33px;
+}
+
+.resize-spacer {
+  display: inline-block;
+  width: 64px;
+}
+
+.min-max-controls {
+  z-index: 9;
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+  height: 35px;
+  padding-right: 20px;
+}
+
+.resize-controls {
+  z-index: 9;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  height: 25px;
+}
+
+.mobile {
+  font-size: 12px;
+  font-weight: bold;
+  line-height: 22px;
+}
+
+.feedback-link {
+  margin-left: 10px;
+
+  a {
+    text-decoration: none;
+
+    @include themify($themes) {
+      color: themed('dark-primary-text');
+    }
+  }
+}
+
+.results-pane {
+  justify-content: center;
+}
+
+.no-products-actions {
+  display: flex;
+  flex-direction: column;
+}
+
+.no-jobs-message {
+  margin-bottom: 14px;
+}
+
+.action-link-spacing {
+  margin-bottom: 5px;
+}
+
+.mat-mdc-card-content {
+  padding: 0;
+}
+
+.mobile-displacement-search {
+  bottom: 0;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  width: 100%;
+  margin-top: 100px;
+}
+
+.hidden {
+  visibility: hidden;
+}
+
+.visible {
+  visibility: visible;
+}

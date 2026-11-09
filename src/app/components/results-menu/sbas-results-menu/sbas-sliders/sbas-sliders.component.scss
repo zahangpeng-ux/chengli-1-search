@@ -1,0 +1,33 @@
+.sbas-slider-wrapper {
+  flex-direction: column;
+  height: 100%;
+  padding: 20px 0 30px 30px;
+  margin-right: 0;
+  margin-bottom: 0;
+  margin-left: 0;
+  font-weight: normal;
+  line-height: 27px;
+}
+
+.sbas-label {
+  color: grey;
+}
+
+.sbas-slider-result {
+  flex: none;
+  margin-top: 32px;
+}
+
+.sbas-slider {
+  flex: none;
+  height: 80%;
+}
+
+.noUi-vertical {
+  width: 8px;
+}
+
+div.noUi-handle.noUi-handle-lower {
+  right: -5px !important;
+  width: 16px !important;
+}

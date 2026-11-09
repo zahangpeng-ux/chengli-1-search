@@ -1,0 +1,17 @@
+<a
+  (click)="onToggle()"
+  class="cart-toggle-button"
+  [matTooltip]="
+    !isQueued
+      ? ('ADD_FILE_TO_DOWNLOADS' | translate)
+      : ('REMOVE_FILE_FROM_DOWNLOADS' | translate)
+  "
+  mat-icon-button
+>
+  @if (!isQueued) {
+    <mat-icon>add_shopping_cart</mat-icon>
+  }
+  @if (isQueued) {
+    <mat-icon>shopping_cart</mat-icon>
+  }
+</a>

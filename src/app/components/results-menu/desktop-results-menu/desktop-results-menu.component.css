@@ -1,0 +1,53 @@
+#results-div {
+  display: flex;
+  flex-direction: column;
+}
+
+.desktop-results-menu {
+  display: flex;
+}
+
+.desktop-header--layout {
+  flex: 1 1 100%;
+  box-sizing: border-box;
+  max-width: 33%;
+}
+
+.desktop-header--small-layout {
+  flex: 1 1 100%;
+  box-sizing: border-box;
+  max-width: 50%;
+}
+
+.scene-detail--layout {
+  height: 100%;
+  width: 100%;
+  flex: 1 1 100%;
+  box-sizing: border-box;
+  max-width: 34%;
+}
+
+.file-list--layout {
+  height: 100%;
+  width: 100%;
+  flex: 1 1 100%;
+  box-sizing: border-box;
+  max-width: 33%;
+}
+
+.scene-info--small-layout {
+  height: 100%;
+  width: 100%;
+  flex: 1 1 100%;
+  box-sizing: border-box;
+  max-width: 50%;
+}
+
+.mat-mdc-card {
+  box-shadow: none;
+}
+
+.scene-detail--layout {
+  display: flex;
+  flex-direction: column;
+}

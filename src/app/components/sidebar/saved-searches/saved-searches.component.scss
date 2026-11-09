@@ -1,0 +1,145 @@
+@use "asf-theme-variables" as *;
+
+.saved-searches,
+.saved-searches-mobile {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.saved-searches__header {
+  @include themify($themes) {
+    background-color: themed('primary-light');
+    border-bottom-color: themed('primary');
+  }
+
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+  padding: 14px 15px 12px;
+  border-bottom-style: solid;
+  border-bottom-width: 1px;
+}
+
+.saved-searches__header-title {
+  font-size: 20px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.saved-searches__header-actions {
+  display: flex;
+
+  mat-button-toggle-group {
+    width: 100%;
+  }
+
+  mat-button-toggle {
+    flex: 1;
+    white-space: nowrap;
+  }
+}
+
+.saved-searches__more-menu {
+  width: 100%;
+}
+
+.saved-searches__subhead {
+  @include themify($themes) {
+    background-color: themed('background-white');
+  }
+
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+  padding: 12px 15px;
+}
+
+.saved-searches__filter-form,
+.saved-searches__filter-form-mobile {
+  width: 100%;
+
+  form,
+  mat-form-field {
+    width: 100%;
+  }
+}
+
+::ng-deep .saved-searches__subhead .mat-mdc-form-field-subscript-wrapper {
+  display: none;
+}
+
+.saved-searches__save-button {
+  display: flex;
+
+  button {
+    flex: 1;
+    white-space: nowrap;
+  }
+}
+
+.content-wrapper {
+  display: flex;
+  flex: 1;
+  flex-direction: row;
+  min-height: 0;
+}
+
+.saved-searches__content,
+.saved-searches__content-mobile {
+  @include themify($themes) {
+    background-color: themed('background-white');
+  }
+
+  flex: 1;
+  width: 100%;
+  overflow-y: auto;
+}
+
+.saved-searches-row:nth-child(odd) {
+  @include themify($themes) {
+    background-color: lighten(themed('primary-light'), 15%) !important;
+  }
+}
+
+.saved-searches__footer,
+.saved-searches__footer-mobile {
+  @include themify($themes) {
+    background: themed('primary-light');
+    border-top-color: themed('primary');
+  }
+
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 10px 15px;
+  border-top-style: solid;
+  border-top-width: 1px;
+}
+
+.saved-searches__footer-mobile {
+  position: static;
+}
+
+.saved-searches__close-button {
+  display: flex;
+
+  button {
+    white-space: nowrap;
+  }
+}
+
+.no-saved-searches {
+  padding: 16px 15px;
+
+  h2 {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 400;
+  }
+}

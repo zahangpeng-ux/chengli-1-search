@@ -1,0 +1,46 @@
+@use "asf-theme-variables" as *;
+
+.dialog-header {
+  margin-bottom: 13px;
+  font-size: 30px;
+  font-weight: bold;
+}
+
+.close-x {
+  position: absolute;
+  top: 15px;
+  right: 35px;
+  text-align: right;
+  cursor: pointer;
+}
+
+.code-block {
+  margin: 0;
+  overflow: scroll;
+  border-radius: 10px;
+}
+
+.flex-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  padding: 16px 24px;
+
+  @include themify($themes) {
+    background: darken(themed('background-white'), 10%);
+  }
+
+}
+
+.flex-item {
+  flex: 0 1 auto;
+}
+
+.code-export-title {
+  @include themify($themes) {
+    background: darken(themed('background-white'), 10%);
+  }
+
+  margin-bottom: 9px;
+}
+

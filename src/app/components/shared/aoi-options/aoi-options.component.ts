@@ -1,0 +1,208 @@
+import { CdkTextareaAutosize } from '@angular/cdk/text-field';
+import {
+  Component,
+  OnInit,
+  Output,
+  Input,
+  EventEmitter,
+  ViewChild,
+  OnDestroy,
+  inject,
+} from '@angular/core';
+import { NgForm, FormsModule } from '@angular/forms';
+import { MatIconButton, MatButton } from '@angular/material/button';
+import { MatIcon } from '@angular/material/icon';
+import {
+  MatFormField,
+  MatLabel,
+  MatInput,
+  MatSuffix,
+} from '@angular/material/input';
+import { MatTooltip } from '@angular/material/tooltip';
+import { Store } from '@ngrx/store';
+import { TranslateModule } from '@ngx-translate/core';
+import { Subject } from 'rxjs';
+import { tap, delay } from 'rxjs/operators';
+import { SubSink } from 'subsink';
+
+import { MapInteractionModeType, Breakpoints, SearchType } from '@models';
+import { MapService, ScreenSizeService } from '@services';
+import { AppState } from '@store';
+import { SetGeocode } from '@store/filters';
+import * as mapStore from '@store/map';
+import { getSearchType, SetSearchOutOfDate } from '@store/search';
+import { getIsFiltersMenuOpen, getIsResultsMenuOpen } from '@store/ui';
+
+import { FileUploadDialogComponent } from './file-upload/file-upload-dialog/file-upload-dialog.component';
+import { GeocodeSelectorComponent } from './geocode-selector/geocode-selector.component';
+
+// Declare GTM dataLayer array.
+declare global {
+  interface Window {
+    dataLayer: any[];
+  }
+}
+
+@Component({
+  selector: 'app-aoi-options',
+  templateUrl: './aoi-options.component.html',
+  styleUrls: ['./aoi-options.component.scss'],
+  imports: [
+    MatIcon,
+    MatIconButton,
+    MatTooltip,
+    FormsModule,
+    MatFormField,
+    MatLabel,
+    CdkTextareaAutosize,
+    MatInput,
+    MatButton,
+    MatSuffix,
+    GeocodeSelectorComponent,
+    FileUploadDialogComponent,
+    TranslateModule,
+  ],
+})
+export class AoiOptionsComponent implements OnInit, OnDestroy {
+  private store$ = inject<Store<AppState>>(Store);
+  private mapService = inject(MapService);
+  private screenSize = inject(ScreenSizeService);
+
+  @ViewChild('polygonInputForm') public polygonForm: NgForm;
+
+  @Input() showHeader = true;
+  @Output() close = new EventEmitter<void>();
+
+  public drawMode$ = this.store$.select(mapStore.getMapDrawMode);
+  public interactionMode$ = this.store$.select(mapStore.getMapInteractionMode);
+
+  public searchtype = this.store$.selectSignal(getSearchType);
+  public isResultsMenuOpen = this.store$.selectSignal(getIsResultsMenuOpen);
+  public isFiltersMenuOpen = this.store$.selectSignal(getIsFiltersMenuOpen);
+
+  public breakpoint: Breakpoints;
+  public breakpoints = Breakpoints;
+
+  public polygon: string;
+  public interactionTypes = MapInteractionModeType;
+
+  public aoiErrors$ = new Subject<void>();
+  public isAOIError = false;
+  private subs = new SubSink();
+
+  ngOnInit() {
+    this.subs.add(
+      this.mapService.searchPolygon$.subscribe((polygon) => {
+        this.polygon = polygon;
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push({
+          event: 'input-search-polygon',
+          'input-search-polygon': this.polygon,
+        });
+      }),
+    );
+
+    this.subs.add(
+      this.screenSize.breakpoint$.subscribe(
+        (breakpoint) => (this.breakpoint = breakpoint),
+      ),
+    );
+
+    this.handleAOIErrors();
+  }
+
+  public onFileHovered(e): void {
+    e.preventDefault();
+  }
+
+  public onInputSearchPolygon(event: Event): void {
+    const polygon = (event.target as HTMLInputElement).value;
+    const didLoad = this.mapService.loadPolygonFrom(polygon);
+
+    if (
+      !didLoad ||
+      (this.searchtype() === SearchType.DISPLACEMENT &&
+        !polygon.toLowerCase().includes('point'))
+    ) {
+      this.aoiErrors$.next();
+    } else {
+      if (
+        this.searchtype() === SearchType.DATASET &&
+        this.isResultsMenuOpen() &&
+        !this.isFiltersMenuOpen()
+      ) {
+        this.store$.dispatch(new SetSearchOutOfDate(true));
+      }
+    }
+  }
+  public onInputGeocodePolygon(event: { wkt: string; geocode: string }): void {
+    const didLoad = this.mapService.loadPolygonFrom(event.wkt);
+    this.store$.dispatch(new SetGeocode(event.geocode));
+    if (
+      !didLoad ||
+      (this.searchtype() === SearchType.DISPLACEMENT &&
+        !event.wkt.toLowerCase().includes('point'))
+    ) {
+      this.aoiErrors$.next();
+    } else {
+      if (
+        this.searchtype() === SearchType.DATASET &&
+        this.isResultsMenuOpen() &&
+        !this.isFiltersMenuOpen()
+      ) {
+        this.store$.dispatch(new SetSearchOutOfDate(true));
+      }
+    }
+  }
+  public onFileUpload(): void {
+    const action = new mapStore.SetMapInteractionMode(
+      MapInteractionModeType.UPLOAD,
+    );
+    this.store$.dispatch(action);
+  }
+
+  public onClearPolygon(): void {
+    this.onNewInteractionMode(MapInteractionModeType.DRAW);
+    this.store$.dispatch(new SetGeocode(''));
+    this.mapService.clearDrawLayer();
+  }
+
+  public onNewInteractionMode(mode: MapInteractionModeType): void {
+    this.store$.dispatch(new mapStore.SetMapInteractionMode(mode));
+  }
+
+  public onClose(): void {
+    this.close.emit();
+  }
+
+  public onOpenHelp(): void {
+    window.open(
+      'https://docs.asf.alaska.edu/vertex/manual/#area-of-interest-options',
+    );
+  }
+
+  private handleAOIErrors(): void {
+    this.subs.add(
+      this.aoiErrors$
+        .pipe(
+          tap((_) => {
+            this.isAOIError = true;
+            this.mapService.clearDrawLayer();
+            this.polygonForm.reset();
+            this.polygonForm.form.controls['searchPolygonLarge'].setErrors({
+              incorrect: true,
+            });
+          }),
+          delay(820),
+        )
+        .subscribe((_) => {
+          this.isAOIError = false;
+          this.polygonForm.form.controls['searchPolygonLarge'].setErrors(null);
+        }),
+    );
+  }
+
+  ngOnDestroy() {
+    this.subs.unsubscribe();
+  }
+}

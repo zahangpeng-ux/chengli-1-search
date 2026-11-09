@@ -1,0 +1,126 @@
+# SearchUI
+[![es](https://img.shields.io/badge/lang-es-red.svg)](./README.ESP.md)
+[![
+CodeFactor](https://www.codefactor.io/repository/github/asfadmin/discovery-searchui/badge?s=fe1df8c7275093962e0c42abffa97803a397c825)](https://www.codefactor.io/repository/github/asfadmin/discovery-searchui) 
+
+[![Join the chat at https://gitter.im/ASFDiscovery/Vertex](https://badges.gitter.im/ASFDiscovery/Vertex.svg)](https://gitter.im/ASFDiscovery/Vertex?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
+ASF's Angular search web application
+
+## Deployments
+| Maturity | Deployment |
+| --- | --- |
+| Test | https://search-test.asf.alaska.edu/ |
+| Prod | https://search.asf.alaska.edu/ |
+
+### Personal Deployment
+
+ASF Developers have their own personal deployments that build automatically from any branch with the matching identifier with their name `{name}/{topic}`
+
+## Initialize after downloading
+After you first download the repo, set up your instance by doing `npm install` from the project root directory. If you don't have npm installed go [here](https://www.npmjs.com/get-npm) for installation instructions.
+
+## Code linting
+This project uses eslint and prettier. Install/setup eslint in your formatter of choice, and have prettier pull from .prettierrc for custom config options.
+[Eslint for Webstorm/Jetbrains](https://www.jetbrains.com/help/webstorm/eslint.html#ws_js_linters_eslint_before_you_start)
+[Eslint for VSCode](https://github.com/microsoft/vscode-eslint)
+
+
+## Development server
+
+The app is run locally using the Angular CLI. Installation instructions can be found [here](https://angular.io/cli).
+
+After angular is installed, run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files. You can optionally supply a port number, for example `ng serve --port 4444`
+
+### Custom Domain
+
+In order to get certain services to work, it's necessary to set up a .asf.alaska.edu domain pointing to your local server in your host file. This process varies on the OS you are using.
+
+Add the following line via the methods below to set up local.asf.alaska.edu to point towards your local development server.
+```
+127.0.0.1   local.asf.alaska.edu
+```
+| OS | Method |
+| --- | --- |
+| Mac/Linux | modify the /etc/hosts file |
+| Windows | Modify c:\windows\system32\drivers\etc\hosts as Administrator |
+```
+ng serve --port 4444 --host local.asf.alaska.edu
+ng serve --port 4445 --ssl true --host local.asf.alaska.edu
+```
+
+### Setting up HTTPS
+Some services of Vertex require HTTPS to work. Angular supports running with ssl, though some browsers may not be happy with the self-signed certs and not let you access the page through HTTPS. To get around this [mkcert](https://github.com/FiloSottile/mkcert) can act as a Certificate Authority to verify the certs it generates.
+1. Follow the instruction to install mkcert on their [README](https://github.com/FiloSottile/mkcert#installation)
+3. Run `mkcert -install` (May need to be run as administrator)
+4. To generate the certs to give to Angular run `mkcert local.asf.alaska.edu`. If you want to specify the location to generate the certs (**recommended**) you can pass the parameters `-cert-file` and `-key-file` ex: `mkcert -cert-file ~/mkcert/cert.pem -key-file ~/mkcert/key.pem local.asf.alaska.edu`
+5. Run angular with the following flags to specify to use SSL and where the SSL key and cert are.
+```
+ng serve --host=local.asf.alaska.edu --ssl true --ssl-cert ~/mkcert/cert.pem --ssl-key ~/mkcert/key.pem 
+```
+
+
+## Code scaffolding
+
+Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+
+## Install NPM Packages
+Run `npm install --save package_name` to install a package.
+
+## Build
+
+Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
+
+## Translating Text
+The package [ngx-translate](http://www.ngx-translate.com/) is used to enable multilingual support. Any text a user can view on the UI, excluding
+metadata values and brand names, should be displayed using a translate pipe.
+
+Here is an example:
+```
+<button
+  [matMenuTriggerFor]="helpMenu"
+  [matTooltip]="HELP_AND_INFORMATION' | translate"
+  class="spacing nav-icon-buttons" color="basic" mat-button>
+  <mat-icon class="large-icon">help_outline</mat-icon>
+  <div class="text-under faint-text">{{ 'HELP' | translate }}</div>
+</button>
+```
+You can see both text in the Tool Tip and the button text itself are both run through the 'translate' pipe: `{{ 'HELP_AND_INFORMATION' | translate }}`.
+The translate pipe will translate the key e.g. 'HELP_AND_INFORMATION' and replace it with the value from the current language json file
+in use, e.g. 'assets/i18n/en.json'.
+
+## Testing
+
+### End to end testing
+Testing workflows meant to be a user's journey through the site and catch things going wrong. These tests can be found under the `e2e` folder.
+
+#### Visual Regression Testing
+Testing workflows contain visual regression testing, anytime you create a UI change you must add a comment to your pull request containing `/update-snapshots` to trigger an update of the screenshots used for visual regression testing. Do not locally update snapshots as snapshots are highly dependent on the environment they are run in and must be generated in the github actions runner for consistency.
+
+Uses [Playwright](https://playwright.dev/) for test creation
+#### Angular CLI
+```bash
+ng e2e
+```
+#### Playwright CLI
+```bash
+npx playwright test
+```
+##### Playwright CLI Visual Tool
+```bash
+npx playwright test --ui
+```
+### Unit testing
+Meant to be specific component logic. For example testing input validators, sorting items, or interaction logic.
+Uses Angular's [vitest](https://vitest.dev/) integration.
+#### Angular CLI
+```bash
+ng test
+```
+## Further help
+
+To get more help on the Angular CLI use `ng help` or check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
+
+More information about the app is available on the [wiki](https://github.com/asfadmin/SearchUI/wiki)
+
+This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 6.2.4.

@@ -1,0 +1,108 @@
+@use "@angular/material" as mat;
+@use "./styles/asf-theme" as *;
+@use "ngx-toastr/toastr";
+@use "./styles/global/material";
+@use "./styles/global/targeted";
+@use "./styles/global/noui";
+@use "./styles/global/toast";
+@use "./styles/global/timeseries";
+@use "./styles/global/shortcuts";
+@import "prismjs/themes/prism-solarizedlight.css";
+@import '@fontsource/roboto/300.css';
+@import '@fontsource/roboto/400.css';
+@import '@fontsource/roboto/500.css';
+
+$theme-map: null;
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+body {
+  position: fixed;
+  inset: 0;
+}
+
+app-root {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+// 登录页“找回密码 / 申请账号”弹窗去掉 Material 默认留白
+.chengli-account-dialog {
+  .mat-mdc-dialog-container,
+  .mat-dialog-container {
+    padding: 0;
+  }
+
+  .mdc-dialog__surface {
+    border-radius: 16px;
+  }
+}
+
+* {
+  font-family: Roboto, sans-serif;
+  letter-spacing: normal;
+}
+
+#dlQueueDialog {
+  // USED ONCE in app.component.ts
+  @include themify_non_host($themes) {
+    // background-color: themed('primary-light') !important;
+  }
+
+  position: relative;
+  width: 80vw;
+  min-width: 350px;
+  height: 86vh;
+  min-height: 500px;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+  resize: both;
+}
+
+#processingQueueDialog {
+  // USED ONCE in app.component.ts
+  @include themify_non_host($themes) {
+    // background-color: themed('primary-light');
+  }
+
+  position: relative;
+  width: 80vw;
+  min-width: 360px;
+  height: 86vh;
+  min-height: 600px;
+  padding: 0 0 10px !important;
+  padding-right: 0 !important;
+  margin: 0;
+  overflow: hidden;
+  resize: both;
+}
+
+#preferencesDialog {
+  width: 80vw;
+  min-width: 350px;
+  max-width: 100vw;
+  min-height: 500px;
+  max-height: 100vh;
+}
+
+$d-height: 550px;
+
+#ConfirmProcess {
+  @include themify_non_host($themes) {
+    background: themed('primary-light') !important;
+  }
+
+  height: $d-height !important;
+  max-height: $d-height !important;
+  overflow: hidden;
+  resize: none;
+}

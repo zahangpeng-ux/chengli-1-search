@@ -1,0 +1,17 @@
+.date-selector {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.date-input-field {
+  width: 49%;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.stack-vertically {
+  flex-direction: column;
+}

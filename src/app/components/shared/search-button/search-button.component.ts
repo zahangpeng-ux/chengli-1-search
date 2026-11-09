@@ -1,0 +1,391 @@
+import {
+  NgStyle,
+  AsyncPipe,
+  UpperCasePipe,
+  TitleCasePipe,
+  KeyValuePipe,
+} from '@angular/common';
+import { Component, Input, OnInit, OnDestroy, inject } from '@angular/core';
+import { MatButton } from '@angular/material/button';
+import {
+  MatButtonToggleGroup,
+  MatButtonToggle,
+} from '@angular/material/button-toggle';
+import { MatDialog } from '@angular/material/dialog';
+import { MatIcon } from '@angular/material/icon';
+import { MatDivider } from '@angular/material/list';
+import { MatMenuTrigger, MatMenu, MatMenuItem } from '@angular/material/menu';
+import { MatTooltip } from '@angular/material/tooltip';
+import { ofType } from '@ngrx/effects';
+import { Store, ActionsSubject } from '@ngrx/store';
+import { TranslateModule } from '@ngx-translate/core';
+import { ClipboardService } from 'ngx-clipboard';
+import { combineLatest, Subject } from 'rxjs';
+import { tap, delay, take } from 'rxjs/operators';
+import { SubSink } from 'subsink';
+
+import { CustomizeEnvComponent } from '@components/header/header-buttons/customize-env/customize-env.component';
+import {
+  CodeExportComponent,
+  CodeExportType,
+} from '@components/shared/code-export';
+import { SaveSearchDialogComponent } from '@components/shared/save-search-dialog';
+import { SidebarType, SearchType } from '@models';
+import * as models from '@models';
+import * as services from '@services';
+import { ScreenSizeService } from '@services';
+import { AppState } from '@store';
+import * as filtersStore from '@store/filters';
+import * as hyp3Store from '@store/hyp3';
+import { getFilterMaster } from '@store/scenes';
+import * as searchStore from '@store/search';
+import * as uiStore from '@store/ui';
+import * as userStore from '@store/user';
+
+import { ApiLinkDialogComponent } from '../max-results-selector/api-link-dialog/api-link-dialog.component';
+
+// Declare GTM dataLayer array.
+declare global {
+  interface Window {
+    dataLayer: any[];
+  }
+}
+
+@Component({
+  selector: 'app-search-button',
+  templateUrl: './search-button.component.html',
+  styleUrls: ['./search-button.component.scss'],
+  imports: [
+    MatButtonToggleGroup,
+    MatButtonToggle,
+    MatButton,
+    MatMenuTrigger,
+    MatIcon,
+    NgStyle,
+    MatTooltip,
+    MatMenu,
+    MatMenuItem,
+    MatDivider,
+
+    AsyncPipe,
+    UpperCasePipe,
+    TitleCasePipe,
+    KeyValuePipe,
+    TranslateModule,
+  ],
+})
+export class SearchButtonComponent implements OnInit, OnDestroy {
+  @Input() ariaLabel?: string;
+
+  private store$ = inject<Store<AppState>>(Store);
+  private actions$ = inject(ActionsSubject);
+  env = inject(services.EnvironmentService);
+  private savedSearchService = inject(services.SavedSearchService);
+  clipboard = inject(ClipboardService);
+  private dialog = inject(MatDialog);
+  private notificationService = inject(services.NotificationService);
+  private exportService = inject(services.ExportService);
+  private screenSize = inject(ScreenSizeService);
+  private mapService = inject(services.MapService);
+
+  public geocodeCenter = this.store$.selectSignal(filtersStore.getGeocodeCenter);
+
+  public searchType = this.store$.selectSignal(searchStore.getSearchType);
+  public searchTypes = SearchType;
+  public loading$ = this.store$.select(searchStore.getIsLoading);
+  public maturity = this.env.maturity;
+  public breakpoint$ = this.screenSize.breakpoint$;
+  public breakpoints = models.Breakpoints;
+
+  public areResultsOutOfDate$ = this.store$.select(
+    searchStore.getareResultsOutOfDate,
+  );
+
+  public isLoggedIn = this.store$.selectSignal(userStore.getIsUserLoggedIn);
+  public searchError$ = new Subject<searchStore.SearchError>();
+  public isSearchError = false;
+  public isFiltersOpen = false;
+
+  private subs = new SubSink();
+
+  private stackReferenceScene: string;
+  private latestReferenceScene: string;
+  private resultsMenuOpen = this.store$.selectSignal(
+    uiStore.getIsResultsMenuOpen,
+  );
+
+  ngOnInit() {
+    this.subs.add(
+      this.actions$
+        .pipe(
+          ofType<searchStore.SearchError>(
+            searchStore.SearchActionType.SEARCH_ERROR,
+          ),
+        )
+        .subscribe((error) => this.onSearchError(error)),
+    );
+
+    this.subs.add(
+      this.actions$
+        .pipe(
+          ofType<searchStore.SearchError>(
+            searchStore.SearchActionType.SET_SEARCH_TYPE,
+          ),
+        )
+        .subscribe((_) => {
+          this.stackReferenceScene = null;
+          this.latestReferenceScene = null;
+        }),
+    );
+
+    this.subs.add(
+      combineLatest([
+        this.store$.select(getFilterMaster),
+        this.store$.select(uiStore.getIsFiltersMenuOpen),
+      ]).subscribe(([latestFilter, isOpen]) => {
+        if (
+          (isOpen && this.searchType() === this.searchTypes.BASELINE) ||
+          this.searchType() === this.searchTypes.SBAS
+        ) {
+          this.latestReferenceScene = latestFilter;
+          if (this.stackReferenceScene == null || '') {
+            this.stackReferenceScene = latestFilter;
+          }
+        }
+        this.isFiltersOpen = isOpen;
+      }),
+    );
+
+    this.handleSearchErrors();
+  }
+
+  public onDoSearch(): void {
+    if (
+      ((this.searchType() === this.searchTypes.SBAS ||
+        this.searchType() === this.searchTypes.BASELINE) &&
+        this.isFiltersOpen &&
+        (this.stackReferenceScene !== this.latestReferenceScene ||
+          !this.resultsMenuOpen())) ||
+      ((this.stackReferenceScene !== this.latestReferenceScene ||
+        !this.isFiltersOpen) &&
+        (this.searchType() === this.searchTypes.SBAS ||
+          this.searchType() === this.searchTypes.BASELINE)) ||
+      (this.searchType() !== this.searchTypes.SBAS &&
+        this.searchType() !== this.searchTypes.BASELINE)
+    ) {
+      this.zoomToSelectedArea();
+      this.store$.dispatch(new searchStore.MakeSearch());
+
+      const search = this.savedSearchService.makeCurrentSearch(`${Date.now()}`);
+
+      if (search) {
+        this.store$.dispatch(new userStore.AddSearchToHistory(search));
+        this.store$.dispatch(new userStore.SaveSearchHistory());
+      }
+    } else {
+      this.stackReferenceScene = null;
+      this.store$.dispatch(new uiStore.CloseFiltersMenu());
+    }
+  }
+
+  public onClearSearch(): void {
+    this.store$.dispatch(new filtersStore.ClearListFilters());
+    this.store$.dispatch(new searchStore.ClearSearch());
+
+    if (this.searchType() === SearchType.CUSTOM_PRODUCTS) {
+      this.store$.dispatch(new hyp3Store.SetOnDemandUserID(null));
+    }
+  }
+
+  private zoomToSelectedArea(): void {
+    if (this.mapService.zoomToDrawnAOI()) {
+      return;
+    }
+
+    const center = this.geocodeCenter();
+
+    if (center) {
+      const [lon, lat] = center;
+      this.mapService.setCenter({ lon, lat });
+      this.mapService.setZoom(9);
+    }
+  }
+
+  private handleSearchErrors() {
+    this.subs.add(
+      this.searchError$
+        .pipe(
+          tap((error) => {
+            const errorMessage =
+              error.payload || 'Trouble loading search results';
+            this.isSearchError = true;
+            this.notificationService.error(errorMessage, 'Search Error');
+          }),
+          delay(820),
+        )
+        .subscribe((_) => {
+          this.isSearchError = false;
+        }),
+    );
+  }
+
+  public onSearchError(error: searchStore.SearchError): void {
+    this.searchError$.next(error);
+  }
+
+  public saveCurrentSearch(): void {
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({
+      event: 'save-current-search',
+      'save-current-search': true,
+    });
+
+    this.dialog.open(SaveSearchDialogComponent, {
+      id: 'ConfirmProcess',
+      width: '550px',
+      height: '500px',
+      maxWidth: '550px',
+      maxHeight: '500px',
+      data: { saveType: SidebarType.SAVED_SEARCHES },
+    });
+
+    this.store$.dispatch(new uiStore.OpenSidebar(SidebarType.SAVED_SEARCHES));
+  }
+
+  public saveCurrentFilters(): void {
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({
+      event: 'save-current-filters',
+      'save-current-filters': true,
+    });
+
+    this.dialog.open(SaveSearchDialogComponent, {
+      id: 'ConfirmProcess',
+      width: '550px',
+      height: '500px',
+      maxWidth: '550px',
+      maxHeight: '500px',
+      data: { saveType: SidebarType.USER_FILTERS },
+    });
+
+    this.store$.dispatch(new uiStore.OpenSidebar(SidebarType.USER_FILTERS));
+  }
+
+  public onOpenSavedSearches(): void {
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({
+      event: 'open-saved-searches',
+      'open-saved-searches': true,
+    });
+
+    this.store$.dispatch(new uiStore.OpenSidebar(SidebarType.SAVED_SEARCHES));
+  }
+
+  public onOpenSavedFilters(): void {
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({
+      event: 'open-saved-filters',
+      'open-saved-filters': true,
+    });
+
+    this.store$.dispatch(new uiStore.OpenSidebar(SidebarType.USER_FILTERS));
+  }
+
+  public onOpenSearchHistory(): void {
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({
+      event: 'open-search-history',
+      'open-search-history': true,
+    });
+
+    this.store$.dispatch(new uiStore.OpenSidebar(SidebarType.SEARCH_HISTORY));
+  }
+
+  public onCopy(): void {
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({
+      event: 'copy-search-link',
+      'copy-search-link': window.location.href,
+    });
+
+    this.clipboard.copyFromContent(window.location.href);
+    this.notificationService.clipboardSearchLink();
+  }
+
+  public onShareWithEmail() {
+    const subject = `New Search - ${encodeURIComponent(document.title)}`;
+
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({
+      event: 'share-with-email',
+      'share-with-email': encodeURIComponent(document.URL),
+    });
+
+    window.open(
+      `mailto:?subject=${subject}` +
+        `&body=${encodeURIComponent(document.URL)}`,
+    );
+  }
+
+  public onOpenCustomizeEnv(): void {
+    this.dialog.open(CustomizeEnvComponent, {
+      width: '800px',
+      height: '1000px',
+      maxWidth: '100%',
+      maxHeight: '100%',
+    });
+  }
+
+  public isDevMode(): boolean {
+    return !this.env.isProd;
+  }
+
+  public onMaturitySelect(maturity: string) {
+    this.maturity = maturity;
+    this.env.setMaturity(maturity);
+  }
+
+  public exportPython(): void {
+    if (this.searchType() !== SearchType.CUSTOM_PRODUCTS) {
+      this.exportService.convertSearchAPIQueryToAsfSearch
+        .pipe(take(1))
+        .subscribe((data) => {
+          this.dialog.open(CodeExportComponent, {
+            data: {
+              codeStuff: data,
+              codeExportType: CodeExportType.ASF_SEARCH,
+            },
+            width: '80vh',
+            height: '80vh',
+            maxWidth: '800px',
+            maxHeight: '800px',
+          });
+        });
+    } else {
+      this.exportService.combineSearchOptionsToHyp3SDK$
+        .pipe(take(1))
+        .subscribe((codeStuff) => {
+          this.dialog.open(CodeExportComponent, {
+            data: {
+              codeStuff,
+              codeExportType: CodeExportType.HYP3_SDK,
+            },
+            width: '80vh',
+            height: '80vh',
+            maxWidth: '800px',
+            maxHeight: '800px',
+          });
+        });
+    }
+  }
+
+  public exportAPI(): void {
+    this.dialog.open(ApiLinkDialogComponent, {
+      minWidth: '400px',
+    });
+  }
+
+  ngOnDestroy() {
+    this.subs.unsubscribe();
+  }
+}

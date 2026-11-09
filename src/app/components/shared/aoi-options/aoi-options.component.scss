@@ -1,0 +1,71 @@
+@use "asf-theme-variables" as *;
+
+.layout {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+}
+
+.header-layout {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.help-icon {
+  margin-left: 10px;
+}
+
+.upload-trigger {
+  width: 100%;
+  margin-top: 10px;
+}
+
+.form-layout {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+.mb {
+  margin-bottom: 8px;
+}
+
+.horizontal-layout {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+}
+
+.aoi-text-container {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  width: 100%;
+}
+
+.aoi-input-area {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.drop-text-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  color: rgb(0 0 0 / 60%);
+  outline: 2px dashed rgb(0 0 0 / 20%);
+  outline-offset: -10px;
+}
+
+.aoi-input--desktop {
+  // width: 60%;
+  margin-right: 10px;
+}
+
+.aoi-input--mobile {
+  width: 100%;
+}

@@ -1,0 +1,73 @@
+@use "asf-theme-variables" as *;
+
+.processing-options {
+  @include themify($themes) {
+    background-color: themed('background-white');
+  }
+
+  margin-top: 10px;
+}
+
+.no-processing-options {
+  padding-left: 15px;
+  color: #c9cac4; // TODO: check this
+}
+
+.flex-field {
+  flex: none;
+  flex-direction: inherit !important;
+  margin: 3px 0;
+}
+
+.margin-right {
+  display: inline-block;
+  margin-right: 20px;
+}
+
+.flex-row {
+  display: flex !important;
+  flex-direction: row !important;
+}
+
+.flex-wrap {
+  flex-wrap: wrap;
+}
+
+.flex-column {
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.flex-start {
+  justify-content: flex-start;
+}
+
+.toggle-options {
+  // margin-right: 20px;
+}
+
+.toggle-list,
+.checkbox-list {
+  margin-left: 10px;
+}
+
+.dropdown-option--description {
+  margin-top: 0;
+  margin-bottom: 20px;
+}
+
+.options-header {
+  flex: 1 0 100%;
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+.option-info--spacing {
+  margin-left: 5px;
+  color: lightgray;
+}
+
+.option-header {
+  margin: 5px 0 10px;
+  font-weight: bold;
+}

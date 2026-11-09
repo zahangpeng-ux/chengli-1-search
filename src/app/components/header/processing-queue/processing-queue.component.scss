@@ -1,0 +1,480 @@
+@use "asf-theme-variables" as *;
+
+$header-height: 120px;
+$footer-height: 60px;
+$bottom-offset: 10px;
+
+::ng-deep .tab-menu .mat-mdc-menu-content {
+  width: 160px !important;
+}
+
+[mat-dialog-title] {
+  color: $light-primary-text;
+  text-align: center;
+  cursor: move;
+  background: #369; // TODO: check this
+
+  @include themify($themes) {
+    color: themed('light-primary-text');
+  }
+}
+
+.processing-queue {
+  @include themify($themes) {
+    color: themed('dark-primary-text');
+    background-color: themed('primary-light');
+  }
+
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  min-width: 350px;
+  height: 100%;
+  min-height: 500px;
+  padding: 0;
+  margin: 0;
+  font-size: 25px;
+  font-weight: bold;
+}
+
+.pq-card-title-group {
+  @include themify($themes) {
+    color: themed('dark-primary-text');
+    background-color: themed('primary-light');
+    header-bottom-color: themed('primary-dark');
+  }
+
+  position: absolute;
+  top: 0;
+  flex: 1 1 auto;
+  width: 100%;
+  height: $header-height;
+  padding: 10px 0 0;
+  text-align: left;
+  border-bottom-style: solid;
+  border-bottom-width: 1px;
+}
+
+.jobs-dialog {
+  width: 100%;
+  height: calc(100% - #{$footer-height});
+}
+
+.jobs-display--mobile {
+  height: 463px;
+  overflow: visible;
+}
+
+.jobs-list-panel {
+  width: 100%;
+}
+
+.jobs-detail {
+  overflow: hidden;
+}
+
+.mini-button {
+  min-width: 1% !important;
+  padding: 0 4px !important;
+  font-size: 12px !important;
+  line-height: 24px !important;
+}
+
+.no-job-selected {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+}
+
+.list-filter {
+  @include themify($themes) {
+    background-color: themed('background-white');
+  }
+
+  height: 60px;
+  border-bottom: solid grey 1px;
+}
+
+.loading-div {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.loading-text {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-left: 20px;
+  font-size: 28px;
+}
+
+.on-demand-branding {
+  display: inline-block;
+  margin-bottom: -5px;
+  margin-left: 5px;
+  vertical-align: middle;
+}
+
+.on-demand-icon {
+  @include md-icon-size(72px);
+
+  @include themify($themes) {
+    color: themed('dark-primary-text');
+  }
+}
+
+.on-demand-text {
+  margin-top: -16px;
+  vertical-align: middle;
+}
+
+.close-x {
+  position: absolute;
+  top: 10px;
+  right: 16px;
+  float: right;
+  text-align: right;
+  cursor: pointer;
+}
+
+.close-x-mobile {
+  right: 32px;
+}
+
+.project-name {
+  display: inline-block;
+  margin-top: 10px;
+  margin-left: 20px;
+  font-size: 14px;
+}
+
+.project-name-mobile {
+  margin-left: 4px;
+  transform: scale(0.75);
+}
+
+.dataset-menu {
+  @include themify($themes) {
+    background-color: adjust-color(themed('primary-light'), $lightness: +7%);
+  }
+
+  position: absolute;
+  top: 84px;
+  display: block;
+  width: 100%;
+  height: 36px;
+  text-align: left;
+  border-top: 1px solid #3d3e38; // TODO: check this
+}
+
+.processing-type-text {
+  margin: 0 10px;
+  font-size: 16px;
+}
+
+.processing-type-count {
+  font-size: 8px;
+  vertical-align: super;
+}
+
+.error-header {
+  @include themify($themes) {
+    background-color: themed('background-white');
+    border-bottom-color: themed('primary-dark');
+  }
+
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom-style: solid;
+  border-bottom-width: 1px;
+}
+
+.mobile-tab-selector {
+  @include themify($themes) {
+    border-bottom-color: themed('primary-dark');
+  }
+
+  border-bottom-style: solid;
+  border-bottom-width: 1px;
+}
+
+.doc-feedback-div {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: -42px;
+  margin-right: 20px;
+}
+
+.doc-feedback-div-mobile {
+  margin-right: 36px;
+}
+
+.docs-div {
+  flex: 0 1 auto;
+  margin-top: 2px;
+  margin-right: 20px;
+  cursor: pointer;
+}
+
+.feedback-div {
+  flex: 0 1 auto;
+  width: 133px;
+  cursor: pointer;
+}
+
+.header-link {
+  font-size: 18px;
+
+  a {
+    text-decoration: underline;
+
+    @include themify($themes) {
+      color: themed('blue-link');
+    }
+  }
+}
+
+.help-div {
+  position: absolute;
+  top: 53px;
+  right: 130px;
+  float: right;
+  text-align: right;
+  cursor: pointer;
+}
+
+.on-demand-subtitle {
+  @include themify($themes) {
+    color: themed('dark-secondary-text');
+  }
+
+  font-size: 14px;
+  font-style: italic;
+  line-height: 12px;
+}
+
+.mat-mdc-dialog-content {
+  @include themify($themes) {
+    background-color: themed('background-white');
+  }
+
+  position: absolute;
+  top: $header-height;
+  display: block;
+  width: 100%;
+  height: calc(100% - #{$header-height} - #{$footer-height} - #{$bottom-offset});
+  max-height: calc(100% - #{$header-height} - #{$footer-height} - #{$bottom-offset});
+  padding: 0;
+  margin: 0;
+  overflow-x: hidden;
+  overflow-y: auto !important;
+
+  /* TODO(mdc-migration): The following rule targets internal classes of dialog that may no longer apply for the MDC version. */
+  .mat-dialog-content-2 {
+    top: initial;
+    height: calc(100% - #{$footer-height});
+    overflow: initial;
+  }
+}
+
+.dialog-content-mobile {
+  overflow-y: auto !important;
+}
+
+.content-block {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  text-align: left;
+}
+
+.content-message-area {
+  flex: 1 0 100%;
+  width: 100%;
+  margin-left: 10px;
+}
+
+.content-top-area {
+  display: flex;
+  flex-flow: row wrap;
+  height: 100%;
+  padding: 10px 16px;
+  border-bottom: solid 2px grey;
+}
+
+.top-item {
+  flex: 1 0 auto;
+  min-width: 200px;
+  height: 100%;
+}
+
+.content-bottom-area {
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+
+  // overflow-y: auto;
+}
+
+.content-bottom-area-mobile {
+  overflow-y: visible;
+}
+
+.bottom-item {
+  width: 100%;
+  height: 100%;
+}
+
+.mat-mdc-dialog-actions {
+  @include themify($themes) {
+    background-color: themed('primary-light');
+  }
+
+  position: absolute;
+  bottom: $bottom-offset;
+  display: flex;
+  width: 100%;
+  height: $footer-height;
+  padding: 0;
+  margin-bottom: 0;
+}
+
+.hyp3-footer {
+  @include themify($themes) {
+    background-color: themed('primary-light');
+    border-top-color: themed('primary-dark');
+  }
+
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  height: 100%;
+  border-top-style: solid;
+  border-top-width: 1px;
+}
+
+.footer-clear {
+  flex: none;
+  align-self: center;
+}
+
+.footer-submit {
+  flex: none;
+  margin: 12px 10px 12px 0;
+}
+
+.footer-submit-mobile {
+  margin-top: 19px;
+}
+
+.footer-job-notification {
+  @include themify($themes) {
+    color: themed('dark-primary-text');
+  }
+
+  flex: none;
+  align-self: center;
+  margin-right: 10px;
+  margin-left: 10px;
+  font-size: 14px;
+}
+
+.footer-submit-button {
+  display: inline-flex;
+  align-self: center;
+}
+
+.footer-mini-text {
+  font-size: 12px;
+}
+
+.mwlResizable {
+  box-sizing: border-box;
+}
+
+.rectangle {
+  @include themify($themes) {
+    color: themed('warn');
+    border-color: themed('warn');
+  }
+
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 300px;
+  font-size: 25px;
+  font-weight: bold;
+  background-color: grey;
+  border-style: solid;
+}
+
+.resize-handle-top,
+.resize-handle-bottom {
+  position: absolute;
+  width: 100%;
+  height: 5px;
+  cursor: row-resize;
+}
+
+.resize-handle-top {
+  top: 0;
+}
+
+.resize-handle-bottom {
+  bottom: 0;
+}
+
+.resize-handle-left,
+.resize-handle-right {
+  position: absolute;
+  width: 5px;
+  height: 100%;
+  cursor: col-resize;
+}
+
+.resize-handle-left {
+  left: 0;
+}
+
+.resize-handle-right {
+  right: 0;
+}
+
+.job-type--button {
+  margin-right: 5px;
+}
+
+.hyp3-url {
+  @include themify($themes) {
+    color: themed('dark-secondary-text');
+  }
+
+  height: 32px;
+  margin: -4px 0 6px;
+  font-size: 12px;
+}
+
+.hyp3-url-mobile {
+  margin: 17px 0 0;
+}
+
+.branding-block {
+  display: flex;
+  flex-direction: column;
+}
+
+a {
+  @include themify($themes) {
+    color: themed('blue-link')
+  }
+}

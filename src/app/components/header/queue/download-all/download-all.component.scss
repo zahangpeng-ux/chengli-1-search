@@ -1,0 +1,25 @@
+@use "asf-theme-variables" as *;
+
+button {
+  height: 36px;
+  font-weight: 100;
+}
+
+.mat-mdc-button {
+  @include themify($themes) {
+    color: themed('dark-primary-text');
+  }
+
+  font-size: 16px;
+}
+
+.badge {
+  @include themify($themes) {
+    background: themed('primary-light');
+  }
+
+  display: inline;
+  padding: 5px;
+  margin: 5px;
+  border-radius: 50px;
+}

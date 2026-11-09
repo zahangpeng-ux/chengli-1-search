@@ -1,0 +1,126 @@
+import {
+  JointObservation,
+  SBASOverlap,
+  timeseriesChartItemState,
+} from '@models';
+
+import { FlightDirection } from './cmr-product.model';
+import * as fromDatasets from './dataset.model';
+import { ListSearchType } from './filter-types.model';
+import { Hyp3JobStatusCode } from './hyp3';
+import { Range } from './range.model';
+import { SearchType } from './search-type.model';
+
+export interface Search {
+  searchType: SearchType;
+  name: string;
+  id: string;
+  filters: FilterType;
+}
+
+export type FilterType =
+  | ListFiltersType
+  | GeographicFiltersType
+  | BaselineFiltersType
+  | CustomProductFiltersType
+  | SbasFiltersType
+  | TimeseriesFiltersType
+  | DisplacementFiltersType;
+
+export interface ListFiltersType {
+  listType: ListSearchType;
+  list: string[];
+}
+
+export interface BaselineFiltersType {
+  filterMaster: string | null;
+  reference: string | null;
+
+  dateRange: Range<null | Date>;
+
+  season: Range<number | null>;
+  temporalRange: Range<number | null>;
+  perpendicularRange: Range<number | null>;
+}
+
+export interface SbasFiltersType {
+  reference: string | null;
+
+  dateRange: Range<null | Date>;
+
+  season: Range<number | null>;
+  temporalRange: Range<number | null>;
+  perpendicular: Range<number | null>;
+  customPairIds: string[][];
+
+  thresholdOverlap: SBASOverlap;
+}
+
+export interface CustomProductFiltersType {
+  jobStatuses: Hyp3JobStatusCode[];
+
+  dateRange: Range<null | Date>;
+
+  projectName: string;
+  productFilterName: string;
+}
+
+export interface GeographicFiltersType {
+  selectedDataset: string;
+  maxResults: number;
+
+  polygon: string;
+  dateRange: Range<null | Date>;
+
+  pathRange: Range<number | null>;
+  frameRange: Range<number | null>;
+  season: Range<number | null>;
+
+  productTypes: fromDatasets.DatasetProductTypes;
+  beamModes: fromDatasets.DatasetBeamModes;
+  polarizations: fromDatasets.DatasetPolarizations;
+  flightDirections: FlightDirection[];
+  platforms: fromDatasets.DatasetPlatforms;
+
+  selectedMission: null | string;
+
+  fullBurstIDs: string[];
+  operaBurstIDs: string[];
+  useCalibrationData: boolean;
+  // shortNames: state.shortNames,
+  // sciProducts: state.scienceProduct,
+  // productConfig: state.productionConfig,
+  // sidePolarizations : state.sidePolarizations,
+  // frameCoverage: state.frameCoverage,
+  // jointObservation: state.jointObservation,
+  shortNames: fromDatasets.DatasetShortName;
+  scienceProduct: string[];
+  productionConfig: string[];
+  productMaturity: string[];
+  sidePolarizations: fromDatasets.DatasetPolarizations;
+  frameCoverage: string[];
+  jointObservation: JointObservation[];
+  rangeBandwidth: string[];
+  instrument: string[];
+  groupID: null | string;
+  granuleList: null | string;
+  tileID?: null | string;
+
+  ariaVersion?: string;
+}
+
+export interface DisplacementFiltersType {
+  seriesStates: Record<string, timeseriesChartItemState>;
+  flightDirections: FlightDirection[];
+  dateRange: Range<null | Date>;
+}
+export interface TimeseriesFiltersType {
+  fullBurstIDs: string[];
+}
+export interface SearchRedirect {
+  searchType: SearchType;
+  filters: {
+    selectedDataset: string;
+    productTypes: fromDatasets.ProductType[];
+  };
+}

@@ -1,0 +1,73 @@
+@use 'asf-theme-variables' as *;
+@use 'deluxe-menu' as *;
+@use 'deluxe-menu-2' as *;
+@use 'sass:color';
+
+.dataset-layout {
+  flex: 7;
+  white-space: normal;
+}
+
+.dataset-deprecated {
+  cursor: default;
+
+  @include themify($themes) {
+    background: color.adjust(themed('warn'), $lightness: 20%) !important;
+  }
+}
+
+.deprecation-notice {
+  font-weight: 800;
+
+  @include themify($themes) {
+    color: themed('err');
+  }
+}
+
+.link {
+  @include themify($themes) {
+    color: themed('blue-link') !important;
+  }
+
+  text-decoration: underline;
+}
+
+.dataset-aside--layout {
+  flex: 3;
+  text-align: center;
+}
+
+.smaller-font {
+  font-size: smaller;
+}
+
+.increase-right-margin {
+  margin-right: 15px;
+}
+
+.disclaimer {
+  margin-top: 10px;
+  font-size: large;
+}
+
+.item-content {
+  @include themify($themes) {
+    color: themed('dark-primary-text') !important;
+  }
+
+  line-height: 18px;
+}
+
+.faint-text {
+  @include themify_non_host($themes) {
+    color: themed('dark-secondary-text');
+  }
+}
+
+.menu-item-icon {
+  img {
+    @include themify($themes) {
+      filter: themed('inverted-image');
+    }
+  }
+}

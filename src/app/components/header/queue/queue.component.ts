@@ -1,0 +1,365 @@
+import { CdkDrag, CdkDragHandle } from '@angular/cdk/drag-drop';
+import { ScrollingModule, CdkScrollable } from '@angular/cdk/scrolling';
+import { NgClass, AsyncPipe } from '@angular/common';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  Input,
+  QueryList,
+  ViewChildren,
+  inject,
+} from '@angular/core';
+import { MatIconButton, MatButton } from '@angular/material/button';
+import {
+  MatDialogRef,
+  MatDialogTitle,
+  MatDialogContent,
+  MatDialogActions,
+} from '@angular/material/dialog';
+import { MatIcon } from '@angular/material/icon';
+import {
+  MatList,
+  MatListItem,
+  MatListItemTitle,
+  MatListItemLine,
+  MatListItemMeta,
+} from '@angular/material/list';
+import { MatMenuTrigger, MatMenu, MatMenuItem } from '@angular/material/menu';
+import { MatProgressBar } from '@angular/material/progress-bar';
+import { MatTooltip } from '@angular/material/tooltip';
+import { Store } from '@ngrx/store';
+import { TranslateModule } from '@ngx-translate/core';
+import { TruncateModule } from '@yellowspot/ng-truncate';
+import { ClipboardService } from 'ngx-clipboard';
+import { map, tap } from 'rxjs/operators';
+import { SubSink } from 'subsink';
+import UAParser from 'ua-parser-js';
+
+import { CopyToClipboardComponent } from '@components/shared/copy-to-clipboard/copy-to-clipboard.component';
+import { DocsModalComponent } from '@components/shared/docs-modal/docs-modal.component';
+import {
+  DownloadFileButtonComponent,
+  DownloadFileButtonComponent as DownloadFileButtonComponent_1,
+} from '@components/shared/download-file-button/download-file-button.component';
+import { ResizedEvent, ResizedDirective } from '@directives/resized.directive';
+import { CMRProduct, AsfApiOutputFormat, Breakpoints } from '@models';
+import { FilterExtensionPipe } from '@pipes/filter-extension.pipe';
+import { ReadableSizeFromBytesPipe } from '@pipes/readable-size-from-bytes.pipe';
+import { NotificationService, ScreenSizeService } from '@services';
+import { DownloadService } from '@services/download.service';
+import { AppState } from '@store';
+import * as queueStore from '@store/queue';
+import * as userStore from '@store/user';
+
+// import { DownloadService } from '@services/download.service';
+
+export interface selectedItems {
+  id: string;
+  url: string;
+}
+
+@Component({
+  selector: 'app-queue',
+  templateUrl: './queue.component.html',
+  styleUrls: ['./queue.component.scss'],
+  imports: [
+    MatDialogTitle,
+    CdkDrag,
+    CdkDragHandle,
+    ResizedDirective,
+    MatProgressBar,
+    DocsModalComponent,
+    MatIcon,
+
+    CdkScrollable,
+    MatDialogContent,
+    MatList,
+
+    MatListItem,
+    MatListItemTitle,
+    NgClass,
+    MatListItemLine,
+    CopyToClipboardComponent,
+    MatListItemMeta,
+    DownloadFileButtonComponent_1,
+    MatIconButton,
+    MatTooltip,
+    MatDialogActions,
+    MatButton,
+    MatMenuTrigger,
+    MatMenu,
+    MatMenuItem,
+    AsyncPipe,
+    TruncateModule,
+    ReadableSizeFromBytesPipe,
+    FilterExtensionPipe,
+    TranslateModule,
+    ScrollingModule,
+  ],
+})
+export class QueueComponent implements OnInit, OnDestroy {
+  private store$ = inject<Store<AppState>>(Store);
+  private clipboardService = inject(ClipboardService);
+  private dialogRef = inject<MatDialogRef<QueueComponent>>(MatDialogRef);
+  private screenSize = inject(ScreenSizeService);
+  private notificationService = inject(NotificationService);
+  private downloadService = inject(DownloadService);
+
+  @Input() appQueueComponentModel: string;
+
+  @ViewChildren(DownloadFileButtonComponent)
+  downloadButtons!: QueryList<DownloadFileButtonComponent>;
+
+  public queueHasOnDemandProducts = false;
+  public showDemWarning: boolean;
+  public showRestrictedDatasetWarning;
+
+  public breakpoint$ = this.screenSize.breakpoint$;
+  public breakpoints = Breakpoints;
+  public breakpoint: Breakpoints;
+
+  public previousQueue: any[] | null = null;
+  public areAnyProducts = false;
+  public areAnyS3Products = false;
+
+  public style: object = {};
+  public dlWidth = 1000;
+  public dlHeight = 1000;
+  public dlWidthMin = 715;
+
+  public selectedItems: selectedItems[] = [];
+  public allChecked = false;
+  public someChecked = false;
+
+  public dlQueueCount = 0;
+  public dlQueueNumProcessed = 0;
+  public dlDefaultChunkSize = 3;
+  public dlQueueProgress = 0;
+  public productList: DownloadFileButtonComponent[] = [];
+  public isLoggedIn$ = this.store$
+    .select(userStore.getIsUserLoggedIn)
+    .pipe(
+      map(
+        (loggedIn) => loggedIn && new UAParser().getBrowser().name === 'Chrome',
+      ),
+    );
+  public products$ = this.store$.select(queueStore.getQueuedProducts).pipe(
+    tap((products) => (this.areAnyProducts = products.length > 0)),
+    tap((products) => {
+      this.queueHasOnDemandProducts = !products.every(
+        (product) => !product.metadata.job,
+      );
+      this.showDemWarning = this.areAnyProducts
+        ? this.demWarning(products)
+        : false;
+      this.showRestrictedDatasetWarning = this.areAnyProducts
+        ? this.restrictedDatasetWarning(products)
+        : false;
+    }),
+  );
+
+  public numberOfProducts$ = this.products$.pipe(
+    map((products) => products.length),
+  );
+  public totalSize$ = this.products$.pipe(
+    map((products) =>
+      products.reduce((total, product) => total + product.bytes, 0),
+    ),
+  );
+  public numberOfS3Products$ = this.products$.pipe(
+    map(
+      (products) =>
+        products.filter((product) => !!product.metadata.s3URI).length,
+    ),
+  );
+
+  private subs = new SubSink();
+
+  ngOnInit() {
+    this.subs.add(
+      this.screenSize.breakpoint$.subscribe(
+        (breakpoint) => (this.breakpoint = breakpoint),
+      ),
+    );
+
+    this.subs.add(
+      this.store$.select(userStore.getUserProfile).subscribe((profile) => {
+        this.dlDefaultChunkSize = profile.defaultMaxConcurrentDownloads;
+      }),
+    );
+  }
+  private keepGoing(product) {
+    const removedButton = this.downloadButtons.find(
+      (button) => button.product === product,
+    );
+    if (removedButton?.dFile?.state !== 'DONE' && removedButton.dFile) {
+      removedButton.cancelDownload();
+      this.dlQueueNumProcessed--;
+      this.productList = this.productList?.filter(
+        (button) => button.product !== product,
+      );
+      this.dlQueueCount--;
+      this.downloadContinue(product);
+    }
+  }
+  public onRemoveProduct(product: CMRProduct): void {
+    this.keepGoing(product);
+    this.store$.dispatch(new queueStore.RemoveItem(product));
+  }
+
+  public onClearQueue(products: any[]): void {
+    this.previousQueue = products;
+
+    this.store$.dispatch(new queueStore.ClearQueue());
+  }
+
+  public onRestoreQueue(previousProducts): void {
+    this.store$.dispatch(new queueStore.AddItems(previousProducts));
+    this.previousQueue = null;
+  }
+
+  public onMakeDownloadScript(): void {
+    this.store$.dispatch(new queueStore.MakeDownloadScript());
+  }
+
+  public onCsvDownload(): void {
+    this.downloadMetadata(AsfApiOutputFormat.CSV);
+  }
+
+  public onKmlDownload(): void {
+    this.downloadMetadata(AsfApiOutputFormat.KML);
+  }
+
+  public onGeojsonDownload(): void {
+    this.downloadMetadata(AsfApiOutputFormat.GEOJSON);
+  }
+
+  public onMetalinkDownload(): void {
+    this.downloadMetadata(AsfApiOutputFormat.METALINK);
+  }
+
+  public onCopyQueue(products: CMRProduct[]): void {
+    const productListStr = products
+      .map((product) => {
+        if (product.metadata.productType === 'BURST_XML') {
+          return product.id?.split('-XML')[0];
+        }
+        return product.metadata.parentID || product.id;
+      })
+      .join('\n');
+    this.clipboardService.copyFromContent(productListStr);
+    const lines = this.lineCount(productListStr);
+
+    if (lines > 0) {
+      this.notificationService.clipboardCopyQueue(lines, true);
+    }
+  }
+
+  public onCopyQueueURLs(products: CMRProduct[], useS3Urls = false): void {
+    const productListStr = products
+      .map((product) =>
+        useS3Urls ? (product.metadata?.s3URI ?? null) : product.downloadUrl,
+      )
+      .filter((url) => !!url)
+      .join('\n');
+    this.clipboardService.copyFromContent(productListStr);
+    const lines = this.lineCount(productListStr);
+    this.notificationService.clipboardCopyQueue(lines, false);
+  }
+
+  private lineCount(str: string) {
+    if (str === '') {
+      return 0;
+    }
+
+    let length = 1;
+    for (const char of str) {
+      if (char === '\n') {
+        length++;
+      }
+    }
+    return length;
+  }
+
+  private downloadMetadata(format: AsfApiOutputFormat): void {
+    this.store$.dispatch(new queueStore.DownloadMetadata(format));
+  }
+
+  public toggleItemSelected(productId, downloadUrl) {
+    const idx = this.selectedItems.findIndex((o) => o.id === productId);
+    if (idx > -1) {
+      this.selectedItems.splice(idx, 1);
+    } else {
+      this.selectedItems.push({
+        id: productId,
+        url: downloadUrl,
+      });
+    }
+    if (this.selectedItems.length > 0) {
+      this.someChecked = true;
+    }
+  }
+
+  public demWarning(products: CMRProduct[]) {
+    if (!products) {
+      return false;
+    }
+
+    return products
+      .filter((product) => product.metadata.productType !== null)
+      .some(
+        (product) =>
+          product.dataset === 'ALOS' &&
+          product.metadata.productType.includes('RTC_'),
+      );
+  }
+  public restrictedDatasetWarning(products: CMRProduct[]) {
+    if (!products) {
+      return false;
+    }
+    return products
+      .filter((product) => product.metadata.productType !== null)
+      .some((product) => product.dataset === 'JERS-1');
+  }
+  public onResized(event: ResizedEvent) {
+    this.dlWidth = event.newRect.width;
+    this.dlHeight = event.newRect.height;
+  }
+
+  public async downloadAllFiles() {
+    this.downloadService.getDirectory(true).then(() => {
+      const buttons = this.downloadButtons
+        .toArray()
+        .filter((b) => !b?.dFile?.state);
+      for (const button of buttons.slice(0, 3)) {
+        const state = button?.dFile?.state;
+        if (!state) {
+          button.downloadFile(true);
+        }
+      }
+      this.productList = buttons;
+      this.dlQueueNumProcessed = 3;
+      this.dlQueueCount = this.productList.length;
+      this.dlDefaultChunkSize = this.dlDefaultChunkSize ?? 3;
+    });
+  }
+
+  public downloadContinue(_product?) {
+    this.dlQueueProgress = (this.dlQueueNumProcessed / this.dlQueueCount) * 100;
+    if (this.dlQueueNumProcessed < this.dlQueueCount) {
+      const button = this.productList[this.dlQueueNumProcessed++];
+      if (!button?.dFile?.state) {
+        button.downloadFile(true);
+      }
+    }
+  }
+
+  onCloseDownloadQueue() {
+    this.dialogRef.close();
+  }
+
+  ngOnDestroy() {
+    this.subs.unsubscribe();
+  }
+}

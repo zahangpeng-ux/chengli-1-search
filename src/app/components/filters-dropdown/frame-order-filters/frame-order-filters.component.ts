@@ -1,0 +1,75 @@
+import { Component, Input, inject, Signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { MatSelectModule } from '@angular/material/select';
+import { Store } from '@ngrx/store';
+import { TranslateModule } from '@ngx-translate/core';
+
+import { DocsModalComponent } from '@components/shared/docs-modal/docs-modal.component';
+import { FlightDirectionSelectorComponent } from '@components/shared/selectors/flight-direction-selector/flight-direction-selector.component';
+import { PathSelectorComponent } from '@components/shared/selectors/path-selector';
+import * as models from '@models';
+import { IsRelevantPipe } from '@pipes/relevant.pipe';
+import { ScreenSizeService } from '@services';
+import { AppState } from '@store';
+import * as filtersStore from '@store/filters';
+
+enum FilterPanel {
+  DATE = 'Date',
+  ADDITIONAL = 'Additional',
+  CAMPAIGN = 'Campaign',
+  PATH = 'Path',
+  AOI = 'Aoi',
+  SEARCH = 'Search',
+}
+
+@Component({
+  selector: 'app-frame-order-filters',
+  imports: [
+    FormsModule,
+    FlightDirectionSelectorComponent,
+    MatSelectModule,
+    MatExpansionModule,
+    DocsModalComponent,
+    PathSelectorComponent,
+    TranslateModule,
+    IsRelevantPipe,
+  ],
+  templateUrl: './frame-order-filters.component.html',
+  styleUrl: './frame-order-filters.component.scss',
+})
+export class FrameOrderFiltersComponent {
+  private store$ = inject<Store<AppState>>(Store);
+  private screenSize = inject(ScreenSizeService);
+
+  @Input() selectedPanel: FilterPanel | null = null;
+
+  panels = FilterPanel;
+  defaultPanelOpenState = true;
+  panelIsDisabled = true;
+  customCollapsedHeight = '30px';
+  customExpandedHeight = '30px';
+  flightDirections: models.FlightDirection[];
+  public dataset: Signal<models.Dataset> = this.store$.selectSignal(
+    filtersStore.getSelectedDataset,
+  );
+  public datasets = models.datasetList;
+  public p = models.Props;
+
+  public breakpoint$ = this.screenSize.breakpoint$;
+  public breakpoints = models.Breakpoints;
+
+  public flightDirectionTypes = models.flightDirections;
+
+  public isSelected(panel: FilterPanel): boolean {
+    return this.selectedPanel === panel;
+  }
+
+  public selectPanel(panel: FilterPanel): void {
+    this.selectedPanel = panel;
+  }
+
+  public onOpenHelp(url: string): void {
+    window.open(url);
+  }
+}

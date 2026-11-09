@@ -1,0 +1,192 @@
+@use "@angular/material" as mat;
+@use "asf-theme-variables" as *;
+
+$config: mat.m2-define-legacy-typography-config();
+
+#result-div {
+  display: flex;
+  flex-direction: column;
+}
+
+.results-pane {
+  min-height: 0;
+}
+
+.medium-header {
+  padding-bottom: 8px;
+}
+
+.baseline-header-card--layout {
+  box-sizing: border-box;
+  flex: 1 1 100%;
+  max-width: 38%;
+}
+
+.header-button-group {
+  display: flex;
+  justify-content: center;
+  width: 189px;
+}
+
+.baseline-scene-detail--layout {
+  box-sizing: border-box;
+  flex: 1 1 100%;
+  width: 100%;
+  max-width: 21%;
+  height: 100%;
+}
+
+.baseline-header--medium-layout {
+  box-sizing: border-box;
+  flex: 1 1 100%;
+  max-width: 45%;
+}
+
+.baseline-header-button-group {
+  justify-content: center;
+}
+
+/* TODO(mdc-migration): The following rule targets internal classes of button that may no longer apply for the MDC version. */
+.mat-button-toggle-button {
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  outline: none;
+  background: none;
+  border: 0;
+}
+
+.baseline-criteria-button-toggle-group {
+  flex: 0 1 auto !important;
+  margin-top: -5px;
+}
+
+.baseline-criteria-button-toggle {
+  @include themify($themes) {
+    background-color: themed('background-white') !important;
+  }
+
+  font-size: 14px;
+}
+
+.criteria-button-group {
+  width: auto;
+  outline: none;
+}
+
+.more-icon {
+  position: absolute;
+  display: inline;
+  cursor: pointer;
+}
+
+.more-horiz {
+  margin-bottom: -11px;
+  margin-left: 0;
+  font-size: 16px !important;
+}
+
+.mr-10 {
+  margin-right: 10px;
+}
+
+.list-button {
+  @include themify($themes) {
+    background-color: themed('background-white');
+  }
+
+  width: 35px;
+  height: 26px;
+  padding: 0 0 0 5px;
+  margin: 0 5px 0 0;
+  font: inherit;
+  color: inherit;
+  text-align: center;
+  cursor: pointer;
+  outline: none;
+  border: darkgrey 1px solid;
+}
+
+.list-icon {
+  width: 18px !important;
+  height: 18px !important;
+  margin-top: -2px;
+  font-size: 18px !important;
+}
+
+.list-button-group {
+  max-width: fit-content;
+  margin-top: -11px;
+  line-height: 16px !important;
+}
+
+.button-group-label {
+  @include themify($themes) {
+    color: themed('dark-secondary-text');
+  }
+
+  margin-left: auto;
+  font-size: 12px;
+  line-height: 15px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.scene-text {
+  margin-right: 20px;
+  margin-left: 20px;
+  font-size: 14px;
+}
+
+.button-tabs {
+  margin-left: 20px;
+}
+
+.baseline-header--wrapper {
+ display: flex;
+ column-gap: .4em;
+}
+
+.baseline-detail-view--layout {
+  box-sizing: border-box;
+  flex: 1 1 100%;
+  width: 100%;
+  max-width: 45%;
+  height: 100%;
+}
+
+.criteria-header--layout {
+  box-sizing: border-box;
+  flex: 1 1 100%;
+  width: 100%;
+  max-width: 55%;
+  height: 100%;
+}
+
+.criteria-header--small-layout {
+  box-sizing: border-box;
+  flex: 1 1 100%;
+  width: 100%;
+  max-width: 45%;
+  height: 100%;
+}
+
+.scenes-list-button-container {
+  width: 100%;
+
+  /* TODO(mdc-migration): The following rule targets internal classes of button that may no longer apply for the MDC version. */
+  mat-button-toggle-group {
+    margin: auto
+  }
+}
+
+.baseline-chart {
+  height: 100%;
+}
+
+.scene-detail-fill {
+  height: 100%;
+}

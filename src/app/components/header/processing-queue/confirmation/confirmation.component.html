@@ -1,0 +1,101 @@
+<h2 mat-dialog-title>
+  {{ 'REVIEW_SUBMISSION' | translate }}
+  @let short_api = hyp3.apiUrl | shorthyp3name;
+  @if (short_api && short_api !== 'hyp3-api') {
+    <span class="api-subtitle">({{ hyp3.apiUrl | shorthyp3name }})</span>
+  }
+</h2>
+
+<div mat-dialog-content class="mat-dialog-content">
+  <div class="project-selector">
+    <app-project-name-selector [processName]="true">
+    </app-project-name-selector>
+  </div>
+
+  @for (tabQueue of jobTypesWithQueued; track tabQueue) {
+    <div>
+      <mat-selection-list>
+        <mat-list-option
+          (click)="onToggleJobType(tabQueue)"
+          checkboxPosition="before"
+          [selected]="tabQueue.selected"
+        >
+          <div matListItemTitle>
+            {{ tabQueue.jobType.name }}
+          </div>
+          <div matListItemLine>
+            {{ tabQueue.jobs.length }}
+            <span [ngPlural]="tabQueue.jobs.length">
+              <ng-template ngPluralCase="=1">{{
+                'JOB' | titlecase | translate
+              }}</ng-template>
+              <ng-template ngPluralCase="other">{{
+                'JOBS' | titlecase | translate
+              }}</ng-template> </span
+            >: {{ tabQueue.creditTotal }}
+            <span [ngPlural]="tabQueue.creditTotal">
+              <ng-template ngPluralCase="=1">{{
+                'CREDIT' | translate
+              }}</ng-template>
+              <ng-template ngPluralCase="other">{{
+                'CREDITS' | translate
+              }}</ng-template>
+            </span>
+          </div>
+        </mat-list-option>
+      </mat-selection-list>
+      <p></p>
+    </div>
+  }
+
+  <a href="https://hyp3-docs.asf.alaska.edu/using/credits" target="_blank">
+    {{ 'WHAT_ARE_CREDITS' | translate }}
+  </a>
+</div>
+
+@if (progress !== null) {
+  <mat-progress-bar mode="determinate" [value]="progress"></mat-progress-bar>
+}
+
+<div mat-dialog-actions>
+  <button mat-button (click)="onCancelQueue()">
+    {{ 'CANCEL' | translate | titlecase }}
+  </button>
+
+  @if (!isQueueSubmitProcessing) {
+    <button
+      mat-flat-button
+      color="primary"
+      (click)="onSubmitQueue()"
+      [disabled]="amountSelected(jobTypesWithQueued) === 0"
+      cdkFocusInitial
+    >
+      <span>
+        {{ 'SUBMIT' | translate }} {{ amountSelected(jobTypesWithQueued) }}
+        <span [ngPlural]="amountSelected(jobTypesWithQueued)">
+          <ng-template ngPluralCase="=1">{{
+            'JOB' | translate | titlecase
+          }}</ng-template>
+          <ng-template ngPluralCase="other">{{
+            'JOBS' | translate | titlecase
+          }}</ng-template>
+        </span>
+        ({{ creditsSelected(jobTypesWithQueued) }}
+        <span [ngPlural]="creditsSelected(jobTypesWithQueued)">
+          <ng-template ngPluralCase="=1">{{
+            'CREDIT' | translate
+          }}</ng-template>
+          <ng-template ngPluralCase="other">{{
+            'CREDITS' | translate
+          }}</ng-template> </span
+        >)
+      </span>
+    </button>
+  } @else {
+    <button mat-flat-button color="primary">
+      <span class="loading-button-content">
+        {{ 'SUBMITTING' | translate }} {{ progress }}%
+      </span>
+    </button>
+  }
+</div>

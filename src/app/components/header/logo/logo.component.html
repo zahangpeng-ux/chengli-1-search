@@ -1,0 +1,21 @@
+@if (breakpoint$ | async; as breakpoint) {
+  @if (breakpoint !== breakpoints.MOBILE) {
+    <div (click)="onResetSearch()" class="bounds clickable fx-row">
+      <mat-card class="content logo-card mat-elevation-z10">
+        <div class="branding-block">
+          <img
+            src="/assets/branding/chengli-1-logo-v1.png"
+            class="cl-logo"
+            alt="成理一号"
+          />
+          <div class="cl-logo-text">成理一号</div>
+        </div>
+      </mat-card>
+    </div>
+  }
+  @if (breakpoint === breakpoints.MOBILE) {
+    <div (click)="onResetSearch()" class="clickable">
+      <img src="/assets/branding/chengli-1-logo-v1.png" class="cl-logo-mobile" alt="成理一号" />
+    </div>
+  }
+}

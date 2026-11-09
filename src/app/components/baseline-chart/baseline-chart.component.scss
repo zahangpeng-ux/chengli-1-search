@@ -1,0 +1,108 @@
+@use "asf-theme-variables" as *;
+
+.chart-wrapper {
+  height: 100%;
+  border-left: lightgrey 1px solid;
+}
+
+.chart-canvas {
+  height: calc(100% - 80px);
+  margin: 0 16px 16px;
+}
+
+#baseline-chart {
+  height: calc(100% - 2cm);
+}
+
+ul {
+  display: flex;
+  justify-content: center;
+  height: 1em;
+  margin: 0.5em;
+
+  li {
+    display: flex;
+    align-items: center;
+  }
+}
+
+.box {
+  width: 1em;
+  height: 1em;
+  margin: 0.5em;
+  border: 1px solid black;
+}
+
+@media (width <= 500px) {
+  ul {
+    font-size: 0.8em;
+  }
+}
+
+@media (width <= 340px) {
+  ul {
+    font-size: 0.6em;
+  }
+}
+
+::ng-deep .baseline-label {
+  @include themify($themes) {
+    fill: themed('dark-primary-text');
+  }
+}
+
+
+::ng-deep .baseline-reference {
+  @include themify($themes) {
+    fill: themed('dark-primary-text');
+  }
+}
+
+::ng-deep .baseline-download {
+  @include themify($themes) {
+    fill: darken(themed('blue-link'), 20%);
+  }
+}
+
+::ng-deep .baseline-selected {
+  @include themify($themes) {
+    fill: themed('err');
+  }
+}
+
+::ng-deep .baseline-reference {
+  @include themify($themes) {
+    fill: themed('dark-primary-text');
+  }
+}
+
+::ng-deep .baseline-base {
+  @include themify($themes) {
+    fill: lighten(themed('dark-primary-text'), 45%);
+  }
+}
+
+.baseline-box {
+  @include themify($themes) {
+    background: darken(themed('background-white'), 5%);
+  }
+}
+
+.reference-box {
+  @include themify($themes) {
+    background: themed('dark-primary-text');
+  }
+}
+
+.download-box {
+  @include themify($themes) {
+    background: darken(themed('blue-link'), 20%);
+  }
+}
+
+.selected-box {
+  @include themify($themes) {
+    background: themed('err');
+  }
+}
+

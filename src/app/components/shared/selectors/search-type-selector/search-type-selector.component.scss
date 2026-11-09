@@ -1,0 +1,272 @@
+@use 'asf-theme-variables' as *;
+@use 'deluxe-menu' as *;
+@use 'deluxe-menu-2' as *;
+
+.description-layout {
+  display: flex;
+}
+
+.menu-item-icon {
+  @include themify($themes) {
+    width: 50px !important;
+    height: 50px !important;
+    font-size: 50px !important;
+    color: themed('dark-primary-text');
+  }
+
+  @include md-icon-size(50px);
+
+  margin-right: 0;
+}
+
+.dataset-hr {
+  padding: 0;
+}
+
+.category-hr {
+  padding: 0;
+  border-top: 2px solid;
+}
+
+.mat-mdc-menu-item {
+  padding: 0;
+}
+
+.menu-item {
+  display: flex;
+}
+
+.menu-item-inner {
+  width: calc(100% - 20px) !important;
+  margin: 5px 5px 15px 15px;
+}
+
+.menu-item-content {
+  // min-width: 400px;
+}
+
+.menu-item-aside {
+  // min-width: 130px;
+}
+
+.menu-item-aside--right {
+  text-align: right;
+}
+
+.item-title {
+  font-weight: bold;
+}
+
+.item-content {
+}
+
+.mat-mdc-card-actions {
+  padding: 0;
+  margin: 0;
+}
+
+.mat-mdc-button {
+  @include themify($themes) {
+    color: themed('blue-link');
+  }
+
+  font-style: italic;
+  font-weight: 400;
+}
+
+.limitTextHeight {
+  height: 55px;
+  overflow: hidden;
+}
+
+.formField {
+  flex: 130px;
+}
+
+.selectOptions {
+  width: 230px;
+}
+
+.option-description {
+  text-wrap: normal;
+}
+
+.matOption {
+  height: auto !important;
+}
+
+.button-label {
+  @include themify($themes) {
+    color: themed('dark-secondary-text');
+  }
+
+  font-size: 14px;
+  font-weight: 400;
+  transform: translateY(-1.2812em) scale(0.75) perspective(100px)
+    translateZ(0.0011px);
+}
+
+.button-menu-trigger {
+  padding: 0;
+}
+
+.button-text {
+  @include themify($themes) {
+    color: themed('dark-primary-text');
+  }
+
+  padding: 0;
+  margin: 0;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 29px;
+  text-align: left;
+}
+
+.menu-button-wrapper {
+  display: block;
+}
+
+.hr-wrapper {
+  height: 1px;
+  transform: matrix(1, 0, 0, 1.0001, 0, 0);
+}
+
+.text-underline {
+  height: 1px;
+  color: rgb(0 0 0 / 42%); /* old IE */
+  background-color: rgb(0 0 0 / 42%); /* Modern Browsers */
+  border: none;
+}
+
+/* TODO(mdc-migration): The following rule targets internal classes of select that may no longer apply for the MDC version. */
+.mat-select-arrow {
+  display: inline-flex;
+  width: 0;
+  height: 0;
+  margin: 0 4px 3px 10px;
+  border-top: 5px solid;
+  border-right: 5px solid transparent;
+  border-left: 5px solid transparent;
+}
+
+.info-text {
+  font-size: 14px;
+  font-style: italic;
+}
+
+.mat-mdc-card-actions {
+  pointer-events: none;
+
+  app-docs-modal {
+    pointer-events: auto;
+  }
+}
+
+.mobile-search-item {
+  height: 40px;
+  padding: 3px 10px;
+  margin: 0;
+  line-height: 30px;
+}
+
+.blue-link {
+  @include themify_non_host($themes) {
+    color: themed('blue-link');
+  }
+
+  // color: $uaf-primary-blue;
+}
+
+.mobile-button-wrapper {
+  // transform: scale(0.82);
+  // margin-top: -6px;
+}
+
+:host {
+  .mobile-button-wrapper {
+    min-width: 112px;
+    margin-top: 0 !important;
+    transform: none !important;
+  }
+}
+
+.disable-search-type-on-demand {
+  pointer-events: none;
+
+  .item-title,
+  .item-content {
+    opacity: 0.5;
+  }
+
+  /* TODO(mdc-migration): The following rule targets internal classes of card that may no longer apply for the MDC version. */
+  mat-card-actions,
+  .enable-search-type-on-demand {
+    pointer-events: auto;
+  }
+}
+
+::ng-deep .enable-search-type-on-demand .icon-size {
+  font-weight: bold !important;
+  color: black !important;
+  opacity: 1;
+}
+
+.enable-search-type-on-demand .icon-size {
+  font-weight: bold;
+  color: black;
+  opacity: 1;
+}
+
+.login-prompt {
+  font-style: italic;
+}
+
+.login-hidden {
+  display: none;
+}
+
+.read-more-icon {
+  position: relative;
+  top: 3px;
+}
+
+@keyframes fadeInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.disclaimer-link {
+  position: relative;
+  top: 2px;
+  z-index: 10;
+  display: inline-block;
+  margin-left: 10px;
+  font-size: 12px;
+  font-style: italic;
+  color: grey;
+  pointer-events: auto;
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.deprecation-notice {
+  font-weight: 800;
+  color: red;
+}
+
+.link {
+  color: blue;
+  text-decoration: underline;
+}

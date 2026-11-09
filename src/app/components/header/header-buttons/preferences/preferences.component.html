@@ -1,0 +1,201 @@
+<div class="dialog-header">
+  <div mat-dialog-title class="dialog-title-overrides">
+    {{ 'PREFERENCES_FOR' | translate }} {{ userAuth()?.id }}
+  </div>
+
+  <div class="dl-close-x" (click)="onCloseDownloadQueue()">
+    <mat-icon>close</mat-icon>
+  </div>
+</div>
+
+<mat-dialog-content>
+  <div class="preferences-body">
+    <form
+      class="preferences-form--layout"
+      #preferencesForm="ngForm"
+      onsubmit="return false"
+    >
+      <div class="preferences-group">
+        <div
+          class="section-heading"
+          [class.section-heading-mobile]="breakpoint() <= breakpoints.SMALL"
+        >
+          {{ 'DEFAULT_LANGUAGE_AND_THEME' | translate }}
+        </div>
+
+        <mat-form-field class="default-filters-presets">
+          <mat-label>{{ 'DEFAULT_LANGUAGE' | translate }}</mat-label>
+          <mat-select
+            [(value)]="defaultLanguage"
+            (selectionChange)="onChangeDefaultLanguage($event.value)"
+            name="preset"
+          >
+            @for (lang of translate.getLangs(); track lang) {
+              <mat-option [value]="lang">
+                {{ language.getName(lang) | titlecase }}
+              </mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field class="default-filters-presets">
+          <mat-label>{{ 'DEFAULT_THEME' | translate }}</mat-label>
+          <mat-select
+            [(value)]="currentTheme"
+            (selectionChange)="onChangeDefaultTheme($event.value)"
+            name="preset"
+          >
+            @for (theme of themeOptions; track theme) {
+              <mat-option [value]="theme">
+                {{ themeTranslation[theme] || theme | translate }}
+              </mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <hr />
+
+      <div class="preferences-group">
+        <div
+          class="section-heading"
+          [class.section-heading-mobile]="breakpoint() <= breakpoints.SMALL"
+        >
+          {{ 'DEFAULT_SEARCH_PRESETS' | translate }}
+        </div>
+
+        <mat-form-field class="default-max-result">
+          <mat-label>{{ 'DEFAULT_MAX_RESULT_AMOUNT' | translate }}</mat-label>
+          <mat-select
+            [(ngModel)]="defaultMaxResults"
+            (selectionChange)="onChangeMaxResultsDefault($event.value)"
+            name="maxResult"
+          >
+            @for (resultAmount of maxResults; track resultAmount) {
+              <mat-option [value]="resultAmount">
+                {{ resultAmount }} {{ 'FILES' | translate }}
+              </mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field class="default-map">
+          <mat-label>{{ 'DEFAULT_MAP_LAYER' | translate }}</mat-label>
+          <mat-select
+            [(ngModel)]="defaultMapLayer"
+            (selectionChange)="onChangeDefaultLayerType($event.value)"
+            name="amount"
+          >
+            <mat-option [value]="mapLayerTypes.SATELLITE">
+              {{ mapLayerTypes.SATELLITE | uppercase | translate }}
+            </mat-option>
+            <mat-option [value]="mapLayerTypes.STREET">
+              {{ mapLayerTypes.STREET | uppercase | translate }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <hr />
+
+      <div class="preferences-group">
+        <div
+          class="section-heading"
+          [class.section-heading-mobile]="breakpoint() <= breakpoints.SMALL"
+        >
+          {{ 'DEFAULT_SEARCH_FILTERS_PRESETS' | translate }}
+        </div>
+        @for (type of searchTypeKeys; track type) {
+          <mat-form-field class="default-filters-presets">
+            <mat-label>{{
+              type === 'DATASET'
+                ? ('GEOGRAPHIC' | translate)
+                : (type | translate)
+            }}</mat-label>
+            <mat-select
+              [(value)]="currentFilterDisplayNames[searchType[type]]"
+              (selectionChange)="onChangeDefaultFilterType($event.value, type)"
+              name="preset"
+            >
+              @for (
+                preset of userFiltersBySearchType[searchType[type]];
+                track preset
+              ) {
+                <mat-option [value]="preset.id">
+                  {{ preset.name | uppercase | translate }}
+                </mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        }
+      </div>
+
+      <hr />
+
+      <div class="preferences-group">
+        <div
+          class="section-heading"
+          [class.section-heading-mobile]="breakpoint() <= breakpoints.SMALL"
+        >
+          {{ 'DEFAULT_ON_DEMAND_PRESETS' | translate }}
+        </div>
+
+        @if (!isHyp3PlusMode()) {
+          <app-hyp3-url-selector
+            [hyp3BackendUrl]="hyp3BackendUrl"
+            [hyp3SavedUrls]="hyp3SavedUrls"
+            (newHyp3Url)="onSetHyp3Url($event)"
+          >
+          </app-hyp3-url-selector>
+        } @else {
+          <mat-form-field class="hyp3-plus-url">
+            <mat-label>{{ 'HYP3_API_URL' | translate }}</mat-label>
+            <input
+              matInput
+              [value]="hyp3.apiUrl"
+              name="backendUrl"
+              [disabled]="true"
+            />
+          </mat-form-field>
+        }
+
+        @if (!this.env.isProd) {
+          <mat-form-field class="default-map">
+            <mat-label>{{ 'DEBUG_STATUS' | translate }}</mat-label>
+            <mat-select
+              [(ngModel)]="hyp3DebugStatus"
+              (selectionChange)="onDebugStatus($event.value)"
+              name="debugStatus"
+            >
+              <mat-option value="NOT_STARTED">
+                {{ 'NOT_STARTED' | translate }}
+              </mat-option>
+              <mat-option value="PENDING">
+                {{ 'PENDING' | translate }}
+              </mat-option>
+              <mat-option value="APPROVED">
+                {{ 'APPROVED' | translate }}
+              </mat-option>
+              <mat-option value="REJECTED">
+                {{ 'REJECTED' | translate }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        }
+      </div>
+    </form>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions class="action-controls">
+  <div class="feedback-link">
+    <a href="javascript:feedback.showForm();">
+      <mat-icon>comment</mat-icon> {{ 'FEEDBACK' | translate }}</a
+    >
+  </div>
+  <div class="done-button clickable">
+    <button (click)="onClose()" color="primary" mat-flat-button>
+      {{ 'DONE' | translate }}
+    </button>
+  </div>
+</mat-dialog-actions>

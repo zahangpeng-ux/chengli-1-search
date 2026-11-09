@@ -1,0 +1,77 @@
+@use '@angular/material' as mat;
+@use "asf-theme-variables" as *;
+
+.download-file-button {
+  text-decoration: none;
+
+  @include themify($themes) {
+    color: themed('dark-primary-text');
+  }
+}
+
+.progress-spinner {
+  position: relative;
+  float: right;
+  display: block;
+  width: 40px;
+  height: 40px;
+}
+
+.paused-icon {
+  display: grid;
+  place-content: center;
+}
+
+.progress-spinner-value {
+  position: absolute;
+  top: 10px;
+  left: 7px;
+  width: 25px;
+  text-align: center;
+}
+
+/* TODO(mdc-migration): The following rule targets internal classes of button that may no longer apply for the MDC version. */
+.mat-button-disabled .mat-icon {
+  visibility: hidden;
+}
+
+.link {
+  color: unset;
+}
+
+:host(.compact) {
+  display: inline-flex;
+  align-items: center;
+
+  .mat-mdc-icon-button {
+    @include mat.icon-button-overrides(
+      (
+        state-layer-size: 20px,
+        icon-size: 20px,
+        hover-state-layer-opacity: 0,
+        focus-state-layer-opacity: 0,
+        pressed-state-layer-opacity: 0,
+        ripple-color: transparent,
+      )
+    );
+  }
+
+  a,
+  .mat-mdc-icon-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+  }
+
+  mat-icon {
+    width: 20px;
+    height: 20px;
+    font-size: 20px;
+    line-height: 20px;
+
+    @include themify($themes) {
+      color: themed('light-black');
+    }
+  }
+}

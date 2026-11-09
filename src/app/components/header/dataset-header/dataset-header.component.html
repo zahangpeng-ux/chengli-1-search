@@ -1,0 +1,221 @@
+@if (breakpoint$ | async; as breakpoint) {
+  <div class="query-panel">
+    <div class="panel-tabs">
+      <button
+        type="button"
+        class="panel-tab"
+        [class.active]="activeTab === 'condition'"
+        (click)="onTabChange('condition')"
+      >
+        {{ 'CONDITION_QUERY' | translate }}
+      </button>
+      <button
+        type="button"
+        class="panel-tab"
+        [class.active]="activeTab === 'precise'"
+        (click)="onTabChange('precise')"
+      >
+        {{ 'PRECISE_QUERY' | translate }}
+      </button>
+    </div>
+
+    <div class="panel-scroll">
+      @if (activeTab === 'condition') {
+        <!-- ===== 条件查询 ===== -->
+        <div class="sensor-segment">
+          <button
+            type="button"
+            class="sensor-btn"
+            [class.active]="isOptical"
+            (click)="onSensorChange(true)"
+          >
+            {{ 'OPTICAL' | translate }}
+          </button>
+          <button
+            type="button"
+            class="sensor-btn"
+            [class.active]="!isOptical"
+            (click)="onSensorChange(false)"
+          >
+            {{ 'SAR' | translate }}
+          </button>
+        </div>
+
+        <div class="dataset-row">
+          <app-dataset-selector
+            [selected]="dataset().id"
+            (selectedChange)="onDatasetChange($event)"
+            [datasets]="datasets"
+          >
+          </app-dataset-selector>
+        </div>
+
+        <section class="panel-card range-card">
+          <div class="section-title">
+            {{ 'RANGE_SELECTION' | translate }}<span class="required">*</span>
+          </div>
+          <p class="range-hint">{{ 'PLEASE_SELECT_SEARCH_RANGE' | translate }}</p>
+
+          <div class="range-actions">
+            <button
+              type="button"
+              class="range-btn"
+              (click)="onDrawMode(drawModes.POINT)"
+            >
+              <mat-icon>place</mat-icon>
+              <span>{{ 'POINT' | translate }}</span>
+            </button>
+            <button
+              type="button"
+              class="range-btn"
+              (click)="onOpenAdminRegion()"
+            >
+              <mat-icon>public</mat-icon>
+              <span>{{ 'ADMINISTRATIVE_REGION' | translate }}</span>
+            </button>
+            <button
+              type="button"
+              class="range-btn"
+              (click)="onDrawMode(drawModes.BOX)"
+            >
+              <mat-icon>crop_square</mat-icon>
+              <span>{{ 'RECTANGLE_DRAW' | translate }}</span>
+            </button>
+            <button
+              type="button"
+              class="range-btn"
+              [matMenuTriggerFor]="moreMenu"
+            >
+              <mat-icon>apps</mat-icon>
+              <span>{{ 'MORE' | translate }}</span>
+              <mat-icon class="caret">expand_more</mat-icon>
+            </button>
+          </div>
+
+          <p class="range-tip">{{ 'DRAW_RANGE_TIP' | translate }}</p>
+
+          <app-aoi-filter></app-aoi-filter>
+        </section>
+
+        <mat-menu #moreMenu="matMenu">
+          <button mat-menu-item (click)="onUploadFile()">
+            <mat-icon>upload_file</mat-icon>
+            <span>{{ 'UPLOAD_FILE' | translate }}</span>
+          </button>
+          <button mat-menu-item (click)="onToggleAoiOptions()">
+            <mat-icon>near_me</mat-icon>
+            <span>{{ 'COORDINATE_INPUT' | translate }}</span>
+          </button>
+          <button mat-menu-item (click)="onMyAOI()">
+            <mat-icon>bookmark</mat-icon>
+            <span>{{ 'MY_AOI' | translate }}</span>
+          </button>
+        </mat-menu>
+
+        <section class="panel-section">
+          <div class="section-title">
+            {{ 'CAPTURE_DATE' | translate }}<span class="required">*</span>
+          </div>
+          <app-date-selector></app-date-selector>
+
+          <div class="quick-ranges">
+            @for (range of quickRanges; track range.days) {
+              <button
+                type="button"
+                class="quick-range"
+                [class.active]="activeQuickRange === range.days"
+                (click)="onQuickRange(range.days)"
+              >
+                {{ range.key | translate }}
+              </button>
+            }
+          </div>
+        </section>
+
+        <section class="panel-section slider-section">
+          <div class="slider-row">
+            <span class="slider-label">{{ 'CLOUD_COVER' | translate }}</span>
+            <mat-slider class="slider" min="0" max="100" step="5" discrete>
+              <input
+                matSliderThumb
+                [value]="cloudCover"
+                (input)="onCloudCoverChange($event)"
+              />
+            </mat-slider>
+            <span class="slider-value">{{ cloudCover }}%</span>
+          </div>
+
+          <div class="slider-row">
+            <span class="slider-label">{{ 'SIDE_LOOK_ANGLE' | translate }}</span>
+            <mat-slider class="slider" min="0" max="45" step="1" discrete>
+              <input
+                matSliderThumb
+                [value]="sideLookAngle"
+                (input)="onSideLookAngleChange($event)"
+              />
+            </mat-slider>
+            <span class="slider-value">{{ sideLookAngle }}°</span>
+          </div>
+
+          <div class="slider-row">
+            <span class="slider-label">{{ 'RESOLUTION' | translate }}</span>
+            <mat-slider class="slider" min="0.3" max="2" step="0.1" discrete>
+              <input
+                matSliderThumb
+                [value]="resolution"
+                (input)="onResolutionChange($event)"
+              />
+            </mat-slider>
+            <span class="slider-value">{{ resolution }}m</span>
+          </div>
+        </section>
+
+        <div class="panel-info">
+          <app-info-bar></app-info-bar>
+        </div>
+      }
+
+      @if (activeTab === 'precise') {
+        <!-- ===== 精准查询 ===== -->
+        <div class="sensor-segment">
+          <button
+            type="button"
+            class="sensor-btn"
+            [class.active]="isOptical"
+            (click)="onSensorChange(true)"
+          >
+            {{ 'OPTICAL' | translate }}
+          </button>
+          <button
+            type="button"
+            class="sensor-btn"
+            [class.active]="!isOptical"
+            (click)="onSensorChange(false)"
+          >
+            {{ 'SAR' | translate }}
+          </button>
+        </div>
+
+        <div class="precise-field">
+          <div class="precise-label">
+            {{ 'SCENE_ID' | translate }}<span class="required">*</span>
+          </div>
+          <input
+            type="text"
+            class="precise-text-input"
+            placeholder="{{ 'SCENE_ID_PLACEHOLDER' | translate }}"
+            [value]="sceneIds().join(', ')"
+            (input)="onSceneIdsChange($event)"
+          />
+        </div>
+      }
+    </div>
+
+    <footer class="panel-footer">
+      <button type="button" class="reset-button" (click)="onReset()">
+        {{ 'RESET' | translate }}
+      </button>
+      <app-search-button></app-search-button>
+    </footer>
+  </div>
+}

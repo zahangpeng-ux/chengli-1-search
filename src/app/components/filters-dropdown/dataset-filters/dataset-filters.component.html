@@ -1,0 +1,268 @@
+@if (breakpoint$ | async; as breakpoint) {
+  <mat-accordion multi>
+    @if (breakpoint === breakpoints.MOBILE) {
+      <mat-expansion-panel
+        [expanded]="defaultPanelOpenState"
+        [disabled]="panelIsDisabled"
+        (click)="selectPanel(panels.SEARCH)"
+        [class.raised-section]="selectedPanel() === panels.SEARCH"
+      >
+        <mat-expansion-panel-header
+          [collapsedHeight]="customCollapsedHeight"
+          [expandedHeight]="customExpandedHeight"
+        >
+          <mat-panel-title>
+            {{ 'SEARCH_OPTIONS' | translate }}
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        <div class="search-options-row">
+          <app-search-type-selector> </app-search-type-selector>
+          <app-dataset-selector
+            [selected]="selectedDataset()"
+            (selectedChange)="onDatasetChange($event)"
+            [datasets]="datasets"
+          >
+          </app-dataset-selector>
+        </div>
+      </mat-expansion-panel>
+    }
+    <mat-expansion-panel
+      [expanded]="defaultPanelOpenState"
+      [disabled]="panelIsDisabled"
+      (click)="selectPanel(panels.AOI)"
+      [class.raised-section]="selectedPanel() === panels.AOI"
+    >
+      <mat-expansion-panel-header
+        [collapsedHeight]="customCollapsedHeight"
+        [expandedHeight]="customExpandedHeight"
+      >
+        <mat-panel-title class="panel-title">
+          {{ 'AREA_OF_INTEREST_OPTIONS' | translate }}
+          <app-docs-modal
+            class="info-text"
+            text="DOCUMENTATION"
+            url="https://docs.asf.alaska.edu/vertex/manual/#area-of-interest-options"
+          >
+          </app-docs-modal>
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+      <div class="panel-section-spacing">
+        <app-aoi-options [showHeader]="false"></app-aoi-options>
+      </div>
+    </mat-expansion-panel>
+
+    <mat-expansion-panel
+      [expanded]="defaultPanelOpenState"
+      [disabled]="panelIsDisabled"
+      (click)="selectPanel(panels.DATE)"
+      [class.raised-section]="selectedPanel() === panels.DATE"
+    >
+      <mat-expansion-panel-header
+        [collapsedHeight]="customCollapsedHeight"
+        [expandedHeight]="customExpandedHeight"
+      >
+        <mat-panel-title class="panel-title">
+          {{ 'DATE_FILTERS' | translate }}
+          <app-docs-modal
+            class="info-text"
+            text="DOCUMENTATION"
+            url="https://docs.asf.alaska.edu/vertex/manual/#date-filters"
+          >
+          </app-docs-modal>
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+      <div class="selector-card-spacing">
+        <app-date-selector></app-date-selector>
+      </div>
+      <div>
+        <app-season-selector></app-season-selector>
+      </div>
+    </mat-expansion-panel>
+    @if (selectedDataset() === 'NISAR') {
+      <mat-expansion-panel
+        [expanded]="defaultPanelOpenState"
+        [disabled]="panelIsDisabled"
+        (click)="selectPanel(panels.PRODUCT)"
+        [class.raised-section]="selectedPanel() === panels.PRODUCT"
+      >
+        <mat-expansion-panel-header
+          [collapsedHeight]="customCollapsedHeight"
+          [expandedHeight]="customExpandedHeight"
+        >
+          <mat-panel-title class="panel-title">
+            {{ 'PRODUCT_FILTERS' | translate }}
+            <app-docs-modal
+              class="info-text"
+              text="DOCUMENTATION"
+              url="https://docs.asf.alaska.edu/vertex/manual/#product-filters"
+            >
+            </app-docs-modal>
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        <div class="panel-section-spacing">
+          <app-product-science-selector></app-product-science-selector>
+          <app-production-config-selector></app-production-config-selector>
+          <app-product-maturity-selector></app-product-maturity-selector>
+        </div>
+      </mat-expansion-panel>
+    }
+    <mat-expansion-panel
+      [expanded]="defaultPanelOpenState"
+      [disabled]="panelIsDisabled"
+    >
+      <mat-expansion-panel-header
+        [collapsedHeight]="customCollapsedHeight"
+        [expandedHeight]="customExpandedHeight"
+      >
+        <mat-panel-title class="panel-title">
+          {{ 'SCENE_PATTERN_LIST' | translate }}
+          <app-docs-modal
+            class="info-text"
+            text="DOCUMENTATION"
+            url="https://docs.asf.alaska.edu/datasets/wildcard_usage/"
+          >
+          </app-docs-modal>
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+      <app-granule-list-selector />
+    </mat-expansion-panel>
+    <mat-expansion-panel
+      [expanded]="defaultPanelOpenState"
+      [disabled]="panelIsDisabled"
+      (click)="selectPanel(panels.ADDITIONAL)"
+      [class.raised-section]="selectedPanel() === panels.ADDITIONAL"
+    >
+      <mat-expansion-panel-header
+        [collapsedHeight]="customCollapsedHeight"
+        [expandedHeight]="customExpandedHeight"
+      >
+        <mat-panel-title class="panel-title">
+          @if (selectedDataset() !== 'NISAR') {
+            {{ 'ADDITIONAL_FILTERS' | translate }}
+            <app-docs-modal
+              class="info-text"
+              text="DOCUMENTATION"
+              url="https://docs.asf.alaska.edu/vertex/manual/#additional-filters"
+            >
+            </app-docs-modal>
+          } @else {
+            {{ 'OBSERVATIONAL_FILTERS' | translate }}
+            <app-docs-modal
+              class="info-text"
+              text="DOCUMENTATION"
+              url="https://docs.asf.alaska.edu/vertex/manual/#observational-filters"
+            >
+            </app-docs-modal>
+          }
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+      <div class="selector-card-spacing">
+        @if (selectedDataset() !== 'NISAR') {
+          <app-other-selector></app-other-selector>
+        } @else {
+          <app-observation-panel-selector></app-observation-panel-selector>
+        }
+      </div>
+    </mat-expansion-panel>
+    @if (
+      (actualDataset() | isRelevant: p.PATH) ||
+      (actualDataset() | isRelevant: p.FRAME)
+    ) {
+      <mat-expansion-panel
+        [expanded]="defaultPanelOpenState"
+        [disabled]="panelIsDisabled"
+        (click)="selectPanel(panels.PATH)"
+        [class.raised-section]="selectedPanel() === panels.PATH"
+      >
+        <mat-expansion-panel-header
+          [collapsedHeight]="customCollapsedHeight"
+          [expandedHeight]="customExpandedHeight"
+        >
+          <mat-panel-title class="panel-title">
+            @if (selectedDataset() === 'SENTINEL-1 INTERFEROGRAM (BETA)') {
+              {{ 'TRACK' | translate }} {{ 'FILTERS' | translate }}
+            } @else if (selectedDataset() !== 'NISAR') {
+              {{ 'PATH_AND_FRAME_FILTERS' | translate }}
+            } @else {
+              {{ 'TRACK_AND_FRAME_FILTERS' | translate }}
+            }
+            <app-docs-modal
+              class="info-text"
+              text="DOCUMENTATION"
+              url="https://docs.asf.alaska.edu/vertex/manual/#path-and-frame-filters"
+            >
+            </app-docs-modal>
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        <div class="selector-card-spacing">
+          <app-path-selector> {{ 'TO' | translate }}</app-path-selector>
+        </div>
+      </mat-expansion-panel>
+    }
+    @if (actualDataset() | isRelevant: p.MISSION_NAME) {
+      <mat-expansion-panel
+        [expanded]="defaultPanelOpenState"
+        [disabled]="panelIsDisabled"
+        class="raised-section"
+        (click)="selectPanel(panels.CAMPAIGN)"
+        [class.raised-section]="selectedPanel() === panels.CAMPAIGN"
+      >
+        <mat-expansion-panel-header
+          [collapsedHeight]="customCollapsedHeight"
+          [expandedHeight]="customExpandedHeight"
+        >
+          <mat-panel-title>
+            @if (actualDataset() | isRelevant: p.SITE_DESCRIPTION) {
+              {{ 'SITE_DESCRIPTION' | translate }}
+            } @else {
+              {{ 'CAMPAIGN_SELECTOR' | translate }}
+            }
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        <app-mission-selector></app-mission-selector>
+      </mat-expansion-panel>
+    }
+    @if (selectedDataset() === 'SENTINEL-1 BURSTS') {
+      <mat-expansion-panel
+        [expanded]="defaultPanelOpenState"
+        [disabled]="panelIsDisabled"
+        class="raised-section"
+        (click)="selectPanel(panels.CAMPAIGN)"
+        [class.raised-section]="selectedPanel() === panels.CAMPAIGN"
+      >
+        <mat-expansion-panel-header
+          [collapsedHeight]="customCollapsedHeight"
+          [expandedHeight]="customExpandedHeight"
+        >
+          <mat-panel-title>
+            {{ 'SLC_BURST_FILTERS' | translate }}
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        <div class="selector-card-spacing">
+          <app-burst-selector></app-burst-selector>
+        </div>
+      </mat-expansion-panel>
+    }
+    @if (selectedDataset() === 'OPERA-S1') {
+      <mat-expansion-panel
+        [expanded]="defaultPanelOpenState"
+        [disabled]="panelIsDisabled"
+        class="raised-section"
+        (click)="selectPanel(panels.CAMPAIGN)"
+        [class.raised-section]="selectedPanel() === panels.CAMPAIGN"
+      >
+        <mat-expansion-panel-header
+          [collapsedHeight]="customCollapsedHeight"
+          [expandedHeight]="customExpandedHeight"
+        >
+          <mat-panel-title>
+            {{ 'OPERA_S1_FILTERS' | translate }}
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        <div class="selector-card-spacing">
+          <app-opera-s1-selector></app-opera-s1-selector>
+        </div>
+      </mat-expansion-panel>
+    }
+  </mat-accordion>
+}

@@ -1,0 +1,91 @@
+import { Component, output, inject, input, computed } from '@angular/core';
+import { MatIcon } from '@angular/material/icon';
+import {
+  MatListItem,
+  MatListItemTitle,
+  MatListItemMeta,
+} from '@angular/material/list';
+import { MatMenuTrigger } from '@angular/material/menu';
+import { MatTooltip } from '@angular/material/tooltip';
+import { Store } from '@ngrx/store';
+import { TranslateModule } from '@ngx-translate/core';
+
+import { OnDemandAddMenuComponent } from '@components/shared/on-demand-add-menu/on-demand-add-menu.component';
+import * as models from '@models';
+import { ShortDatePipe } from '@pipes/short-date.pipe';
+import { AppState } from '@store';
+import * as filtersStore from '@store/filters';
+import * as scenesStore from '@store/scenes';
+
+@Component({
+  selector: 'app-pair',
+  templateUrl: './pair.component.html',
+  styleUrls: ['./pair.component.scss'],
+  imports: [
+    MatListItem,
+    MatListItemTitle,
+    MatListItemMeta,
+
+    MatIcon,
+    MatTooltip,
+    MatMenuTrigger,
+    OnDemandAddMenuComponent,
+    ShortDatePipe,
+    TranslateModule,
+  ],
+})
+export class PairComponent {
+  private store$ = inject<Store<AppState>>(Store);
+
+  readonly pair = input<models.CMRProductPair>();
+  readonly hyp3able = input<models.Hyp3ableProducts>();
+
+  readonly togglePair = output<string[]>();
+
+  public hovered = false;
+
+  readonly selectedPair = this.store$.selectSignal(
+    scenesStore.getSelectedPairIds,
+  );
+
+  readonly isFrameMode = this.store$.selectSignal(
+    filtersStore.getShouldUseFramesForReference,
+  );
+
+  readonly isSelected = computed(() => {
+    const selected = this.selectedPair();
+
+    if (!selected) {
+      return false;
+    } else {
+      return (
+        this.pair()[0].id + this.pair()[1].id === selected[0] + selected[1]
+      );
+    }
+  });
+
+  readonly pairPerpBaseline = computed(() =>
+    Math.abs(
+      this.pair()[0].metadata.perpendicular -
+        this.pair()[1].metadata.perpendicular,
+    ),
+  );
+
+  readonly pairTempBaseline = computed(() =>
+    Math.abs(
+      this.pair()[0].metadata.temporal - this.pair()[1].metadata.temporal,
+    ),
+  );
+
+  public onPairSelected(pair: models.CMRProductPair): void {
+    this.togglePair.emit(pair.map((p) => p.id));
+  }
+
+  public onSetHovered(): void {
+    this.hovered = true;
+  }
+
+  public onClearHovered(): void {
+    this.hovered = false;
+  }
+}

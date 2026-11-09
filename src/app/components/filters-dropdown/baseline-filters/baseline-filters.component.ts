@@ -1,0 +1,96 @@
+import { AsyncPipe } from '@angular/common';
+import { Component, inject, Signal } from '@angular/core';
+import {
+  MatAccordion,
+  MatExpansionPanel,
+  MatExpansionPanelHeader,
+  MatExpansionPanelTitle,
+} from '@angular/material/expansion';
+import { Store } from '@ngrx/store';
+import { TranslateModule } from '@ngx-translate/core';
+
+import { CopyToClipboardComponent } from '@components/shared/copy-to-clipboard/copy-to-clipboard.component';
+import { DocsModalComponent } from '@components/shared/docs-modal/docs-modal.component';
+import { BaselineFrameReferenceToggleComponent } from '@components/shared/selectors/baseline-frame-reference-toggle/baseline-frame-reference-toggle.component';
+import { DatasetSelectorComponent } from '@components/shared/selectors/dataset-selector/dataset-selector.component';
+import { DateSelectorComponent } from '@components/shared/selectors/date-selector/date-selector.component';
+import { MasterSceneSelectorComponent } from '@components/shared/selectors/master-scene-selector/master-scene-selector.component';
+import { SearchTypeSelectorComponent } from '@components/shared/selectors/search-type-selector/search-type-selector.component';
+import { SeasonSelectorComponent } from '@components/shared/selectors/season-selector/season-selector.component';
+import * as models from '@models';
+import { beta } from '@models/datasets';
+import { ScreenSizeService } from '@services';
+import { AppState } from '@store';
+import * as filtersStore from '@store/filters';
+import * as scenesStore from '@store/scenes';
+
+import { BaselineSlidersComponent } from './baseline-sliders/baseline-sliders.component';
+
+enum FilterPanel {
+  MASTER = 'Master',
+  DATE = 'Date',
+  BASELINE = 'Baseline',
+  SEARCH = 'Search',
+}
+
+@Component({
+  selector: 'app-baseline-filters',
+  templateUrl: './baseline-filters.component.html',
+  styleUrls: ['./baseline-filters.component.scss'],
+  imports: [
+    MatAccordion,
+
+    MatExpansionPanel,
+    MatExpansionPanelHeader,
+    MatExpansionPanelTitle,
+    SearchTypeSelectorComponent,
+    BaselineFrameReferenceToggleComponent,
+    DatasetSelectorComponent,
+    MasterSceneSelectorComponent,
+    CopyToClipboardComponent,
+    DocsModalComponent,
+    DateSelectorComponent,
+    SeasonSelectorComponent,
+    BaselineSlidersComponent,
+    AsyncPipe,
+    TranslateModule,
+  ],
+})
+export class BaselineFiltersComponent {
+  private store$ = inject<Store<AppState>>(Store);
+  private screenSize = inject(ScreenSizeService);
+
+  public breakpoint$ = this.screenSize.breakpoint$;
+  public breakpoints = models.Breakpoints;
+  public areResultsLoaded: Signal<boolean> = this.store$.selectSignal(
+    scenesStore.getAreResultsLoaded,
+  );
+
+  public datasets = [beta];
+  public selectedDataset = 'SENTINEL-1 INTERFEROGRAM (BETA)';
+  public masterScene: string;
+  public shouldUseFramesForReference: Signal<boolean> =
+    this.store$.selectSignal(filtersStore.getShouldUseFramesForReference);
+
+  selectedPanel: FilterPanel | null = null;
+  panels = FilterPanel;
+  defaultPanelOpenState = true;
+  panelIsDisabled = true;
+  customCollapsedHeight = '30px';
+  customExpandedHeight = '30px';
+
+  public isSelected(panel: FilterPanel): boolean {
+    return this.selectedPanel === panel;
+  }
+
+  public onDatasetChange(dataset: string): void {
+    this.store$.dispatch(new filtersStore.SetSelectedDataset(dataset));
+  }
+  public selectPanel(panel: FilterPanel): void {
+    this.selectedPanel = panel;
+  }
+
+  public onOpenHelp(url: string): void {
+    window.open(url);
+  }
+}

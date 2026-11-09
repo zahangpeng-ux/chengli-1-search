@@ -1,0 +1,66 @@
+@use "asf-theme-variables" as *;
+
+::ng-deep .circumference {
+  @include themify($themes) {
+    stroke: lighten(themed('primary'), 40%);
+  }
+
+  fill: none;
+  stroke-width: 10px;
+}
+
+::ng-deep .range {
+  @include themify($themes) {
+    stroke: themed('primary');
+  }
+
+  fill: none;
+  stroke-width: 10px;
+}
+
+::ng-deep .dot circle:hover {
+  cursor: pointer;
+}
+
+::ng-deep .dot circle {
+  @include themify($themes) {
+    fill: themed('primary');
+  }
+}
+
+::ng-deep .dot circle.dragging {
+  fill: darken($asf-blue, 10%) !important;
+  stroke: darken($asf-blue, 10%);
+}
+
+figure {
+  display: inline-flex;
+  grid-row: 1;
+  grid-column: 1;
+  margin: 0;
+}
+
+::ng-deep .notch {
+  @include themify($themes) {
+    stroke: lighten(themed('primary'), 40%);
+  }
+
+  stroke-width: 1px;
+}
+
+::ng-deep .selected {
+  @include themify($themes) {
+    stroke: themed('primary');
+  }
+}
+
+.container {
+  display: grid;
+  place-items: center;
+
+  button {
+    grid-row: 1;
+    grid-column: 1;
+    border-radius: 50% !important;
+  }
+}

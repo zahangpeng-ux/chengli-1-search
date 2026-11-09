@@ -1,0 +1,81 @@
+import {
+  Component,
+  OnInit,
+  Output,
+  EventEmitter,
+  OnDestroy,
+  inject,
+  computed,
+} from '@angular/core';
+import { MatLabel } from '@angular/material/form-field';
+import { MatFormField, MatHint } from '@angular/material/input';
+import {
+  MatSelectChange,
+  MatSelect,
+  MatOption,
+} from '@angular/material/select';
+import { MatTooltip } from '@angular/material/tooltip';
+import { Store } from '@ngrx/store';
+import { TranslateModule } from '@ngx-translate/core';
+import { SubSink } from 'subsink';
+
+import * as models from '@models';
+import { AppState } from '@store';
+import * as filtersStore from '@store/filters';
+
+@Component({
+  selector: 'app-short-name-selector',
+  templateUrl: './short-name-selector.component.html',
+  styleUrl: './short-name-selector.component.scss',
+  imports: [
+    MatFormField,
+    MatLabel,
+    MatSelect,
+
+    MatOption,
+    MatTooltip,
+
+    MatHint,
+    TranslateModule,
+  ],
+})
+export class ShortNameSelectorComponent implements OnInit, OnDestroy {
+  private store$ = inject<Store<AppState>>(Store);
+
+  @Output() shortNamesChange = new EventEmitter<models.DatasetShortName>();
+  public dataset = this.store$.selectSignal(filtersStore.getSelectedDataset);
+  public shortNamesList: string[] = [];
+  public selectableShortNames = computed(() => {
+    return this.dataset()?.shortNames ?? [];
+  });
+
+  private subs = new SubSink();
+
+  ngOnInit(): void {
+    this.subs.add(
+      this.store$
+        .select(filtersStore.getShortNames)
+        .subscribe(
+          (shortNamesList) =>
+            (this.shortNamesList = shortNamesList.map((val) => val.apiValue)),
+        ),
+    );
+  }
+
+  ngOnDestroy(): void {
+    this.subs.unsubscribe();
+  }
+
+  public onNewShortNames(event: MatSelectChange): void {
+    const shortNameAPIValues = event.value as string[];
+    this.emitShortNames(shortNameAPIValues);
+  }
+
+  public emitShortNames(shortNameAPIValues: string[]): void {
+    const shortNames = this.dataset()?.shortNames ?? [];
+    const output = shortNameAPIValues.map((shortName) =>
+      shortNames.find((datasetType) => datasetType.apiValue === shortName),
+    );
+    this.shortNamesChange.emit(output);
+  }
+}

@@ -1,0 +1,34 @@
+<span>
+  @if (searchType === SearchTypes.CUSTOM_PRODUCTS) {
+    <span>
+      {{ name | truncate: sceneNameLen - 8 }} {{ name.substr(name.length - 8) }}
+    </span>
+  }
+
+  @if (searchType !== SearchTypes.CUSTOM_PRODUCTS) {
+    <span>
+      @if (!dataset?.includes('Sentinel')) {
+        <span>
+          {{ name | truncate: sceneNameLen }}
+        </span>
+      }
+      @if (
+        dataset === 'Sentinel-1D' ||
+        dataset === 'Sentinel-1C' ||
+        dataset === 'Sentinel-1B' ||
+        dataset === 'Sentinel-1A'
+      ) {
+        <span>
+          {{ name | truncate: sceneNameLen - 4 }}
+          {{ name.substr(name.length - 4) }}
+        </span>
+      }
+      @if (dataset === 'Sentinel-1 Interferogram (BETA)') {
+        <span>
+          {{ name | truncate: sceneNameLen - 11 }}
+          {{ name.substr(name.length - 11) }}
+        </span>
+      }
+    </span>
+  }
+</span>

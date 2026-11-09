@@ -1,0 +1,32 @@
+.scene-controls-row {
+  display: flex;
+}
+
+.scene-control {
+  float: left;
+  flex: 0 1 auto;
+  align-self: center;
+  font-weight: normal;
+}
+
+.scene-control-spacing {
+  margin-right: 10px;
+}
+
+.mobile-size .scene-controls {
+  line-height: 28px;
+}
+
+.number-queued {
+  margin-left: 10px;
+}
+
+.icon-margin {
+  margin-left: 10px;
+}
+
+::ng-deep .mat-mdc-standard-chip {
+  padding: 7px 0 !important;
+}
+
+

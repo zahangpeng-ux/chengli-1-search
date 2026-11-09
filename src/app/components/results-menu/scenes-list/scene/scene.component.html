@@ -1,0 +1,154 @@
+<button
+  class="button-flex-row"
+  mat-list-item
+  (mouseenter)="onSetFocused()"
+  (mouseleave)="onClearFocused()"
+  [class.hovered]="hovered"
+  [class.selected]="isSelected"
+  [ngStyle]="{
+    'padding-right':
+      breakpoint > breakpoints.MEDIUM && searchType === SearchTypes.BASELINE
+        ? '10px'
+        : 'auto',
+  }"
+>
+  <div class="button-flex-row">
+    @if (
+      searchType !== SearchTypes.BASELINE || breakpoint > breakpoints.SMALL
+    ) {
+      <div class="image-flex">
+        <img
+          class="list-thumbnail"
+          [src]="scene.thumbnail"
+          onerror="this.src='assets/no-thumb.png'"
+          matBadgeOverlap="false"
+          matListAvatar
+        />
+      </div>
+    }
+
+    <div
+      [ngClass]="{
+        'baseline-flex':
+          searchType === SearchTypes.BASELINE && breakpoint > breakpoints.SMALL,
+        'div-flex':
+          searchType !== SearchTypes.BASELINE ||
+          breakpoint <= breakpoints.SMALL,
+      }"
+      class="detail-bar"
+    >
+      <div class="div-flex-column">
+        <div
+          class="div-flex"
+          [title]="
+            scene.metadata.fileName || scene.name || scene.metadata.job.job_id
+          "
+          class="bold"
+          matLine
+        >
+          <app-file-name
+            [name]="
+              scene.metadata.fileName || scene.name || scene.metadata.job.job_id
+            "
+            [dataset]="scene.dataset"
+            [searchType]="searchType"
+          >
+          </app-file-name>
+
+          <span class="copy-name-wrapper">
+            @if (hovered) {
+              <app-copy-to-clipboard
+                [prompt]="'COPY_SCENE_NAME' | translate"
+                [message]="'COPIED_SCENE_NAME' | translate"
+                [value]="
+                  scene.metadata.fileName ||
+                  scene.name ||
+                  scene.metadata.job.job_id
+                "
+              >
+              </app-copy-to-clipboard>
+            } @else {
+              <mat-icon
+                style="visibility: hidden; font-size: 1.2rem"
+                inline="true"
+                >copy</mat-icon
+              >
+            }
+          </span>
+        </div>
+      </div>
+
+      <div class="date-time" matLine>
+        @if (scene.metadata.job) {
+          {{ scene.metadata.job.job_type }}
+          @if (
+            breakpoint === breakpoints.MOBILE &&
+            searchType === SearchTypes.CUSTOM_PRODUCTS
+          ) {
+            <br />
+          }
+          -
+        }
+
+        @if (!scene.isDummyProduct) {
+          @if (
+            breakpoint > breakpoints.MOBILE &&
+            searchType !== SearchTypes.BASELINE &&
+            !!scene.metadata?.opera?.validityStartDate
+          ) {
+            <ng-container [matTooltip]="'VALIDITY_START_DATE' | translate">
+              {{ scene.metadata.opera.validityStartDate | fullDate }}
+            </ng-container>
+          }
+
+          @if (
+            breakpoint > breakpoints.MOBILE &&
+            searchType !== SearchTypes.BASELINE &&
+            !scene.metadata?.opera?.validityStartDate
+          ) {
+            <span [matTooltip]="'SCENE_START_TIME' | translate">
+              {{ scene.metadata.date | fullDate }}
+            </span>
+          }
+
+          @if (
+            breakpoint === breakpoints.MOBILE ||
+            searchType === SearchTypes.BASELINE
+          ) {
+            <ng-container [matTooltip]="'SCENE_START_TIME' | translate">
+              {{ scene.metadata.date | shortDate }}
+            </ng-container>
+          }
+        }
+        @if (scene.isDummyProduct) {
+          <span>{{ 'LOADING' | translate }}...</span>
+        }
+      </div>
+    </div>
+
+    @if (searchType !== SearchTypes.BASELINE) {
+      <app-scene-controls
+        (onZoomToScene)="onZoomTo()"
+        (onToggleScene)="onToggleScene()"
+        [scene]="scene"
+        [hyp3ableByJobType]="hyp3ableByJobType"
+        [isQueued]="isQueued"
+        [numQueued]="numQueued"
+        [searchType]="searchType"
+      >
+      </app-scene-controls>
+    }
+
+    @if (searchType === SearchTypes.BASELINE) {
+      <app-baseline-scene-controls
+        (onToggleScene)="onToggleScene()"
+        [scene]="scene"
+        [offsets]="offsets"
+        [hyp3ableByJobType]="hyp3ableByJobType"
+        [isQueued]="isQueued"
+        class="baseline-controls-width"
+      >
+      </app-baseline-scene-controls>
+    }
+  </div>
+</button>

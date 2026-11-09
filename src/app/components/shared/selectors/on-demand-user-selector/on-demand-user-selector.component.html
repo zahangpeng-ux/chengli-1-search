@@ -1,0 +1,10 @@
+<mat-form-field>
+  <mat-label>{{ 'USER_ID_SELECTOR' | translate }}</mat-label>
+  <input
+    type="text"
+    name="projectNameInput"
+    matInput
+    (change)="onOnDemandUserChange($event)"
+    [(ngModel)]="onDemandUserName"
+  />
+</mat-form-field>

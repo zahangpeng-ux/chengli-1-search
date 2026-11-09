@@ -1,0 +1,140 @@
+import { NgClass, AsyncPipe } from '@angular/common';
+import {
+  Component,
+  HostListener,
+  OnInit,
+  OnDestroy,
+  inject,
+} from '@angular/core';
+import { MatButton } from '@angular/material/button';
+import { MatIcon } from '@angular/material/icon';
+import { Store } from '@ngrx/store';
+import { TranslateModule } from '@ngx-translate/core';
+import { ResizeEvent, ResizableModule } from 'angular-resizable-element';
+import { Subject } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { SubSink } from 'subsink';
+
+import * as models from '@models';
+import { ScreenSizeService } from '@services';
+import { AppState } from '@store';
+import * as scenesStore from '@store/scenes';
+import * as searchStore from '@store/search';
+import * as uiStore from '@store/ui';
+
+import { BaselineResultsMenuComponent } from './baseline-results-menu/baseline-results-menu.component';
+import { DesktopResultsMenuComponent } from './desktop-results-menu/desktop-results-menu.component';
+import { MobileResultsMenuComponent } from './mobile-results-menu/mobile-results-menu.component';
+import { SBASResultsMenuComponent } from './sbas-results-menu/sbas-results-menu.component';
+import { TimeseriesResultsMenuComponent } from './timeseries-results-menu/timeseries-results-menu.component';
+
+@Component({
+  selector: 'app-results-menu',
+  templateUrl: './results-menu.component.html',
+  styleUrls: ['./results-menu.component.scss'],
+  imports: [
+    ResizableModule,
+    NgClass,
+    MatIcon,
+    DesktopResultsMenuComponent,
+    TimeseriesResultsMenuComponent,
+    BaselineResultsMenuComponent,
+    SBASResultsMenuComponent,
+    MobileResultsMenuComponent,
+    MatButton,
+    AsyncPipe,
+    TranslateModule,
+  ],
+})
+export class ResultsMenuComponent implements OnInit, OnDestroy {
+  private store$ = inject<Store<AppState>>(Store);
+  private screenSize = inject(ScreenSizeService);
+
+  public isResultsMenuOpen$ = this.store$.select(uiStore.getIsResultsMenuOpen);
+  public selectedProducts$ = this.store$.select(
+    scenesStore.getSelectedSceneProducts,
+  );
+  public products = this.store$.selectSignal(scenesStore.getAllProducts);
+
+  public menuHeightPx: number;
+
+  public areNoScenes$ = this.store$
+    .select(scenesStore.getScenes)
+    .pipe(map((scenes) => scenes.length === 0));
+
+  public isFrameSelectionEnabled$ = this.store$.select(
+    uiStore.getIsFrameSelectionEnabled,
+  );
+
+  public imageViewerOpen$ = this.store$.select(uiStore.getIsBrowseDialogOpen);
+
+  public resize$ = new Subject<void>();
+
+  public breakpoint$ = this.screenSize.breakpoint$;
+  public breakpoints = models.Breakpoints;
+  public searchType = this.store$.selectSignal(searchStore.getSearchType);
+  public SearchTypes = models.SearchType;
+
+  private subs = new SubSink();
+
+  ngOnInit() {
+    this.menuHeightPx = this.defaultMenuHeight();
+  }
+
+  @HostListener('window:resize', ['$event'])
+  onResize(_) {
+    const resultDiv = document.getElementById('result-div');
+
+    if (!resultDiv || !resultDiv.style) {
+      return;
+    }
+
+    resultDiv.style.height = `${this.defaultMenuHeight()}px`;
+    this.resize$.next();
+  }
+
+  private defaultMenuHeight(): number {
+    return document.documentElement.clientHeight * 0.4;
+  }
+
+  public validate(event: ResizeEvent): boolean {
+    const MIN_DIMENSIONS_PX = 33;
+    const { width, height } = event.rectangle;
+
+    return !(
+      width &&
+      height &&
+      (width < MIN_DIMENSIONS_PX || height < MIN_DIMENSIONS_PX)
+    );
+  }
+
+  public maxResultWindow(e: Event): void {
+    e.stopPropagation();
+    const maxHeight = window.innerHeight - 160;
+    this.menuHeightPx = maxHeight;
+    this.resize$.next();
+  }
+
+  public minResultWindow(e: Event): void {
+    e.stopPropagation();
+    this.menuHeightPx = 33;
+    this.resize$.next();
+  }
+
+  public onResizeEnd(event: ResizeEvent): void {
+    const maxHeight = window.innerHeight - 160;
+    const newHeight = event.rectangle.height;
+
+    this.menuHeightPx = Math.min(newHeight, maxHeight);
+
+    this.resize$.next();
+  }
+
+  public onFinalResize() {
+    this.resize$.next();
+  }
+
+  ngOnDestroy() {
+    this.subs.unsubscribe();
+  }
+}

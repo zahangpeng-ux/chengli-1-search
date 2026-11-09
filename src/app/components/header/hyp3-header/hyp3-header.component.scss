@@ -1,0 +1,12 @@
+$width: 330px;
+
+.hyp3-date-selector--layout {
+  box-sizing: border-box !important;
+  flex: 1 1 $width !important;
+  min-width: $width !important;
+  max-width: $width !important;
+}
+
+.mobile-filters-button {
+  margin-left: 5px;
+}

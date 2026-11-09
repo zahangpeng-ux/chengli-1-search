@@ -1,0 +1,32 @@
+@if (breakpoint$ | async; as breakpoint) {
+  <div class="bounds">
+    <div class="header-inner--layout">
+      @if (searchType$ | async; as searchType) {
+        @if (searchType === searchTypes.DATASET) {
+          <app-dataset-header> </app-dataset-header>
+        }
+        @if (searchType === searchTypes.DISPLACEMENT) {
+          <app-timeseries-header> </app-timeseries-header>
+        }
+        @if (searchType === searchTypes.LIST) {
+          <app-list-header> </app-list-header>
+        }
+        @if (searchType === searchTypes.BASELINE) {
+          <app-baseline-header> </app-baseline-header>
+        }
+        @if (searchType === searchTypes.SBAS) {
+          <app-baseline-header> </app-baseline-header>
+        }
+        @if (searchType === searchTypes.CUSTOM_PRODUCTS) {
+          <app-hyp3-header> </app-hyp3-header>
+        }
+        @if (searchType === searchTypes.PAIR_SELECTION) {
+          <app-pair-selection-header></app-pair-selection-header>
+        }
+      }
+    </div>
+    @if (isLoading) {
+      <mat-progress-bar class="w100" mode="indeterminate"></mat-progress-bar>
+    }
+  </div>
+}

@@ -1,0 +1,12 @@
+.burst-selector-container {
+  display: flex;
+  flex-flow: row wrap;
+  align-items: stretch;
+  justify-content: flex-start;
+  width: 100%;
+}
+
+.burst-selector-filter {
+  flex-basis: auto;
+  width: 100%;
+}

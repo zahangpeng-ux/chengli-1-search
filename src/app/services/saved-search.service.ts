@@ -1,0 +1,277 @@
+import { Injectable, inject } from '@angular/core';
+import { Store } from '@ngrx/store';
+import { combineLatest, Observable, of } from 'rxjs';
+import { filter, map, switchMap } from 'rxjs/operators';
+import { v1 as uuid } from 'uuid';
+
+import * as models from '@models';
+import { AppState } from '@store';
+import * as chartsStore from '@store/charts';
+import * as filtersStore from '@store/filters';
+import * as scenesStore from '@store/scenes';
+import { getSearchType } from '@store/search/search.reducer';
+import {
+  UpdateSearchWithFilters,
+  UpdateSearchName,
+  DeleteSavedSearch,
+  SaveSearches,
+  LoadSavedSearches,
+} from '@store/user/user.action';
+
+import { MapService } from './map/map.service';
+
+@Injectable({
+  providedIn: 'root',
+})
+export class SavedSearchService {
+  private store$ = inject<Store<AppState>>(Store);
+  private mapService = inject(MapService);
+
+  constructor() {
+    this.currentSearch$.subscribe((current) => (this.currentSearch = current));
+
+    this.searchType$.subscribe((searchType) => (this.searchType = searchType));
+  }
+
+  private currentGeographicSearch$ = combineLatest([
+    this.store$.select(filtersStore.getGeographicSearch).pipe(
+      map((filters) => ({
+        ...filters,
+        flightDirections: Array.from(filters.flightDirections),
+      })),
+    ),
+    this.mapService.searchPolygon$,
+  ]).pipe(
+    map(
+      ([filters, polygon]): models.GeographicFiltersType => ({
+        ...filters,
+        polygon,
+      }),
+    ),
+  );
+
+  private currentListSearch$ = this.store$.select(filtersStore.getListSearch);
+  private currentBaselineSearch$ = combineLatest([
+    this.store$.select(scenesStore.getFilterMaster),
+    this.store$.select(scenesStore.getMasterName),
+    this.store$.select(filtersStore.getBaselineSearch),
+  ]).pipe(
+    map(([filterMaster, reference, baselineFilters]) => ({
+      filterMaster,
+      reference,
+      ...baselineFilters,
+    })),
+  );
+
+  private currentSbasSearch$: Observable<models.SbasFiltersType> =
+    combineLatest([
+      this.store$.select(scenesStore.getFilterMaster),
+      this.store$.select(scenesStore.getCustomPairIds),
+      this.store$.select(filtersStore.getSbasSearch),
+      this.store$.select(filtersStore.getDateRange),
+      this.store$.select(filtersStore.getSBASOverlapThreshold),
+    ]).pipe(
+      map(
+        ([
+          reference,
+          customPairIds,
+          sbasFilters,
+          dateRange,
+          thresholdOverlap,
+        ]) => ({
+          reference,
+          dateRange,
+          customPairIds,
+          thresholdOverlap,
+
+          ...sbasFilters,
+        }),
+      ),
+    );
+  private currentCustomProductSearch$ = combineLatest([
+    this.store$.select(filtersStore.getJobStatuses),
+    this.store$.select(filtersStore.getDateRange),
+    this.store$.select(filtersStore.getProjectName),
+    this.store$.select(filtersStore.getProductNameFilter),
+    this.store$.select(filtersStore.getCustomProductSearch),
+  ]).pipe(
+    map(
+      ([
+        jobStatuses,
+        dateRange,
+        projectName,
+        productFilterName,
+        customProductFilters,
+      ]) => ({
+        jobStatuses,
+        dateRange,
+        projectName,
+        productFilterName,
+        ...customProductFilters,
+      }),
+    ),
+  );
+
+  private currentDisplacementSearch$ = combineLatest([
+    this.store$.select(chartsStore.getTimeseriesChartStates),
+    this.store$.select(filtersStore.getFlightDirections),
+    this.store$.select(filtersStore.getDateRange),
+  ]).pipe(
+    map(([seriesStates, flightDirections, dateRange]) => ({
+      seriesStates,
+      flightDirections,
+      dateRange,
+    })),
+  );
+  private currentPairSelectionSearch$ = of(null); //TODO: Setup saved search functionality for pair selection workflows.
+
+  private searchType$ = this.store$.select(getSearchType);
+
+  public currentSearch$ = this.searchType$.pipe(
+    filter((searchType) => searchType !== models.SearchType.SARVIEWS_EVENTS),
+    switchMap(
+      (searchType) =>
+        ({
+          [models.SearchType.DATASET]: this.currentGeographicSearch$,
+          [models.SearchType.LIST]: this.currentListSearch$,
+          [models.SearchType.BASELINE]: this.currentBaselineSearch$,
+          [models.SearchType.SBAS]: this.currentSbasSearch$,
+          [models.SearchType.CUSTOM_PRODUCTS]: this.currentCustomProductSearch$,
+          [models.SearchType.DERIVED_DATASETS]: this.currentGeographicSearch$,
+          [models.SearchType.DISPLACEMENT]: this.currentDisplacementSearch$,
+          [models.SearchType.PAIR_SELECTION]: this.currentPairSelectionSearch$,
+        })[searchType],
+    ),
+  );
+  private currentSearch: models.FilterType;
+  private searchType: models.SearchType;
+
+  private searchStateByType = models.SearchTypes.reduce((acc, searchType) => {
+    acc[searchType] = null;
+    return acc;
+  }, {});
+
+  public saveSearchState(
+    searchType: models.SearchType,
+    search: models.Search | null,
+  ) {
+    this.searchStateByType[searchType] = search;
+  }
+
+  public getSearchState(searchType: models.SearchType): models.Search | null {
+    return this.searchStateByType[searchType];
+  }
+
+  public makeCurrentSearch(searchName: string): models.Search {
+    return {
+      name: searchName,
+      id: uuid(),
+      filters: this.currentSearch,
+      searchType: this.searchType,
+    };
+  }
+
+  public updateSearchWithCurrentFilters(id: string): void {
+    const action = new UpdateSearchWithFilters({
+      id,
+      filters: this.currentSearch as models.GeographicFiltersType,
+    });
+
+    this.store$.dispatch(action);
+    this.saveSearches();
+  }
+
+  public updateSearchName(id: string, name: string): void {
+    const action = new UpdateSearchName({ id, name });
+
+    this.store$.dispatch(action);
+    this.saveSearches();
+  }
+
+  public deleteSearch(id: string): void {
+    const action = new DeleteSavedSearch(id);
+
+    this.store$.dispatch(action);
+    this.saveSearches();
+  }
+
+  public saveSearches(): void {
+    const action = new SaveSearches();
+    this.store$.dispatch(action);
+  }
+
+  public loadSearches(): void {
+    const action = new LoadSavedSearches();
+    this.store$.dispatch(action);
+  }
+
+  public filterTokensFrom(searches: models.Search[]): any[] {
+    return searches
+      .map((search) => ({
+        id: search.id,
+        tokens: {
+          name: search.name,
+          searchType: search.searchType,
+          ...Object.entries(search.filters).reduce(
+            (acc, [key, val]) => this.addIfHasValue(acc, key, val),
+            {},
+          ),
+        },
+      }))
+      .map((search) => {
+        return {
+          id: search.id,
+          token: Object.entries(search.tokens)
+            .map(([name, val]) => `${name} ${val}`)
+            .join(' ')
+            .toLowerCase(),
+        };
+      });
+  }
+
+  private addIfHasValue(acc, key: string, val): object {
+    if (!val) {
+      return acc;
+    }
+
+    if (val.length === 0) {
+      return acc;
+    }
+
+    if (Object.keys(val).length === 0) {
+      return acc;
+    }
+
+    if (key === 'productTypes') {
+      return {
+        ...acc,
+        'file types': val.map((t) => t.displayName),
+        filetypes: val.map((t) => t.apiValue),
+      };
+    }
+
+    if (this.isRange(val)) {
+      let nonNullVals = ``;
+
+      if (val.start !== null) {
+        nonNullVals += `start ${val.start} `;
+      }
+
+      if (val.end !== null) {
+        nonNullVals += `end ${val.end}`;
+      }
+
+      if (nonNullVals.length === 0) {
+        return acc;
+      }
+
+      return { ...acc, [key]: nonNullVals };
+    }
+
+    return { ...acc, [key]: val };
+  }
+
+  private isRange(val): val is models.Range<any> {
+    return typeof val === 'object' && 'start' in val && 'end' in val;
+  }
+}

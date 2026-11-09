@@ -1,0 +1,222 @@
+@use "@angular/material" as mat;
+@use "asf-theme-variables" as *;
+
+$config: mat.m2-define-legacy-typography-config();
+
+.count-detail {
+  font-size: small;
+}
+
+.pair-count-offset {
+  margin-top: -15px;
+}
+
+.mobile-size {
+  margin-left: 5px !important;
+}
+
+.mobile-event {
+  margin-top: -8px;
+}
+
+.files-header .mobile-size {
+  padding-top: 5px;
+  font-size: 12px !important;
+  font-weight: bold;
+}
+
+.files-header-baseline {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  padding: 0;
+}
+
+.header-row-center {
+  display: flex;
+  justify-content: center;
+  height: 22px;
+}
+
+.header-row-left {
+  display: flex;
+  justify-content: flex-start;
+  height: 22px;
+  margin-left: 30px;
+}
+
+.sbas-header-row-left {
+  height: 31px;
+  margin-left: 0;
+}
+
+.header-row-left .mobile-size {
+  font-size: 12px !important;
+}
+
+.header-row-right {
+  display: flex;
+  justify-content: flex-end;
+  height: 18px;
+  margin-top: 6px;
+  font-size: small;
+}
+
+.header-column {
+  margin-right: 17px;
+}
+
+.header-cart {
+  width: 42px;
+}
+
+.sort-icon {
+  position: relative;
+  top: -7px;
+  left: -5px;
+  width: 18px;
+  height: 12px;
+  padding: 0;
+  margin: 0;
+  font-size: 18px;
+  vertical-align: middle;
+  opacity: 0.7;
+}
+
+.sort-active {
+  top: -5px;
+  font-weight: bold;
+  opacity: 1;
+}
+
+.mr-10 {
+  margin-right: 10px;
+}
+
+.list-button {
+  @include themify($themes) {
+    background-color: themed('background-white');
+  }
+
+  width: 35px;
+  height: 26px;
+  padding: 0 0 0 5px;
+  margin: 0 5px 0 0;
+  font: inherit;
+  color: inherit;
+  text-align: center;
+  cursor: pointer;
+  outline: none;
+  border: darkgrey 1px solid;
+}
+
+.list-icon {
+  width: 18px !important;
+  height: 18px !important;
+  margin-top: -2px;
+  font-size: 18px !important;
+
+  @include themify($themes) {
+    color: themed('dark-primary-text') !important;
+  }
+}
+
+// Override icon colors on all hover/focus states
+.control-mat-button-toggle.mat-button-toggle-appearance-standard:hover .list-icon,
+.control-mat-button-toggle.mat-button-toggle-appearance-standard.cdk-focused .list-icon,
+.control-mat-button-toggle.mat-button-toggle-appearance-standard.cdk-mouse-focused .list-icon,
+.control-mat-button-toggle.mat-button-toggle-appearance-standard:hover .mat-icon,
+.control-mat-button-toggle.mat-button-toggle-appearance-standard.cdk-focused .mat-icon,
+.control-mat-button-toggle.mat-button-toggle-appearance-standard.cdk-mouse-focused .mat-icon,
+.mat-button-toggle-appearance-standard:hover .list-icon,
+.mat-button-toggle-appearance-standard.cdk-focused .list-icon,
+.mat-button-toggle-appearance-standard.cdk-mouse-focused .list-icon,
+.mat-button-toggle-appearance-standard:hover .mat-icon,
+.mat-button-toggle-appearance-standard.cdk-focused .mat-icon,
+.mat-button-toggle-appearance-standard.cdk-mouse-focused .mat-icon,
+.mat-button-toggle:hover .list-icon,
+.mat-button-toggle.cdk-focused .list-icon,
+.mat-button-toggle.cdk-mouse-focused .list-icon {
+  @include themify($themes) {
+    color: themed('dark-primary-text') !important;
+  }
+}
+
+.list-button-group {
+  max-width: fit-content;
+  margin-top: -20px;
+  line-height: 26px !important;
+}
+
+.button-group-label {
+  @include themify($themes) {
+    color: themed('dark-secondary-text');
+  }
+
+  margin-left: 0;
+  font-size: 12px;
+  line-height: 15px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* TODO(mdc-migration): The following rule targets internal classes of button that may no longer apply for the MDC version. */
+.control-mat-button-toggle {
+  @include themify($themes) {
+    background-color: themed('background-white');
+  }
+}
+
+// Override button background on hover/focus to prevent dark overlay
+.control-mat-button-toggle.mat-button-toggle-appearance-standard:hover,
+.control-mat-button-toggle.mat-button-toggle-appearance-standard.cdk-focused,
+.control-mat-button-toggle.mat-button-toggle-appearance-standard.cdk-mouse-focused {
+  @include themify($themes) {
+    background-color: themed('background-white') !important;
+  }
+}
+
+// Make the button's internal overlay transparent on hover
+.control-mat-button-toggle.mat-button-toggle-appearance-standard:hover .mat-button-toggle-button,
+.control-mat-button-toggle.mat-button-toggle-appearance-standard.cdk-focused .mat-button-toggle-button,
+.control-mat-button-toggle.mat-button-toggle-appearance-standard.cdk-mouse-focused .mat-button-toggle-button {
+  background-color: transparent !important;
+}
+
+// Target the focus overlay specifically
+.control-mat-button-toggle.mat-button-toggle-appearance-standard .mat-button-toggle-focus-overlay {
+  background-color: transparent !important;
+}
+
+// Also target the ripple element
+.control-mat-button-toggle.mat-button-toggle-appearance-standard .mat-button-toggle-ripple,
+.control-mat-button-toggle.mat-button-toggle-appearance-standard .mat-ripple {
+  display: none !important;
+}
+
+.space-filler {
+  width: 30px;
+}
+
+.sbas-count-tooltip {
+  font-size: medium;
+  vertical-align: text-top;
+}
+
+.scene-count {
+  margin-top: -16px;
+}
+
+.scenes-list-buttons--layout {
+  display: flex;
+  column-gap: .4em;
+}
+
+.scenes-list-button-container {
+  width: 100%;
+
+  /* TODO(mdc-migration): The following rule targets internal classes of button that may no longer apply for the MDC version. */
+  mat-button-toggle-group {
+    margin: auto
+  }
+}

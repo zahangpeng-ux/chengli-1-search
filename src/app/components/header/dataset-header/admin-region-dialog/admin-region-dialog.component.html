@@ -1,0 +1,59 @@
+<h2 mat-dialog-title class="admin-title">
+  {{ 'ADMINISTRATIVE_REGION' | translate }}
+</h2>
+
+<mat-dialog-content class="admin-content">
+  <div class="admin-search">
+    <mat-icon>search</mat-icon>
+    <input
+      type="text"
+      [(ngModel)]="searchText"
+      placeholder="{{ 'ADMIN_REGION_SEARCH_PLACEHOLDER' | translate }}"
+    />
+  </div>
+
+  @if (drillStack.length) {
+    <button type="button" class="admin-back" (click)="onBack()">
+      <mat-icon>chevron_left</mat-icon>
+      <span>{{ drillStack[drillStack.length - 1].name }}</span>
+    </button>
+  }
+
+  <div class="admin-list">
+    @for (item of visibleItems; track item.name) {
+      <div
+        class="admin-row"
+        [class.selected]="selected === item.name"
+        (click)="onSelect(item)"
+      >
+        <span class="admin-radio" [class.checked]="selected === item.name"></span>
+        <span class="admin-name">{{ item.name }}</span>
+        @if (item.children?.length) {
+          <mat-icon
+            class="admin-chevron"
+            (click)="onDrill(item, $event)"
+            >chevron_right</mat-icon
+          >
+        }
+      </div>
+    }
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions class="admin-actions" align="end">
+  <span class="admin-selected">
+    {{ 'SELECTED' | translate }}: {{ selected ?? '—' }}
+  </span>
+  <button mat-button type="button" (click)="onClose()">
+    {{ 'CLOSE' | translate }}
+  </button>
+  <button
+    mat-flat-button
+    color="primary"
+    type="button"
+    [disabled]="!selected"
+    (click)="onConfirm()"
+  >
+    {{ 'CONFIRM' | translate }}
+  </button>
+</mat-dialog-actions>

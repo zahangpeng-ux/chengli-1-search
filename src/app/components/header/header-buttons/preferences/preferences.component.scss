@@ -1,0 +1,94 @@
+@use "asf-theme-variables" as *;
+
+.preferences-group {
+  display: flex;
+  flex-flow: row wrap;
+  gap: 10px;
+}
+
+.action-controls {
+  display: flex;
+  flex-shrink: 0;
+  flex-direction: row;
+  justify-content: flex-end;
+  padding-top: 13px;
+}
+
+.preferences-form--layout {
+  width: 100%;
+  padding: 0 25px;
+}
+
+.feedback-link {
+  flex: 30px;
+  margin-right: 10px;
+
+  a {
+    @include themify($themes) {
+      color: themed('blue-link');
+    }
+
+    text-decoration: none;
+  }
+}
+
+.done-button {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.dialog-header {
+  @include themify($themes) {
+    color: themed('dark-primary-text');
+  }
+
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  font-size: 22px !important;
+}
+
+.preferences-body {
+  @include themify($themes) {
+    background-color: themed("background-white");
+  }
+
+  display: flex;
+  width: 100%;
+  padding-top: 15px;
+}
+
+.default-dataset,
+.default-max-result,
+.default-max-concurrent-downloads,
+.default-filters-presets,
+.default-map {
+  width: 220px;
+  margin-right: 30px;
+}
+
+.section-heading {
+  width: 137px;
+  margin: 0;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.section-heading-mobile {
+  width: 100%;
+}
+
+.dialog-title-overrides {
+  font-size: 24px;
+  font-weight: 400;
+}
+
+.language-theme {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+}
+
+.hyp3-plus-url {
+  width: 300px;
+}

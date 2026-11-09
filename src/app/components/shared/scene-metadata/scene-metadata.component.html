@@ -1,0 +1,581 @@
+@if (scene() !== null) {
+  <ul class="scene-metadata">
+    @if (scene().isDummyProduct) {
+      <li>
+        <b>{{ 'LOADING_METADATA' | translate }}</b>
+      </li>
+    }
+    @if (scene().metadata.perpendicular !== null) {
+      <li>
+        <span class="v-mid"
+          ><b>{{ 'PERPENDICULAR' | translate }}</b> •
+          {{ scene().metadata.perpendicular + offsets().perpendicular }}</span
+        >
+      </li>
+    }
+    @if (scene().metadata.temporal !== null) {
+      <li>
+        <span class="v-mid"
+          ><b>{{ 'TEMPORAL' | translate }}</b> •
+          {{ scene().metadata.temporal + offsets().temporal }}</span
+        >
+      </li>
+    }
+    @if (
+      (dataset() | isRelevant: p.DATE) &&
+      !scene().metadata?.opera?.validityStartDate
+    ) {
+      <li>
+        <span class="v-mid"
+          ><b>{{ 'START_TIME' | translate }}</b> •
+          {{ scene().metadata.date | shortDateTime }}</span
+        >
+        @if (isGeoSearch()) {
+          <mat-icon
+            [matMenuTriggerFor]="addSceneDateMenu"
+            class="v-mid clickable"
+          >
+            settings
+          </mat-icon>
+        }
+        <mat-menu #addSceneDateMenu="matMenu">
+          <button (click)="setStartDate(scene().metadata.date)" mat-menu-item>
+            {{ 'SET_AS_START_DATE' | translate }}
+          </button>
+          <button (click)="setEndDate(scene().metadata.date)" mat-menu-item>
+            {{ 'SET_AS_END_DATE' | translate }}
+          </button>
+        </mat-menu>
+      </li>
+    }
+    @if (
+      (dataset() | isRelevant: p.DATE) &&
+      !scene().metadata?.opera?.validityStartDate
+    ) {
+      <li>
+        <span class="v-mid"
+          ><b>{{ 'STOP_TIME' | translate }}</b> •
+          {{ scene().metadata.stopDate | shortDateTime }}</span
+        >
+        @if (isGeoSearch()) {
+          <mat-icon
+            [matMenuTriggerFor]="addSceneStopDateMenu"
+            class="v-mid clickable"
+          >
+            settings
+          </mat-icon>
+        }
+        <mat-menu #addSceneStopDateMenu="matMenu">
+          <button
+            (click)="setStartDate(scene().metadata.stopDate)"
+            mat-menu-item
+          >
+            {{ 'SET_AS_START_DATE' | translate }}
+          </button>
+          <button (click)="setEndDate(scene().metadata.stopDate)" mat-menu-item>
+            {{ 'SET_AS_END_DATE' | translate }}
+          </button>
+        </mat-menu>
+      </li>
+    }
+    @if (!!scene().metadata?.opera?.validityStartDate) {
+      <li>
+        <span class="v-mid">
+          <b>{{ 'VALIDITY_START_DATE' | translate }}</b> •
+          {{ scene().metadata.opera.validityStartDate | shortDateTime }}
+        </span>
+        @if (isGeoSearch()) {
+          <mat-icon
+            [matMenuTriggerFor]="addSceneStopDateMenu"
+            class="v-mid clickable"
+          >
+            settings
+          </mat-icon>
+        }
+        <mat-menu #addSceneStopDateMenu="matMenu">
+          <button
+            (click)="setStartDate(scene().metadata.opera.validityStartDate)"
+            mat-menu-item
+          >
+            {{ 'SET_AS_START_DATE' | translate }}
+          </button>
+          <button
+            (click)="setEndDate(scene().metadata.opera.validityStartDate)"
+            mat-menu-item
+          >
+            {{ 'SET_AS_END_DATE' | translate }}
+          </button>
+        </mat-menu>
+      </li>
+    }
+    @if (!!scene().metadata?.opera?.tileID) {
+      <li>
+        <span class="v-mid"
+          ><b>{{ 'TILE_ID' | translate }} </b> •
+          {{ scene().metadata.opera.tileID }}</span
+        >
+        @if (isGeoSearch()) {
+          <mat-icon [matMenuTriggerFor]="addTileIDMenu" class="v-mid clickable">
+            settings
+          </mat-icon>
+        }
+        <mat-menu #addTileIDMenu="matMenu">
+          <button (click)="setTileID()" mat-menu-item>
+            {{ 'SET_AS_TILE_ID' | translate }}
+          </button>
+        </mat-menu>
+      </li>
+    }
+    @if (!!scene().metadata?.opera?.productVersion) {
+      <li>
+        <span class="v-mid"
+          ><b>{{ 'PRODUCT_VERSION' | translate }} </b> •
+          {{ scene().metadata.opera.productVersion }}</span
+        >
+      </li>
+    }
+    @if ((dataset() | isRelevant: p.BEAM_MODE) && scene().metadata.beamMode) {
+      <li>
+        <span class="v-mid"
+          ><b>{{ 'BEAM_MODE' | translate }} </b> •
+          {{ scene().metadata.beamMode }}</span
+        >
+        @if (isGeoSearch() && dataset().id !== 'OPERA-S1') {
+          <mat-icon
+            [matMenuTriggerFor]="addBeamModeMenu"
+            class="v-mid clickable"
+          >
+            settings
+          </mat-icon>
+        }
+        <mat-menu #addBeamModeMenu="matMenu">
+          <button (click)="setBeamMode()" mat-menu-item>
+            {{ 'ADD_BEAM_MODE_TO_SEARCH' | translate }}
+          </button>
+        </mat-menu>
+      </li>
+    }
+    @if (dataset() | isRelevant: p.PATH) {
+      <li>
+        <span class="v-mid"
+          ><b>
+            @if (
+              selectedDatasetIsNISARFormat() ||
+              (dataset() | isRelevant: p.USE_TRACK)
+            ) {
+              {{ 'TRACK' | translate }}
+            } @else {
+              {{ 'PATH' | translate }}
+            }
+          </b>
+          • {{ scene().metadata.path }}</span
+        >
+        @if (isGeoSearch()) {
+          <mat-icon
+            [matMenuTriggerFor]="
+              (dataset() | isRelevant: p.USE_TRACK) ? addTrackMenu : addPathMenu
+            "
+            class="v-mid clickable"
+          >
+            settings
+          </mat-icon>
+        }
+        <mat-menu #addPathMenu="matMenu">
+          <button (click)="setPathStart()" mat-menu-item>
+            @if (selectedDatasetIsNISARFormat()) {
+              {{ 'SET_AS_TRACK_START' | translate }}
+            } @else {
+              {{ 'SET_AS_PATH_START' | translate }}
+            }
+          </button>
+          <button (click)="setPathEnd()" mat-menu-item>
+            @if (selectedDatasetIsNISARFormat()) {
+              {{ 'SET_AS_TRACK_END' | translate }}
+            } @else {
+              {{ 'SET_AS_PATH_END' | translate }}
+            }
+          </button>
+          <button (click)="setPathStart(); setPathEnd()" mat-menu-item>
+            {{ 'SET_AS_BOTH' | translate }}
+          </button>
+        </mat-menu>
+        <mat-menu #addTrackMenu="matMenu">
+          <button (click)="setPathStart()" mat-menu-item>
+            {{ 'SET_AS_TRACK_START' | translate }}
+          </button>
+          <button (click)="setPathEnd()" mat-menu-item>
+            {{ 'SET_AS_TRACK_END' | translate }}
+          </button>
+          <button (click)="setPathStart(); setPathEnd()" mat-menu-item>
+            {{ 'SET_AS_BOTH' | translate }}
+          </button>
+        </mat-menu>
+      </li>
+    }
+    @if ((dataset() | isRelevant: p.FRAME) && scene().metadata.frame !== null) {
+      <li>
+        <span class="v-mid">
+          <b>{{ 'FRAME' | translate }} </b> • {{ scene().metadata.frame }}
+        </span>
+        @if (isGeoSearch()) {
+          <mat-icon [matMenuTriggerFor]="addFrameMenu" class="v-mid clickable">
+            settings
+          </mat-icon>
+        }
+        <mat-menu #addFrameMenu="matMenu">
+          <button (click)="setFrameStart()" mat-menu-item>
+            {{ 'SET_AS_FRAME_START' | translate }}
+          </button>
+          <button (click)="setFrameEnd()" mat-menu-item>
+            {{ 'SET_AS_FRAME_END' | translate }}
+          </button>
+          <button (click)="setFrameStart(); setFrameEnd()" mat-menu-item>
+            {{ 'SET_AS_BOTH' | translate }}
+          </button>
+        </mat-menu>
+      </li>
+    }
+    @if (
+      (dataset() | isRelevant: p.FLIGHT_DIRECTION) &&
+      scene().metadata.flightDirection
+    ) {
+      <li>
+        <span class="v-mid">
+          <b>{{ 'FLIGHT_DIRECTION' | translate }} </b> •
+          {{ scene().metadata.flightDirection | uppercase }}
+        </span>
+        @if (isGeoSearch()) {
+          <mat-icon
+            [matMenuTriggerFor]="addFlightDirectionMenu"
+            class="v-mid clickable"
+          >
+            settings
+          </mat-icon>
+        }
+        <mat-menu #addFlightDirectionMenu="matMenu">
+          <button (click)="setFlightDirection()" mat-menu-item>
+            {{ 'SET_FLIGHT_DIRECTION' | translate }}
+          </button>
+        </mat-menu>
+      </li>
+    }
+    @if (dataset() | isRelevant: p.COVERAGE_ANGLE) {
+      <li>
+        <span class="v-mid">
+          <b>{{ 'FRAME_COVERAGE' | translate }} </b> •
+          {{ scene().metadata.nisar?.frameCoverage }}
+        </span>
+        @if (isGeoSearch()) {
+          <mat-icon
+            [matMenuTriggerFor]="setFrameCoverageMenu"
+            class="v-mid clickable"
+          >
+            settings
+          </mat-icon>
+        }
+        <mat-menu #setFrameCoverageMenu="matMenu">
+          <button (click)="setFrameCoverage()" mat-menu-item>
+            {{ 'SET_FRAME_COVERAGE' | translate }}
+          </button>
+        </mat-menu>
+      </li>
+    }
+    @if (
+      (dataset() | isRelevant: p.POLARIZATION) &&
+      !(dataset() | isRelevant: p.SIDE_POLARIZATION) &&
+      scene().metadata.polarization
+    ) {
+      <li>
+        <span class="v-mid">
+          <b>{{ 'POLARIZATION' | translate }} </b> •
+          {{ scene().metadata.polarization }}
+        </span>
+        @if (isGeoSearch()) {
+          <mat-icon [matMenuTriggerFor]="addPolMenu" class="v-mid clickable">
+            settings
+          </mat-icon>
+        }
+        <mat-menu #addPolMenu="matMenu">
+          <button (click)="addPolarization()" mat-menu-item>
+            {{ 'ADD_POLARIZATION_TO_SEARCH' | translate }}
+          </button>
+        </mat-menu>
+      </li>
+    }
+    @if (
+      (dataset() | isRelevant: p.POLARIZATION) &&
+      (dataset() | isRelevant: p.SIDE_POLARIZATION)
+    ) {
+      <li>
+        <span class="v-mid">
+          <b>{{ 'POLARIZATION_MAIN' | translate }} </b> •
+          {{ scene().metadata.nisar?.mainBandPolarization }}
+        </span>
+        @if (isGeoSearch()) {
+          <mat-icon
+            [matMenuTriggerFor]="addMainPolMenu"
+            class="v-mid clickable"
+          >
+            settings
+          </mat-icon>
+        }
+        <mat-menu #addMainPolMenu="matMenu">
+          <button (click)="addMainPolarization()" mat-menu-item>
+            {{ 'ADD_MAIN_POLARIZATION_TO_SEARCH' | translate }}
+          </button>
+        </mat-menu>
+      </li>
+    }
+    @if (dataset() | isRelevant: p.SIDE_POLARIZATION) {
+      <li>
+        <span class="v-mid">
+          <b>{{ 'POLARIZATION_SIDE' | translate }} </b> •
+          {{ scene().metadata.nisar?.sideBandPolarization }}
+        </span>
+        @if (isGeoSearch()) {
+          <mat-icon
+            [matMenuTriggerFor]="addSidePolMenu"
+            class="v-mid clickable"
+          >
+            settings
+          </mat-icon>
+        }
+        <mat-menu #addSidePolMenu="matMenu">
+          <button (click)="addSidePolarization()" mat-menu-item>
+            {{ 'ADD_SIDE_POLARIZATION_TO_SEARCH' | translate }}
+          </button>
+        </mat-menu>
+      </li>
+    }
+    @if (dataset() | isRelevant: p.RANGE_BANDWIDTH) {
+      <li>
+        <span class="v-mid">
+          <b>{{ 'RANGE_BANDWIDTH' | translate }} </b> •
+          {{ scene().metadata.nisar?.rangeBandwidth }}
+        </span>
+        @if (isGeoSearch()) {
+          <mat-icon [matMenuTriggerFor]="addPolMenu" class="v-mid clickable">
+            settings
+          </mat-icon>
+        }
+        <mat-menu #addPolMenu="matMenu">
+          <button (click)="addRangeBandwidth()" mat-menu-item>
+            {{ 'ADD_RANGE_BANDWIDTH_TO_SEARCH' | translate }}
+          </button>
+        </mat-menu>
+      </li>
+    }
+    @if (dataset() | isRelevant: p.JOINT_OBSERVATION) {
+      <li>
+        <span class="v-mid">
+          <b>{{ 'JOINT_OBSERVATION_ONLY' | translate }} </b> •
+          {{ scene().metadata.nisar?.jointObservation }}
+        </span>
+      </li>
+    }
+    @if (dataset() | isRelevant: p.OFF_NADIR_ANGLE) {
+      <li class="detail-item-margin">
+        <b>{{ 'OFF_NADIR_ANGLE' | translate }} </b> •
+        {{ scene().metadata.offNadirAngle }}
+      </li>
+    }
+    @if (dataset() | isRelevant: p.POINTING_ANGLE) {
+      <li class="detail-item-margin">
+        <b>{{ 'POINTING_ANGLE' | translate }} </b> •
+        {{ scene().metadata.pointingAngle }}
+      </li>
+    }
+    @if (
+      (dataset() | isRelevant: p.FARADAY_ROTATION) &&
+      scene().metadata.faradayRotation !== 0
+    ) {
+      <li class="detail-item-margin">
+        <b>{{ 'FARADAY_ROTATION' | translate }} </b> •
+        {{ scene().metadata.faradayRotation }}
+      </li>
+    }
+    @if (dataset() | isRelevant: p.MISSION_NAME) {
+      <li class="detail-item-margin">
+        <span class="v-mid"
+          ><b>
+            @if (dataset() | isRelevant: p.SITE_DESCRIPTION) {
+              {{ 'SITE_DESCRIPTION' | translate }}
+            } @else {
+              {{ 'CAMPAIGN_NAME' | translate }}
+            }
+          </b>
+          • {{ scene().metadata.missionName }}</span
+        >
+        @if (isGeoSearch()) {
+          <mat-icon
+            [matMenuTriggerFor]="addMissionMenu"
+            class="v-mid clickable"
+          >
+            settings
+          </mat-icon>
+        }
+        <mat-menu #addMissionMenu="matMenu">
+          <button (click)="addMission()" mat-menu-item>
+            @if (dataset() | isRelevant: p.SITE_DESCRIPTION) {
+              {{ 'SET_SITE_DESCRIPTION' | translate }}
+            } @else {
+              {{ 'SET_CAMPAIGN_NAME' | translate }}
+            }
+          </button>
+        </mat-menu>
+      </li>
+    }
+    @if (dataset() | isRelevant: p.FLIGHT_LINE) {
+      <li class="detail-item-margin">
+        <b>{{ 'FLIGHT_LINE' | translate }} </b> •
+        {{ scene().metadata.flightLine }}
+      </li>
+    }
+    @if (
+      (dataset() | isRelevant: p.ABSOLUTE_ORBIT) &&
+      scene().metadata.absoluteOrbit.length > 0 &&
+      scene()?.metadata?.productType !== 'TROPO-ZENITH'
+    ) {
+      <li class="detail-item-margin">
+        <b>{{ 'ABSOLUTE_ORBIT' | translate }} </b> •
+        {{ scene().metadata.absoluteOrbit | join: ', ' }}
+      </li>
+    }
+    @if (scene().metadata?.stackSize) {
+      <li class="detail-item-margin">
+        <b>{{ 'MATCHING_FRAMES' | translate }} </b> •
+        {{ scene().metadata.stackSize }}
+      </li>
+    }
+    @if (scene().metadata?.pgeVersion && dataset()?.id !== 'NISAR') {
+      <li class="detail-item-margin">
+        <b> {{ 'PGE_VERSION' | translate }} </b> •
+        {{ scene().metadata.pgeVersion }}
+      </li>
+    }
+    @if (scene().metadata.nisar?.crid) {
+      <li class="detail-item-margin">
+        <b> {{ 'CRID' | translate }} </b> •
+        {{ scene().metadata.nisar?.crid }}
+      </li>
+    }
+    @if (
+      !!scene().metadata.opera &&
+      scene().metadata.productType !== 'TROPO-ZENITH' &&
+      scene().metadata.opera.operaBurstID
+    ) {
+      <li>
+        <b> {{ 'OPERA_BURST_ID' | translate }} </b> •
+        {{ scene().metadata.opera.operaBurstID }}
+        @if (isGeoSearch()) {
+          <mat-icon
+            [matMenuTriggerFor]="addOperaBurstMenu"
+            class="v-mid clickable"
+          >
+            settings
+          </mat-icon>
+        }
+        <mat-menu #addOperaBurstMenu="matMenu">
+          <button (click)="addOperaBurst()" mat-menu-item>
+            {{ 'ADD_OPERA_BURST_ID_TO_SEARCH' | translate }}
+          </button>
+          <button (click)="setOperaBurst()" mat-menu-item>
+            {{ 'SET_OPERA_BURST_ID_TO_SEARCH' | translate }}
+          </button>
+        </mat-menu>
+      </li>
+    }
+    @if (!!scene().metadata.burst) {
+      <li>
+        <b> {{ 'BURST_ID_FULL' | translate }} </b> •
+        {{ scene().metadata.burst.fullBurstID }}
+        @if (isGeoSearch()) {
+          <mat-icon
+            [matMenuTriggerFor]="addFullBurstMenu"
+            class="v-mid clickable"
+          >
+            settings
+          </mat-icon>
+        }
+        <mat-menu #addFullBurstMenu="matMenu">
+          <button (click)="addFullBurst()" mat-menu-item>
+            {{ 'ADD_FULL_BURST_ID_TO_SEARCH' | translate }}
+          </button>
+          <button (click)="setFullBurst()" mat-menu-item>
+            {{ 'SET_FULL_BURST_ID_TO_SEARCH' | translate }}
+          </button>
+        </mat-menu>
+      </li>
+    }
+    @if (!!scene().metadata.burst) {
+      <li>
+        <b> {{ 'BURST_INDEX' | translate }} </b> •
+        {{ scene().metadata.burst.burstIndex }}
+      </li>
+    }
+    @if (!!scene().metadata.burst) {
+      <li>
+        <b> {{ 'AZIMUTH_TIME' | translate }} </b> •
+        {{ scene().metadata.burst.azimuthTime | shortDateTime }}
+      </li>
+    }
+    @if (!!scene().metadata.ariaVersion) {
+      <li>
+        <b> {{ 'ARIA_VERSION' | translate }} </b> •
+        {{ scene().metadata.ariaVersion }}
+        @if (isGeoSearch()) {
+          <mat-icon
+            [matMenuTriggerFor]="addAriaVersionMenu"
+            class="v-mid clickable"
+          >
+            settings
+          </mat-icon>
+        }
+        <mat-menu #addAriaVersionMenu="matMenu">
+          <button (click)="setAriaVersion()" mat-menu-item>
+            {{ 'SET_ARIA_VERSION' | translate }}
+          </button>
+        </mat-menu>
+      </li>
+    }
+    @if (dataset().source; as source) {
+      <li class="detail-item-margin">
+        @if (source.url) {
+          <a [href]="source.url" target="_blank">
+            {{ 'DATA_COURTESY_OF' | translate }} {{ dataset().source.name }}</a
+          >
+        }
+        @if (!source.url) {
+          <span class="faint-text">
+            {{ 'DATA_COURTESY_OF' | translate }}
+            {{ dataset().source.name }}</span
+          >
+        }
+      </li>
+    }
+    @if (citation()) {
+      <li class="detail-item-margin">
+        <a
+          [href]="citation()"
+          target="_blank"
+          [matTooltip]="'HOW_TO_CITE_USING_THIS_DATA' | translate"
+        >
+          @if (collectionMapped()) {
+            {{ collectionMapped() }}
+          }
+          {{ 'CITATION' | translate }}</a
+        >
+      </li>
+    }
+    <mat-menu #addSceneDateMenu="matMenu">
+      <ng-template matMenuContent let-date="eventDate">
+        <button (click)="setStartDate(date)" mat-menu-item>
+          {{ 'SET_AS_START_DATE' | translate }}
+        </button>
+        <button (click)="setEndDate(date)" mat-menu-item>
+          {{ 'SET_AS_END_DATE' | translate }}
+        </button>
+      </ng-template>
+    </mat-menu>
+  </ul>
+}

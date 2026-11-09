@@ -1,0 +1,96 @@
+import { UpperCasePipe } from '@angular/common';
+import { Component, Input, inject, Signal } from '@angular/core';
+import { Store } from '@ngrx/store';
+import { TranslateModule } from '@ngx-translate/core';
+
+import * as models from '@models';
+import { AppState } from '@store';
+import * as hyp3Store from '@store/hyp3';
+import * as queueStore from '@store/queue';
+
+import { CheckboxOptionComponent } from './checkbox-option/checkbox-option.component';
+import { DropdownOptionComponent } from './dropdown-option/dropdown-option.component';
+import { RangeOptionComponent } from './range-option/range-option.component';
+import { SubsetOptionComponent } from './subset-option/subset-option.component';
+
+@Component({
+  selector: 'app-processing-options',
+  templateUrl: './processing-options.component.html',
+  styleUrls: ['./processing-options.component.scss'],
+  imports: [
+    DropdownOptionComponent,
+    RangeOptionComponent,
+    CheckboxOptionComponent,
+    SubsetOptionComponent,
+    UpperCasePipe,
+    TranslateModule,
+  ],
+})
+export class ProcessingOptionsComponent {
+  private store$ = inject<Store<AppState>>(Store);
+
+  @Input() selectedJobType: models.Hyp3JobType;
+
+  public JobTypesList = models.hyp3JobTypesList;
+
+  public jobs: Signal<models.QueuedHyp3Job[]> = this.store$.selectSignal(
+    queueStore.getQueuedJobs,
+  );
+  public optionValues: Signal<models.Hyp3ProcessingOptions> =
+    this.store$.selectSignal(hyp3Store.getProcessingOptions);
+
+  public costs: Signal<models.Hyp3Costs> = this.store$.selectSignal(
+    hyp3Store.getCosts,
+  );
+
+  public hasJobType(jobType: models.Hyp3JobType): boolean {
+    return this.jobs().some((job) => job.job_type.id === jobType.id);
+  }
+
+  public onSetOptionValue(apiName: string, value: any) {
+    const newOptions = {
+      ...this.optionValues()[this.selectedJobType.id],
+      [apiName]: value,
+    };
+
+    this.store$.dispatch(
+      new hyp3Store.SetProcessingOptions({
+        jobTypeId: this.selectedJobType.id,
+        options: newOptions,
+      }),
+    );
+  }
+
+  public onSetSubset(options): void {
+    const optionSubset = options.reduce((subset, option) => {
+      subset[option.apiName] = option.value;
+
+      return subset;
+    }, {});
+
+    const newOptions = {
+      ...this.optionValues()[this.selectedJobType.id],
+      ...optionSubset,
+    };
+
+    this.store$.dispatch(
+      new hyp3Store.SetProcessingOptions({
+        jobTypeId: this.selectedJobType.id,
+        options: newOptions,
+      }),
+    );
+  }
+
+  public getCostTable(costs, jobType, option) {
+    const jobTypeCost = costs[jobType.id];
+
+    if (
+      jobTypeCost.cost_parameters &&
+      jobTypeCost.cost_parameters.includes(option.apiName)
+    ) {
+      return jobTypeCost.cost_table;
+    } else {
+      return null;
+    }
+  }
+}

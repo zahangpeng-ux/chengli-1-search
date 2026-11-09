@@ -1,0 +1,21 @@
+@use 'asf-theme-variables' as *;
+
+[mat-dialog-title] {
+  margin: 0;
+}
+
+.banner-title {
+  @include themify_non_host($themes) {
+    color: themed('dark-primary-text');
+    background-color: themed('primary-light');
+  }
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 0 !important;
+  font-size: x-large !important;
+  text-align: center;
+  cursor: move;
+  border-bottom: 1px solid $asf-primary-dark;
+}

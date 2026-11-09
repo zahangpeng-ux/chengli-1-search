@@ -1,0 +1,45 @@
+<div class="code-wrapper">
+  <div
+    class="code-header clickable"
+    [class.hoverable]="!codeContentByTab()"
+    [class.tabbed]="codeContentByTab()"
+    (click)="!codeContentByTab() ? clipboard.onCopyIconClicked($event) : null"
+  >
+    @if (!codeContentByTab()) {
+      <span class="code-header-description"> {{ codeDescription() }} </span>
+    } @else {
+      <span class="tab-container">
+        <mat-button-toggle-group
+          class="code-header-description"
+          [(ngModel)]="currentTab"
+        >
+          @for (tab of codeContentByTab() | keyvalue; track tab) {
+            <mat-button-toggle
+              class="code-header-description"
+              [value]="tab.key"
+            >
+              {{ tab.key | translate }}
+            </mat-button-toggle>
+          }
+        </mat-button-toggle-group>
+      </span>
+    }
+    <span class="flex-grow"></span>
+    <app-copy-to-clipboard
+      #clipboard
+      class="compact"
+      [aria-label]="copyPrompt() | translate"
+      [prompt]="copyPrompt() | translate"
+      [value]="codeValue()"
+      [message]="copyMessage() | translate"
+    ></app-copy-to-clipboard>
+  </div>
+  <code>
+    <pre
+      #codeBlock
+      class="code"
+      [class.sh]="isCommand()"
+      [class.file]="!isCommand()"
+    ></pre>
+  </code>
+</div>

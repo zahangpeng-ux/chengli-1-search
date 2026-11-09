@@ -1,0 +1,53 @@
+@if (!disabled) {
+  <a
+    [href]="href ?? product.downloadUrl"
+    (click)="hijackDownloadClick($event)"
+    class="link"
+  >
+    @if (!dFile || (dFile && dFile.state === 'DONE')) {
+      <button
+        [disabled]="(!product?.downloadUrl && !href) || disabled"
+        mat-icon-button
+        [matTooltip]="'DOWNLOAD_FILE' | translate"
+        class="download-file-button"
+      >
+        @if (dFile && dFile.state === 'DONE') {
+          <mat-icon>done</mat-icon>
+        }
+        @if (!dFile) {
+          <mat-icon>cloud_download</mat-icon>
+        }
+      </button>
+    }
+    @if (dFile && dFile.state !== 'DONE') {
+      <button
+        [disabled]="disabled"
+        mat-button
+        [matTooltip]="'STOP_DOWNLOAD' | translate"
+        class="download-file-button"
+      >
+        @if (dFile; as download) {
+          @if (download.state !== 'DONE') {
+            <div class="progress-spinner">
+              <mat-progress-spinner
+                [mode]="
+                  download.state === 'IN_PROGRESS'
+                    ? 'determinate'
+                    : 'indeterminate'
+                "
+                [value]="download.progress"
+                [diameter]="40"
+              >
+              </mat-progress-spinner>
+              @if (download.state === 'IN_PROGRESS') {
+                <span class="progress-spinner-value">
+                  {{ download.progress }}
+                </span>
+              }
+            </div>
+          }
+        }
+      </button>
+    }
+  </a>
+}

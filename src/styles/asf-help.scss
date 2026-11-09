@@ -1,0 +1,132 @@
+@use 'asf-theme-variables' as *;
+@forward 'asf-theme-variables';
+
+$side-padding-px: 15px;
+$side-padding-only: 0 $side-padding-px 0 $side-padding-px;
+$header-color: $asf-blue;
+$border-color: lightgray;
+$border-style: 1px solid $border-color;
+$img-border-style: 1px solid black;
+
+.help-container {
+  display: flex;
+  flex-direction: column;
+  max-width: 100%;
+  margin: 0;
+}
+
+.help-top-section {
+  @include themify($themes) {
+    background-color: lighten(themed('primary-light'),15%) !important;
+  }
+
+  // background-color: $top-background-color;
+  padding: 0 $side-padding-px 25px;
+  margin: 0;
+}
+
+.help-header {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    @include themify($themes) {
+      color: themed('light-primary-text');
+    }
+  }
+}
+
+.help-video {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  width: 100%;
+  height: 525px;
+  background-image: url('/assets/help-media/common/sar_search_background.png');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+}
+
+.videoWrapper {
+  width: 560px;
+  margin: 100px auto;
+}
+
+.videoWrapper iframe {
+  // position: absolute;
+  border: $img-border-style;
+}
+
+.video-text-line {
+  width: 100%;
+  margin: 0;
+  border-bottom: $border-style;
+}
+
+.help-rows {
+  margin: $side-padding-only;
+}
+
+.help-text-row {
+  @include themify($themes) {
+    color: themed('dark-primary-text');
+  }
+
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  border-bottom: $border-style;
+}
+
+.help-text-row:last-child { border: none; }
+
+.help-icon {
+  flex: 7 0 0;
+
+  .material-icons {
+    @include themify($themes) {
+      color: themed('primary-light');
+    }
+
+    width: 54px;
+    height: 53px;
+    font-size: 53px;
+  }
+}
+
+.help-text-block {
+  flex: 50 0 0;
+  margin-right: 10px;
+
+  p {
+    margin-block-start: 0.3em;
+  }
+}
+
+.help-graphic {
+  flex: 43 0 0;
+
+  img {
+    max-width: 100%;
+    border: $img-border-style;
+  }
+}
+
+.help-step {
+  @include themify($themes) {
+    color: themed('blue-link');
+  }
+
+  font-size: larger;
+
+  // color: $header-color;
+  font-weight: bold;
+}

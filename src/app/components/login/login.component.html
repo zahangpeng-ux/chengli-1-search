@@ -1,0 +1,95 @@
+<div class="login-page">
+  <div class="login-backdrop" aria-hidden="true"></div>
+  <div class="login-scrim" aria-hidden="true"></div>
+
+  <div class="login-panel">
+    <section class="login-card">
+      <header class="login-brand">
+        <img
+          class="login-logo"
+          src="/assets/branding/chengli-1-logo-v1.png"
+          alt="成理一号"
+        />
+        <div class="login-brand-copy">
+          <h1>成理一号</h1>
+          <p>Chengli-1 Satellite Data Platform</p>
+        </div>
+        <span class="login-badge">数据平台</span>
+      </header>
+
+      <form class="login-form" (ngSubmit)="onSubmit()">
+        <h2 class="login-heading">登录</h2>
+        <p class="login-desc">请使用平台分配的账号进入卫星数据检索系统</p>
+
+        <div class="login-field">
+          <label class="login-field-label" for="login-email">账号</label>
+          <div class="login-input">
+            <mat-icon>alternate_email</mat-icon>
+            <input
+              id="login-email"
+              name="email"
+              type="email"
+              autocomplete="username"
+              placeholder="请输入账号"
+              [(ngModel)]="email"
+              (input)="error.set('')"
+            />
+          </div>
+        </div>
+
+        <div class="login-field">
+          <label class="login-field-label" for="login-password">密码</label>
+          <div class="login-input">
+            <mat-icon>lock_outline</mat-icon>
+            <input
+              id="login-password"
+              name="password"
+              [type]="showPassword ? 'text' : 'password'"
+              autocomplete="current-password"
+              placeholder="请输入密码"
+              [(ngModel)]="password"
+              (input)="error.set('')"
+            />
+            <button
+              type="button"
+              class="login-eye"
+              [attr.aria-label]="showPassword ? '隐藏密码' : '显示密码'"
+              (click)="togglePassword()"
+            >
+              <mat-icon>{{
+                showPassword ? 'visibility_off' : 'visibility'
+              }}</mat-icon>
+            </button>
+          </div>
+        </div>
+
+        @if (error()) {
+          <p class="login-error" role="alert">{{ error() }}</p>
+        }
+
+        @if (info()) {
+          <p class="login-info" role="status">{{ info() }}</p>
+        }
+
+        <button type="submit" class="login-submit" [disabled]="submitting()">
+          <span>{{ submitting() ? '登录中…' : '登录' }}</span>
+          @if (!submitting()) {
+            <mat-icon>arrow_forward</mat-icon>
+          }
+        </button>
+
+        <div class="login-links">
+          <button type="button" class="login-link" (click)="onResetPassword()">
+            找回密码
+          </button>
+          <span class="login-divider">·</span>
+          <button type="button" class="login-link" (click)="onApplyAccount()">
+            申请账号
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <p class="login-note">成都理工大学 · 成理一号卫星数据平台</p>
+  </div>
+</div>

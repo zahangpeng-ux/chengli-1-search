@@ -1,0 +1,209 @@
+{
+  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+  "version": 1,
+  "newProjectRoot": "projects",
+  "projects": {
+    "search-ui": {
+      "root": "",
+      "sourceRoot": "src",
+      "projectType": "application",
+      "prefix": "app",
+      "schematics": {
+        "@schematics/angular:component": {
+          "style": "scss"
+        }
+      },
+      "architect": {
+        "build": {
+          "builder": "@angular/build:application",
+          "options": {
+            "outputPath": {
+              "base": "dist/search-ui"
+            },
+            "index": "src/index.html",
+            "polyfills": [
+              "src/polyfills.ts",
+            ],
+            "tsConfig": "src/tsconfig.app.json",
+            "assets": [
+              "src/favicon.ico",
+              "src/assets",
+              "src/googlec521d4cf42937ace.html"
+            ],
+            "styles": [
+              "./node_modules/ol/ol.css",
+              "./node_modules/nouislider/dist/nouislider.css",
+              "src/styles.scss",
+              "./node_modules/cookieconsent/build/cookieconsent.min.css",
+              "./node_modules/tippy.js/dist/tippy.css",
+              "./node_modules/tippy.js/dist/backdrop.css",
+              "./node_modules/tippy.js/animations/shift-away.css",
+              "node_modules/material-icons/iconfont/material-icons.css"
+            ],
+            "stylePreprocessorOptions": {
+              "includePaths": [
+                "src/styles"
+              ]
+            },
+            "scripts": [
+              "./node_modules/cookieconsent/build/cookieconsent.min.js"
+            ],
+            "allowedCommonJsDependencies": [
+              "chartjs-plugin-zoom",
+              "subsink",
+              "chart.js",
+              "file-saver",
+              "pbf",
+              "jwt-decode",
+              "css-element-queries",
+              "xml2js",
+              "moment-range",
+              "geojson-rbush",
+              "rbush",
+              "@turf",
+              "moment",
+              "nouislider",
+              "prismjs",
+              "ua-parser-js",
+              "@formatjs/intl-displaynames/polyfill",
+              "@formatjs/intl-displaynames/locale-data/en",
+              "@formatjs/intl-displaynames/locale-data/es",
+              "webfont-matcher/lib/fonts/google.js",
+              "mapbox-to-css-font",
+              "polygon-clipping",
+              "lerc",
+              "xml-utils",
+              "earcut"
+            ],
+            "extractLicenses": false,
+            "sourceMap": true,
+            "optimization": false,
+            "namedChunks": true,
+            "browser": "src/main.ts"
+          },
+          "configurations": {
+            "production": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.prod.ts"
+                }
+              ],
+              "optimization": true,
+              "outputHashing": "all",
+              "sourceMap": false,
+              "namedChunks": false,
+              "extractLicenses": true
+            },
+            "local": {
+              "sourceMap": true,
+              "optimization": false,
+              "extractLicenses": false
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "builder": "@angular/build:dev-server",
+          "options": {
+            "buildTarget": "search-ui:build"
+          },
+          "configurations": {
+            "production": {
+              "buildTarget": "search-ui:build:production"
+            },
+            "local": {
+              "buildTarget": "search-ui:build:local"
+            }
+          },
+          "defaultConfiguration": "local"
+        },
+        "extract-i18n": {
+          "builder": "@angular/build:extract-i18n",
+          "options": {
+            "buildTarget": "search-ui:build"
+          }
+        },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "buildTarget": "search-ui:build:local",
+            "tsConfig": "tsconfig.spec.json",
+            "coverageExclude": [
+              "src/app/models"
+            ],
+            "runnerConfig": true
+          }
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": [
+              "src/**/*.ts",
+              "src/**/*.html",
+              "src/assets/i18n/*.json"
+            ]
+          }
+        },
+        "e2e": {
+          "builder": "playwright-ng-schematics:playwright",
+          "options": {
+            "devServerTarget": "search-ui:serve"
+          },
+          "configurations": {
+            "production": {
+              "devServerTarget": "search-ui:serve:production"
+            }
+          }
+        }
+      }
+    }
+  },
+  "cli": {
+    "analytics": false,
+    "schematicCollections": [
+      "angular-eslint",
+      "@ngrx/schematics"
+    ]
+  },
+  "schematics": {
+    "@schematics/angular:component": {
+      "style": "scss",
+      "skipTests": true,
+      "type": "component"
+    },
+    "@schematics/angular:class": {
+      "skipTests": true
+    },
+    "@schematics/angular:directive": {
+      "skipTests": true,
+      "type": "directive"
+    },
+    "@schematics/angular:pipe": {
+      "skipTests": true,
+      "typeSeparator": "."
+    },
+    "@schematics/angular:service": {
+      "skipTests": false,
+      "type": "service"
+    },
+    "@angular-eslint/schematics:application": {
+      "setParserOptionsProject": true
+    },
+    "@angular-eslint/schematics:library": {
+      "setParserOptionsProject": true
+    },
+    "@schematics/angular:guard": {
+      "typeSeparator": "."
+    },
+    "@schematics/angular:interceptor": {
+      "typeSeparator": "."
+    },
+    "@schematics/angular:module": {
+      "typeSeparator": "."
+    },
+    "@schematics/angular:resolver": {
+      "typeSeparator": "."
+    }
+  }
+}

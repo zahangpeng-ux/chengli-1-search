@@ -1,0 +1,291 @@
+import { CdkScrollable } from '@angular/cdk/scrolling';
+import { UpperCasePipe, TitleCasePipe } from '@angular/common';
+import {
+  Component,
+  EventEmitter,
+  OnDestroy,
+  OnInit,
+  Output,
+  inject,
+  Signal,
+} from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { FormsModule } from '@angular/forms';
+import { MatButton } from '@angular/material/button';
+import {
+  MatDialogRef,
+  MatDialogTitle,
+  MatDialogContent,
+  MatDialogActions,
+} from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIcon } from '@angular/material/icon';
+import {
+  MatFormField,
+  MatLabel,
+  MatInputModule,
+} from '@angular/material/input';
+import { MatSelect, MatOption } from '@angular/material/select';
+import { Store } from '@ngrx/store';
+import { TranslateService, TranslateModule } from '@ngx-translate/core';
+import { take } from 'rxjs';
+import { SubSink } from 'subsink';
+
+import {
+  MapLayerTypes,
+  UserAuth,
+  ProductType,
+  datasetList,
+  SearchType,
+  SavedFilterPreset,
+  FilterType,
+  Breakpoints,
+} from '@models';
+import * as models from '@models';
+import { Hyp3ApiService, ThemingService } from '@services';
+import * as services from '@services';
+import { AsfLanguageService } from '@services/asf-language.service';
+import { AppState } from '@store';
+import * as hyp3Store from '@store/hyp3';
+import * as searchStore from '@store/search';
+import * as userStore from '@store/user';
+
+import { Hyp3UrlSelectorComponent } from './hyp3-url-selector/hyp3-url-selector.component';
+
+@Component({
+  selector: 'app-preferences',
+  templateUrl: './preferences.component.html',
+  styleUrls: ['./preferences.component.scss'],
+  imports: [
+    MatDialogTitle,
+    MatIcon,
+    CdkScrollable,
+    MatDialogContent,
+    FormsModule,
+    MatFormField,
+    MatLabel,
+    MatSelect,
+    MatInputModule,
+    MatFormFieldModule,
+
+    MatOption,
+    Hyp3UrlSelectorComponent,
+    MatDialogActions,
+    MatButton,
+    UpperCasePipe,
+    TitleCasePipe,
+    TranslateModule,
+  ],
+})
+export class PreferencesComponent implements OnInit, OnDestroy {
+  private dialogRef = inject<MatDialogRef<PreferencesComponent>>(MatDialogRef);
+  private store$ = inject<Store<AppState>>(Store);
+  env = inject(services.EnvironmentService);
+  private themeService = inject(ThemingService);
+  translate = inject(TranslateService);
+  language = inject(AsfLanguageService);
+  private screenSize = inject(services.ScreenSizeService);
+  public hyp3 = inject(Hyp3ApiService);
+
+  @Output() selectedChange = new EventEmitter<string>();
+
+  public breakpoint: Signal<models.Breakpoints> = toSignal(
+    this.screenSize.breakpoint$,
+  );
+  public breakpoints = models.Breakpoints;
+
+  public datasets = datasetList;
+  public defaultMaxResults: number;
+  public defaultMapLayer: MapLayerTypes;
+  public defaultMaxConcurrentDownloads: number;
+  public defaultProductTypes: ProductType[];
+  public hyp3BackendUrl: string;
+  public hyp3SavedUrls: string[];
+  public hyp3DebugStatus: string;
+  public defaultLanguage: string;
+
+  public maxResults = [250, 1000, 5000];
+  public mapLayerTypes = MapLayerTypes;
+
+  public userAuth: Signal<UserAuth> = this.store$.selectSignal(
+    userStore.getUserAuth,
+  );
+
+  public searchType = SearchType;
+  public searchTypeKeys = Object.keys(this.searchType).filter(
+    (val) => val !== 'LIST' && val !== 'CUSTOM_PRODUCTS',
+  );
+  public selectedSearchType = SearchType.DATASET;
+  public isHyp3PlusMode = this.store$.selectSignal(searchStore.getHyp3PlusMode);
+
+  public themeOptions: string[] = ['light', 'dark', 'System Preferences'];
+  public themeTranslation: Record<string, string> = {
+    light: 'LIGHT',
+    dark: 'DARK',
+    'System Preferences': 'SYSTEM_PREFERENCES',
+  };
+  public userFiltersBySearchType = {};
+  public userFilters: SavedFilterPreset[];
+  public selectedFiltersIDs = {
+    'Baseline Search': '',
+    'Geographic Search': '',
+    'SBAS Search': '',
+    Displacement: '',
+  };
+  public currentTheme = 'light';
+  public currentFilterDisplayNames = {};
+
+  private subs = new SubSink();
+
+  ngOnInit() {
+    this.subs.add(
+      this.store$.select(userStore.getUserProfile).subscribe((profile) => {
+        this.defaultLanguage = profile.language;
+        this.defaultMaxResults = +profile.maxResults;
+        this.defaultMapLayer = profile.mapLayer;
+        this.selectedFiltersIDs = profile.defaultFilterPresets;
+        this.defaultMaxConcurrentDownloads =
+          profile.defaultMaxConcurrentDownloads;
+        this.hyp3BackendUrl = profile.hyp3BackendUrl;
+        this.hyp3SavedUrls = profile.hyp3SavedUrls;
+        this.currentTheme = profile.theme;
+        this.defaultLanguage = profile.language;
+
+        if (this.hyp3BackendUrl && !this.hyp3.apiUrl.includes('plus')) {
+          this.hyp3.setApiUrl(this.hyp3BackendUrl);
+        } else if (!this.hyp3.apiUrl.includes('plus')) {
+          this.hyp3BackendUrl = this.hyp3.apiUrl;
+        }
+
+        if (!this.hyp3SavedUrls) {
+          this.hyp3SavedUrls = [this.hyp3BackendUrl];
+        }
+      }),
+    );
+
+    this.subs.add(
+      this.store$
+        .select(userStore.getSavedFilters)
+        .subscribe((savedFilters) => {
+          this.userFilters = savedFilters;
+
+          for (const searchtype in SearchType) {
+            if (searchtype !== 'LIST' && searchtype !== 'CUSTOM_PRODUCTS') {
+              const defaultPreset: SavedFilterPreset = {
+                filters: {} as FilterType,
+                id: '',
+                name: 'Default',
+                searchType: searchtype[searchtype],
+              };
+              this.userFiltersBySearchType[SearchType[searchtype]] = [
+                defaultPreset,
+              ];
+            }
+          }
+
+          savedFilters.forEach((preset) =>
+            this.userFiltersBySearchType[preset.searchType]?.push(preset),
+          );
+
+          const searchTypeKeys = Object.keys(this.selectedFiltersIDs);
+          searchTypeKeys.forEach(
+            (key) =>
+              (this.currentFilterDisplayNames[key] = this.userFilters.find(
+                (preset) => preset.id === this.selectedFiltersIDs[key],
+              )?.id),
+          );
+        }),
+    );
+  }
+
+  public onClose(): void {
+    this.saveProfile();
+    this.dialogRef.close();
+  }
+
+  public onChangeMaxResultsDefault(maxResults: number): void {
+    this.defaultMaxResults = maxResults;
+    this.saveProfile();
+  }
+
+  public onChangeDefaultLayerType(layerType: MapLayerTypes): void {
+    this.defaultMapLayer = layerType;
+    this.saveProfile();
+  }
+
+  public onChangeDefaultLanguage(language: string): void {
+    this.language.setCurrent(language);
+    this.defaultLanguage = language;
+    this.saveProfile();
+  }
+
+  public onChangeDefaultMaxConcurrentDownloads(maxDownloads: number): void {
+    this.defaultMaxConcurrentDownloads = maxDownloads;
+    this.saveProfile();
+  }
+
+  public onChangeDefaultFilterType(filterID: string, searchType: string): void {
+    const key = SearchType[searchType];
+    this.selectedFiltersIDs = {
+      ...this.selectedFiltersIDs,
+      [key]: filterID,
+    };
+
+    this.saveProfile();
+  }
+
+  public onChangeDefaultTheme(theme: string) {
+    this.currentTheme = theme;
+
+    if (theme === 'System Preferences') {
+      this.themeService.theme$.pipe(take(1)).subscribe((currentPreference) => {
+        this.setTheme(`theme-${currentPreference}`);
+      });
+    } else {
+      this.setTheme(`theme-${this.currentTheme}`);
+    }
+  }
+  public onDebugStatus(status: models.ApplicationStatus) {
+    this.hyp3DebugStatus = status;
+    this.store$.dispatch(new hyp3Store.SetDebugStatus(status));
+  }
+
+  public setTheme(themeName: string) {
+    this.themeService.setTheme(themeName);
+    this.saveProfile();
+  }
+
+  public onSetHyp3Url(event: { backendUrl: string; savedUrls: string[] }) {
+    this.hyp3.setApiUrl(event.backendUrl);
+
+    this.hyp3BackendUrl = this.hyp3.apiUrl;
+    this.hyp3SavedUrls = event.savedUrls;
+
+    this.saveProfile();
+  }
+
+  public saveProfile(): void {
+    const action = new userStore.SetProfile({
+      maxResults: this.defaultMaxResults,
+      mapLayer: this.defaultMapLayer,
+      defaultMaxConcurrentDownloads: this.defaultMaxConcurrentDownloads,
+      defaultFilterPresets: this.selectedFiltersIDs,
+      hyp3BackendUrl: this.hyp3BackendUrl,
+      hyp3SavedUrls: this.hyp3SavedUrls,
+      theme: this.currentTheme,
+      language: this.defaultLanguage,
+    });
+
+    this.store$.dispatch(action);
+  }
+
+  onCloseDownloadQueue() {
+    this.dialogRef.close();
+  }
+
+  ngOnDestroy() {
+    this.subs.unsubscribe();
+  }
+
+  protected readonly Breakpoints = Breakpoints;
+}

@@ -1,0 +1,19 @@
+<mat-form-field
+  appearance="fill"
+  [matTooltip]="'PRODUCTION_CONFIGURATION_TOOLTIP' | translate"
+>
+  <mat-label>{{ 'PRODUCTION_CONFIGURATION' | translate }}</mat-label>
+  <mat-select
+    [value]="selectedConfig()"
+    multiple
+    class="sci-prod-select"
+    (selectionChange)="onProductionConfigSelect($event.value)"
+  >
+    @for (prodConfig of prodConfigs; track prodConfig.value) {
+      <mat-option [value]="prodConfig.value">{{
+        prodConfig.viewValue | translate
+      }}</mat-option>
+    }
+  </mat-select>
+  <mat-hint>{{ selectedConfig() }}</mat-hint>
+</mat-form-field>

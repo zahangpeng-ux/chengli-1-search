@@ -1,0 +1,28 @@
+.breadcrumb-filter {
+  position: fixed;
+  top: 100px;
+  z-index: 1;
+  min-width: 500px;
+  max-width: 670px;
+  height: auto;
+  padding: 3px 16px 16px;
+  margin: 0;
+}
+
+.filter-view {
+  width: 385px;
+}
+
+.filter-view-mobile {
+  max-width: 180px;
+}
+
+.options-clear-button {
+  float: right;
+  background: none;
+  border: none;
+}
+
+.options-header {
+  display: block;
+}

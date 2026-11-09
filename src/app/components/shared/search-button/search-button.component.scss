@@ -1,0 +1,31 @@
+@use "asf-theme-variables" as *;
+@use "../../header/header-buttons/header-buttons.component.scss" as *;
+
+.arrow-button-toggle {
+  padding-top: 6px;
+
+  @include themify($themes) {
+    background-color: themed('primary') !important;
+  }
+
+  // Fix arrow color on hover
+  mat-icon {
+    color: #ddd !important;
+  }
+
+  &:hover mat-icon {
+    color: #ddd !important;
+  }
+}
+
+.search-button {
+  height: 36px !important;
+  border-radius: 0 !important;
+}
+
+.share-save-label {
+  // !important preserved from the previous inline style; overrides Material button typography
+  font-size: 14px !important;
+}
+
+

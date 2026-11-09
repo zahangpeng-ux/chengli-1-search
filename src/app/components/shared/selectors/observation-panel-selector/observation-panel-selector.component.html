@@ -1,0 +1,227 @@
+<div class="observation-panel">
+  <mat-form-field class="polarization-select-container">
+    <mat-label>
+      @if (dataset?.id === 'NISAR') {
+        {{ 'MAIN_BAND_FREQ_A_POLARIZATION' | translate }}
+      } @else {
+        {{ 'POLARIZATION' | translate }} {{ 'MAIN' | translate }}
+      }
+    </mat-label>
+    <mat-select
+      (selectionChange)="onNewDatasetPolarizations($event.value)"
+      [(ngModel)]="polarizations"
+      [disabled]="!(dataset | isRelevant: p.POLARIZATION)"
+      multiple
+    >
+      <mat-select-trigger>
+        {{ polarizations | join: '  ' }}
+      </mat-select-trigger>
+      @for (pol of dataset.polarizations; track pol) {
+        <mat-option [value]="pol">
+          <span class="polarization-type">{{ pol }}</span>
+          <span class="polarization-count"
+            >&nbsp;&nbsp;{{ pol | polarizationCount }}</span
+          >
+        </mat-option>
+      }
+    </mat-select>
+    <mat-hint align="start">
+      @if (dataset | isRelevant: p.POLARIZATION) {
+        {{ polarizations?.length || 0 }}/{{ dataset.polarizations.length }}
+        {{ 'POLARIZATIONS_SELECTED' | translate }}
+      } @else {
+        {{ 'NO_POLARIZATIONS_TO_SELECT' | translate }}
+      }
+    </mat-hint>
+  </mat-form-field>
+
+  <mat-form-field class="polarization-select-container">
+    <mat-label>
+      @if (dataset?.id === 'NISAR') {
+        {{ 'SIDE_BAND_FREQ_B_POLARIZATION' | translate }}
+      } @else {
+        {{ 'POLARIZATION' | translate }} {{ 'SIDE' | translate }}
+      }
+    </mat-label>
+    <mat-select
+      (selectionChange)="onNewDatasetSidePolarizations($event.value)"
+      [(ngModel)]="sidePolarizations"
+      multiple
+    >
+      <mat-select-trigger>
+        {{ sidePolarizations | join: '  ' }}
+      </mat-select-trigger>
+      @for (pol of dataset.sidepolarizations; track pol) {
+        <mat-option [value]="pol">
+          <span class="polarization-type">{{ pol }}</span>
+          <span class="polarization-count"
+            >&nbsp;&nbsp;{{ pol | polarizationCount }}</span
+          >
+        </mat-option>
+      }
+    </mat-select>
+    <mat-hint align="start">
+      @if (dataset | isRelevant: p.POLARIZATION) {
+        {{ sidePolarizations?.length || 0 }}/{{ dataset.polarizations.length }}
+        {{ 'POLARIZATIONS_SELECTED' | translate }}
+      } @else {
+        {{ 'NO_POLARIZATIONS_TO_SELECT' | translate }}
+      }
+    </mat-hint>
+  </mat-form-field>
+
+  <mat-form-field class="flight-direction-field">
+    <mat-label>{{ 'DIRECTION' | translate }}</mat-label>
+    <mat-select
+      (selectionChange)="onNewFlightDirectionsSelected($event.value)"
+      [(ngModel)]="flightDirections"
+      [disabled]="!(dataset | isRelevant: p.FLIGHT_DIRECTION)"
+      multiple
+    >
+      @for (direction of flightDirectionTypes; track direction) {
+        <mat-option [value]="direction">
+          {{ direction.toUpperCase() | translate }}
+        </mat-option>
+      }
+    </mat-select>
+
+    <mat-hint align="start">
+      @if (dataset | isRelevant: p.FLIGHT_DIRECTION) {
+        {{ flightDirections?.length || 0 }}/{{ flightDirectionTypes.length }}
+        {{ 'FLIGHT_DIRECTIONS_SELECTED' | translate }}
+      } @else {
+        {{ 'NO_FLIGHT_DIRECTIONS_TO_SELECT' | translate }}
+      }
+    </mat-hint>
+  </mat-form-field>
+
+  @if (dataset | isRelevant: p.PLATFORM) {
+    <mat-form-field>
+      <mat-label>{{ 'SATELLITE' | translate }}</mat-label>
+      <mat-select
+        (selectionChange)="onNewPlatformSelected($event.value)"
+        [(ngModel)]="platforms"
+        [disabled]="!(dataset | isRelevant: p.PLATFORM)"
+        multiple
+      >
+        @for (platform of dataset.platforms; track platform) {
+          <mat-option [value]="platform">
+            {{ platform.displayName }}
+          </mat-option>
+        }
+      </mat-select>
+
+      <mat-hint align="start">
+        @if (dataset | isRelevant: p.PLATFORM) {
+          {{ platforms?.length || 0 }}/{{ dataset.platforms?.length }}
+          {{ 'SATELLITES_SELECTED' | translate }}
+        } @else {
+          {{ 'NO_SATELLITES_TO_SELECT' | translate }}
+        }
+      </mat-hint>
+    </mat-form-field>
+  }
+
+  <mat-form-field>
+    <mat-label>{{ 'INSTRUMENT' | translate }}</mat-label>
+    <mat-select
+      (selectionChange)="onNewInstrument($event.value)"
+      [(ngModel)]="instruments"
+      [disabled]="!(dataset | isRelevant: p.INSTRUMENT)"
+      multiple
+    >
+      @for (instrument of dataset.instruments; track instrument) {
+        <mat-option [value]="instrument.apiValue">
+          {{ instrument.displayName }}
+        </mat-option>
+      }
+    </mat-select>
+
+    <mat-hint align="start">
+      @if (dataset | isRelevant: p.INSTRUMENT) {
+        {{ instruments?.length || 0 }}/{{ dataset.instruments.length }}
+        {{ 'INSTRUMENTS_SELECTED' | translate }}
+      } @else {
+        {{ 'NO_INSTRUMENTS_TO_SELECT' | translate }}
+      }
+    </mat-hint>
+  </mat-form-field>
+
+  <mat-form-field>
+    <mat-label>{{ 'FRAME_COVERAGE' | translate }}</mat-label>
+    <mat-select
+      (selectionChange)="onNewFrameCoverageSelected($event.value)"
+      [(ngModel)]="frameCoverage"
+      multiple
+    >
+      <mat-option value="Full">
+        {{ 'FULL' | translate }}
+      </mat-option>
+      <mat-option value="Partial">
+        {{ 'PARTIAL' | translate }}
+      </mat-option>
+    </mat-select>
+
+    <mat-hint align="start">
+      @if (dataset | isRelevant: p.FRAME) {
+        {{ frameCoverage?.length || 0 }}/2
+        {{ 'FRAMES_SELECTED' | translate }}
+      } @else {
+        {{ 'NO_FRAMES_TO_SELECT' | translate }}
+      }
+    </mat-hint>
+  </mat-form-field>
+
+  <mat-form-field class="half-width">
+    <mat-label>{{ 'RANGE_BANDWIDTH' | translate }}</mat-label>
+    <mat-select
+      (selectionChange)="onNewRangeBandwidthSelected($event.value)"
+      [(ngModel)]="rangeBandwidth"
+      multiple
+    >
+      @for (parent of dataset.bandwidth | keyvalue; track $index) {
+        @for (band of parent.value; track $index) {
+          <mat-option [value]="band">
+            ({{ parent.key }}) {{ band }}
+          </mat-option>
+        }
+      }
+    </mat-select>
+
+    <mat-hint align="start">
+      @if (dataset | isRelevant: p.RANGE_BANDWIDTH) {
+        {{ rangeBandwidth?.length || 0 }}/{{ totalBandwithCount }}
+        {{ 'RANGE_BANDWITH_SELECTED' | translate }}
+      } @else {
+        {{ 'NO_BANDWITH_TO_SELECT' | translate }}
+      }
+    </mat-hint>
+  </mat-form-field>
+
+  <mat-form-field class="half-width">
+    <mat-label>{{ 'ACQUISITION_COVERAGE' | translate }}</mat-label>
+    <mat-select
+      (selectionChange)="onNewJointObservation($event.value)"
+      [(ngModel)]="jointObservation"
+      [matTooltip]="'JOINT_OBSERVATION_TOOLTIP' | translate"
+      matTooltipPosition="right"
+      multiple
+    >
+      <mat-option [value]="jointObservationType.JOINT">
+        {{ 'JOINT_OBSERVATION' | translate }}
+      </mat-option>
+      <mat-option [value]="jointObservationType.SINGLE">
+        {{ 'SINGLE_OBSERVATION' | translate }}
+      </mat-option>
+    </mat-select>
+
+    <mat-hint align="start">
+      @if (dataset | isRelevant: p.JOINT_OBSERVATION) {
+        {{ jointObservation?.length || 0 }}/2
+        {{ 'OBSERVATIONS_SELECTED' | translate }}
+      } @else {
+        {{ 'NO_OBSERVATIONS_TO_SELECT' | translate }}
+      }
+    </mat-hint>
+  </mat-form-field>
+</div>

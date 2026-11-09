@@ -1,0 +1,48 @@
+@if (sceneFilesWarning()) {
+  <div class="dem-warning">
+    {{ sceneFilesWarning().translationKey | translate }}
+    <a class="more-link" target="_blank" [href]="sceneFilesWarning().url">
+      {{ 'READ_THIS_FIRST' | translate }}
+    </a>
+  </div>
+}
+
+<div>
+  <mat-list class="products-list">
+    @let productsByGroup = selectedSceneGroups();
+    @let showRelatedData = hasSubquery$ | async;
+
+    @if (!productsByGroup) {
+      @for (product of products; track product.id) {
+        <app-scene-file
+          (toggle)="onToggleQueueProduct(product)"
+          (queueHyp3Job)="onQueueHyp3Job($event)"
+          (renameJobProjectName)="onRenameJobProjectName(product, $event)"
+          [loadingHyp3JobName]="loadingHyp3JobName()"
+          [isUserLoggedIn]="isUserLoggedIn()"
+          [product]="product"
+          [validHyp3JobTypes]="validJobTypesByProduct[product.id]"
+          [hasAccessToRestrictedData]="hasAccessToRestrictedData()"
+          [isQueued]="(queuedProductIds$ | async).has(product.id)"
+          [isOpen]="false"
+        >
+        </app-scene-file>
+      }
+    }
+
+    @if (productsByGroup || showRelatedData) {
+      <app-scene-group-files
+        [productsByGroup]="productsByGroup"
+        [groups]="groups()"
+        [queuedProductIds]="queuedProductIds$ | async"
+        [validJobTypesByProduct]="validJobTypesByProduct"
+        [showRelatedData]="showRelatedData"
+        [subqueryProducts$]="dynamicallySearchedProduct$"
+        [subqueryLoaded]="dynamicQueryLoaded()"
+        (toggleProduct)="onToggleQueueProduct($event)"
+        (queueHyp3Job)="onQueueHyp3Job($event)"
+      >
+      </app-scene-group-files>
+    }
+  </mat-list>
+</div>

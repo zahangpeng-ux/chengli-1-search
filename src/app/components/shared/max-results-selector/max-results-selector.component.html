@@ -1,0 +1,41 @@
+<div
+  [matMenuTriggerFor]="isDataset ? menu : null"
+  class="faint-text perspective results-count"
+  [class.clickable]="isDataset"
+  [attr.aria-label]="'SELECT_MAX_RESULTS' | translate"
+  role="button"
+>
+  @if (isDataset) {
+    <span>
+      <span>
+        {{ maxResults() | formatNumber }}
+        <mat-icon class="faint-text clickable"> arrow_drop_down</mat-icon>
+      </span>
+      {{ 'OF' | translate }}
+    </span>
+  }
+  @if (!isMaxResultsLoading()) {
+    <span>
+      {{ totalResultsCount !== -1 ? (totalResultsCount | formatNumber) : '0' }}
+    </span>
+  } @else {
+    <span class="loading-spinner">
+      <mat-spinner diameter="16"></mat-spinner>
+    </span>
+  }
+  {{ 'FILES' | translate }}
+</div>
+
+<mat-menu #menu="matMenu">
+  @for (amount of possibleMaxResults; track amount) {
+    <button (click)="onNewMaxResults(amount)" mat-menu-item>
+      <span>{{ amount | formatNumber }} {{ 'FILES' | translate }}</span>
+    </button>
+  }
+  <button mat-menu-item>
+    <app-docs-modal
+      url="https://docs.asf.alaska.edu/api/changelog/#unlimited-results-sets-deprecation-notice"
+      text="More..."
+    ></app-docs-modal>
+  </button>
+</mat-menu>

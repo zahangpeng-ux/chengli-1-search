@@ -1,0 +1,43 @@
+@use "asf-theme-variables" as *;
+
+.units-label {
+  color: black;
+}
+
+.map-legend {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 170px;
+  height: 20px;
+  padding: 0;
+
+  // position: absolute;
+  margin-bottom: 7px;
+  margin-left: 40px;
+  font-size: 12px;
+  color: white;
+  background-image: linear-gradient(to right,
+        rgb(0 18 97),
+        rgb(3 62 125),
+        rgb(30 111 157),
+        rgb(113 168 196),
+        rgb(201 221 231),
+        rgb(234 206 189),
+        rgb(211 151 116),
+        rgb(190 101 51),
+        rgb(139 39 6),
+        rgb(89 0 8),
+  );
+  border-radius: 4px;
+}
+
+.layout {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+
+  // margin: 0;
+  // width: 100px;
+}

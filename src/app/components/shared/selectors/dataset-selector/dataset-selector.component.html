@@ -1,0 +1,87 @@
+@if (breakpoint$ | async; as breakpoint) {
+  <div>
+    <div
+      class="menu-button-wrapper"
+      [class.mobile-button-wrapper]="breakpoint === breakpoints.MOBILE"
+    >
+      <mat-label class="button-label">{{ 'DATASET' | translate }}</mat-label>
+      <div>
+        <button
+          [matMenuTriggerFor]="platformMenu"
+          class="button-menu-trigger"
+          color="basic"
+          mat-button
+          (menuOpened)="menuOpen()"
+        >
+          <div class="button-text">
+            {{ datasetName() }}
+            <span class="mat-select-arrow"></span>
+          </div>
+        </button>
+        <div class="hr-wrapper"><hr class="text-underline" /></div>
+      </div>
+    </div>
+    <div class="gtm-search-type-selector fx-nogrow">
+      <mat-menu #platformMenu="matMenu" class="dataset-selector">
+        <form
+          class="dataset-filter-form"
+          (click)="$event.stopPropagation()"
+          (keydown)="$event.stopPropagation()"
+        >
+          <mat-form-field class="search-field" appearance="outline">
+            <mat-icon matPrefix class="filter-icon">search</mat-icon>
+            <input
+              matInput
+              [placeholder]="'SEARCH_DATASETS' | translate"
+              [attr.aria-label]="'SEARCH_DATASETS' | translate"
+              [(ngModel)]="datasetFilter"
+              name="dataset-options-filter"
+              #datasetOptions
+            />
+            @if (datasetFilter()) {
+              <button
+                mat-icon-button
+                matSuffix
+                (click)="datasetFilter.set('')"
+                [aria-label]="'CLEAR' | translate"
+                class="close-button filter-icon"
+              >
+                <mat-icon>clear</mat-icon>
+              </button>
+            }
+          </mat-form-field>
+        </form>
+        <div class="datasets-wrapper">
+          @for (dataset of filteredDatasets(); track dataset.id) {
+            <button
+              mat-menu-item
+              (keydown.enter)="onSelectionChange(dataset.id)"
+            >
+              <app-dataset
+                [dataset]="dataset"
+                (selected)="onSelectionChange($event)"
+              />
+            </button>
+            @if (!$last) {
+              <hr class="dataset-hr" />
+            }
+          } @empty {
+            <p class="datasets-empty">
+              {{ 'NO_MATCHING_DATASETS' | translate }}
+            </p>
+          }
+        </div>
+        <div class="dataset-footer">
+          {{
+            'SHOWING_X_OF_Y'
+              | translate
+                : {
+                    shown: filteredDatasets().length,
+                    total: datasets()?.length ?? 0,
+                  }
+          }}
+        </div>
+      </mat-menu>
+    </div>
+  </div>
+}

@@ -1,0 +1,157 @@
+@use "asf-theme-variables" as *;
+
+.header-mobile {
+  min-height: 36px;
+}
+
+.header {
+  @include themify($themes) {
+    color: themed('dark-primary-text');
+    background-color: themed('primary-light');
+  }
+
+  height: 30px;
+  padding-top: 20px;
+  margin-bottom: 0;
+  font-family: Roboto, sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  text-align: center;
+  border-left: none;
+}
+
+.mobile-scene-list--layout {
+  box-sizing: border-box;
+  flex: 1 1 100%;
+  width: 100%;
+  max-width: 100%;
+  height: 100%;
+}
+
+.mobile-detail-menu--layout {
+  box-sizing: border-box;
+  flex: 1 1 0%;
+}
+
+.sbas-chart-row {
+  display: flex;
+  flex-direction: row;
+  height: calc(100% - 137px);
+}
+
+.sbas-filter-row {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 137px;
+  margin-top: 10px;
+}
+
+.sbas-column-1 {
+  flex: 0 0 150px;
+}
+
+.sbas-column-2 {
+  flex: 1 1 auto;
+  margin-left: 10px;
+}
+
+.baseline-criteria-button-toggle-group {
+  flex: 0 1 190px !important;
+  margin-top: -5px;
+}
+
+.sbas-criteria-button-toggle-group {
+  flex: 0 1 120px !important;
+  margin-top: -5px;
+}
+
+.baseline-criteria-button-toggle {
+  @include themify($themes) {
+    background-color: themed('background-white') !important;
+  }
+
+  font-size: 14px;
+}
+
+.sbas-criteria-button-toggle {
+  @include themify($themes) {
+    background-color: themed('background-white') !important;
+  }
+
+  font-size: 14px;
+}
+
+.criteria-button-group {
+  box-sizing: border-box;
+  width: auto;
+  line-height: 26px !important;
+  outline: none;
+}
+
+.baseline-header-button-group {
+  display: flex;
+  justify-content: center;
+}
+
+/* TODO(mdc-migration): The following rule targets internal classes of button that may no longer apply for the MDC version. */
+.control-mat-button-toggle {
+  @include themify($themes) {
+    background-color: themed('background-white');
+  }
+}
+
+.more-horiz {
+  margin-bottom: -11px;
+  margin-left: 0;
+  font-size: 16px !important;
+
+}
+
+.warn-icon {
+  margin-right: 5px;
+
+  @include themify($themes) {
+    color: themed('warn');
+  }
+}
+
+.gap-detected-area {
+  margin-top: -5px;
+
+  @include themify($themes) {
+    color: themed('dark-primary-text') !important;
+  }
+}
+
+.gap-detected-layout {
+  display: flex;
+  place-items: center;
+}
+
+.pair-detail-scroll {
+  height: 100%;
+  overflow: auto;
+}
+
+.pair-metadata {
+  padding-bottom: 36px;
+  margin: 5px;
+}
+
+.product-name-spacing {
+  margin-bottom: 4px;
+}
+
+.dataset-link-spacing {
+  margin-bottom: 12px;
+}
+
+.no-pair-message {
+  padding-top: 10px;
+  text-align: center;
+}
+
+.baseline-chart {
+  height: 100%;
+}

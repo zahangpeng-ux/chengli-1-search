@@ -1,0 +1,236 @@
+@use "@angular/material" as mat;
+@use "asf-theme-variables" as *;
+
+$config: mat.m2-define-legacy-typography-config();
+
+.mp0-ellipsis-mobile {
+  display: inline-block;
+  width: 250px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mp0-ellipsis {
+  display: inline-block;
+  width: 800px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+a {
+  text-decoration: none;
+
+  @include themify($themes) {
+    color: themed('blue-link');
+  }
+}
+
+.browse-dialog {
+  @include themify($themes) {
+    background-color: themed('primary-light');
+  }
+
+  height: 100%;
+  overflow: hidden;
+
+  :focus {
+    outline: none;
+  }
+
+  .dialog-header {
+    min-height: 60px;
+  }
+
+  .main-window {
+    position: relative;
+    height: calc(100% - 285px);
+  }
+
+  .main-window-mobile {
+    position: relative;
+    height: 50vh;
+  }
+
+  .browse-list {
+    @include themify($themes) {
+      background-color: themed('primary-light');
+    }
+
+    min-height: 140px;
+  }
+
+  .scene-detail--wrapper {
+    @include themify($themes) {
+      color: themed('dark-primary-text');
+      background-color: themed('primary-light');
+      border-left-color: themed('primary-dark');
+    }
+
+    box-sizing: border-box;
+    flex: 1 1 100%;
+    min-width: 200px;
+    max-width: 25%;
+    overflow-y: auto;
+    border-left-style: solid;
+    border-left-width: 1px;
+
+    .scene-detail {
+      margin: 0 10px;
+    }
+  }
+}
+
+.dialog-header--layout {
+  @include themify($themes) {
+    color: themed('dark-primary-text');
+    border-bottom-color: themed('dark-primary-text');
+  }
+
+  min-height: 60px;
+  margin: 6px;
+  border-bottom-style: solid;
+  border-bottom-width: 1px;
+}
+
+.browse-map--size {
+  max-width: 100%;
+  max-height: 100%;
+  overflow: hidden;
+}
+
+.browse-map--layout {
+  box-sizing: border-box;
+  display: flex;
+  flex: 1 1 0%;
+  flex-direction: row-reverse;
+  place-content: flex-end;
+  align-items: flex-end;
+}
+
+.browse-map--overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.block-btn {
+  width: 100%;
+}
+
+.btn-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.btn-group button {
+  margin-bottom: 10px;
+}
+
+.browse-drag-handle {
+  @include themify($themes) {
+    color: themed('dark-primary-text');
+  }
+
+  height: 24px;
+  cursor: move;
+}
+
+.close-button {
+  @include themify($themes) {
+    color: themed('dark-primary-text');
+  }
+
+  margin-bottom: 5px;
+  vertical-align: top !important;
+}
+
+.file-list {
+  overflow-y: auto;
+}
+
+
+.detail-header {
+  margin-top: 8px;
+  font-weight: bold;
+}
+
+/* TODO(mdc-migration): The following rule targets internal classes of list that may no longer apply for the MDC version. */
+.mat-mdc-list-base[dense] .mat-mdc-list-item .mat-list-item-content {
+  padding: 0;
+}
+
+.bottom-row {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: row;
+  place-content: flex-end;
+  align-items: flex-end;
+  margin-top: 10px;
+  font-size: 14px;
+  text-align: center;
+}
+
+.close-icon {
+  right: 0;
+  box-sizing: border-box;
+  flex: 1 1 35px;
+  min-width: 35px;
+  max-width: 42px;
+}
+
+.thumbs {
+  position: absolute;
+  top: 90px;
+  left: 10px;
+  z-index: 9;
+}
+
+
+.mat-mdc-card-sm-image {
+  width: 50px;
+  height: 50px;
+}
+
+.mat-mdc-card-md-image {
+  width: 125px;
+  height: 125px;
+}
+
+.download-icon {
+  width: 12px !important;
+  height: 12px !important;
+  margin-right: 15px;
+}
+
+.file-button-download {
+  @include themify($themes) {
+    background-color: lighten(themed('primary-light'), 10%);
+  }
+
+  margin-bottom: 5px;
+}
+
+.on-demand-scene-names {
+  margin-bottom: 0;
+  font-size: 12px;
+  word-break: break-word;
+}
+
+.footer {
+  @include themify($themes) {
+    border-top: 1px solid themed('primary-dark');
+  }
+
+  position: sticky;
+  bottom: 0;
+  z-index: 1020;
+  display: flex;
+  flex-shrink: 0;
+  flex-direction: row;
+  justify-content: flex-end;
+  padding: 10px;
+  padding-top: 13.5px;
+}

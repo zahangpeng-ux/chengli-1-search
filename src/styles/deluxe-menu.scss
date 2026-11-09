@@ -1,0 +1,131 @@
+@use "asf-theme-variables" as *;
+
+hr {
+  @include themify($themes) {
+    border-top-color: rgb(themed('primary-light'), 0.2);
+  }
+
+  margin-block: 0;
+}
+
+.spacing {
+  margin-left: 0;
+  line-height: inherit !important;
+  vertical-align: middle;
+}
+
+.nav-icon-buttons {
+  top: -3px;
+}
+
+.text-under {
+  margin-left: 0;
+  font-weight: 400;
+}
+
+.large-icon {
+  @include md-icon-size(30px);
+
+  min-height: 30px;
+  margin-right: 0;
+
+  @include themify($themes) {
+    color: themed('dark-primary-text');
+  }
+}
+
+.mat-mdc-icon-button {
+  min-width: 60px;
+  height: 36px;
+  line-height: 36px;
+}
+
+.mat-mdc-list-item {
+  @include themify($themes) {
+    color: themed('dark-primary-text');
+  }
+}
+
+.menu-hr {
+  @include themify($themes) {
+    color: themed('dark-primary-text');
+    background-color: themed('primary-dark');
+  }
+
+  height: 1px;
+  background-image: none;
+  border: none;
+  opacity: 1;
+}
+
+.mobile-icon-spacing {
+  margin: 0 5px;
+}
+
+::ng-deep.mat-mdc-menu-panel {
+  max-width: 600px;
+}
+
+.mat-mdc-menu-item {
+  @include themify($themes) {
+    background-color: themed('background-white') !important;
+  }
+
+  height: auto;
+  font-weight: 400;
+}
+
+.disabled {
+  opacity: 0.2;
+}
+
+.menu-item {
+  // display: flex !important;
+  flex-flow: row;
+  margin: 10px;
+}
+
+.menu-item-content {
+  flex: 7;
+  white-space: normal;
+}
+
+.item-content {
+  @include themify($themes) {
+    color: themed('blue-link') !important;
+  }
+
+  line-height: 18px;
+}
+
+.item-title {
+  @include themify_non_host($themes) {
+    color: themed('dark-primary-text');
+  }
+
+  margin-bottom: 12px;
+  font-size: 18px;
+  line-height: 22px;
+}
+
+.menu-item-aside {
+  flex: 3;
+  align-items: center;
+  text-align: center;
+}
+
+.menu-item-icon {
+  @include md-icon-size(65px);
+
+  margin-right: 0;
+
+  @include themify_non_host($themes) {
+    color: themed('dark-primary-text');
+  }
+}
+
+.dataset-date-range {
+  @include themify_non_host($themes) {
+   color: themed('dark-disabled-text') !important;
+  }
+}

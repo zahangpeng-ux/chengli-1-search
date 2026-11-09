@@ -1,0 +1,390 @@
+:host {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+}
+
+.query-panel {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  background: #ffffff;
+}
+
+.panel-tabs {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 22px;
+  padding: 6px 16px 0;
+  border-bottom: 1px solid #eef1f6;
+}
+
+.panel-tab {
+  padding: 10px 0;
+  font-size: 14px;
+  color: #7b8496;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+
+  &.active {
+    font-weight: 600;
+    color: #2f54eb;
+    cursor: default;
+    border-bottom-color: #2f54eb;
+  }
+}
+
+.panel-scroll {
+  flex: 1;
+  min-height: 0;
+  padding: 14px 16px 20px;
+  overflow-y: auto;
+}
+
+.sensor-segment {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px;
+  padding: 3px;
+  background: #f3f5f9;
+  border-radius: 8px;
+}
+
+.sensor-btn {
+  height: 32px;
+  font-size: 13px;
+  color: #5b6475;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  transition: all 0.15s ease;
+
+  &.active {
+    font-weight: 600;
+    color: #2f54eb;
+    background: #ffffff;
+    box-shadow: 0 1px 4px rgb(29 40 72 / 10%);
+  }
+}
+
+.dataset-row {
+  margin-top: 12px;
+}
+
+.dataset-row ::ng-deep .menu-button-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.dataset-row ::ng-deep .button-label {
+  font-size: 12px;
+  color: #8a93a5;
+}
+
+.dataset-row ::ng-deep .button-menu-trigger {
+  width: 100%;
+  min-width: 0;
+  height: 38px;
+  padding: 0 12px;
+  font-size: 13px;
+  text-align: left;
+  background: #f8faff;
+  border: 1px solid #e3e8f4;
+  border-radius: 8px;
+}
+
+.panel-card {
+  position: relative;
+  padding: 14px;
+  margin-top: 12px;
+  background: #f8faff;
+  border: 1px solid #e3e8f4;
+  border-radius: 10px;
+}
+
+.section-title {
+  display: flex;
+  gap: 3px;
+  align-items: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: #1d2433;
+}
+
+.required {
+  font-size: 13px;
+  color: #e5484d;
+}
+
+.range-hint {
+  margin: 3px 0 10px;
+  font-size: 12px;
+  color: #8a93a5;
+}
+
+.range-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.range-btn {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  height: 36px;
+  padding: 0 10px;
+  font-size: 12px;
+  color: #3d4659;
+  cursor: pointer;
+  background: #ffffff;
+  border: 1px solid #dfe5f2;
+  border-radius: 8px;
+  transition: all 0.15s ease;
+
+  .mat-icon {
+    flex: 0 0 auto;
+    width: 16px;
+    height: 16px;
+    font-size: 16px;
+    color: #5b6475;
+  }
+
+  .caret {
+    margin-left: auto;
+  }
+
+  &:hover {
+    color: #2f54eb;
+    border-color: #b9c6ff;
+    background: #f5f8ff;
+
+    .mat-icon {
+      color: #2f54eb;
+    }
+  }
+}
+
+.range-tip {
+  margin: 10px 0 0;
+  font-size: 11px;
+  line-height: 1.5;
+  color: #9aa3b2;
+}
+
+app-aoi-filter {
+  display: block;
+  margin-top: 8px;
+}
+
+::ng-deep .range-card app-aoi-filter .breadcrumb-filter {
+  position: static;
+  width: auto;
+  max-height: 320px;
+  padding: 0;
+  margin-top: 8px;
+  overflow-y: auto;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+::ng-deep .range-card app-aoi-filter .input-field {
+  width: 100%;
+  height: auto;
+  font-size: 12px;
+}
+
+::ng-deep .range-card app-aoi-filter .mat-form-field {
+  height: auto !important;
+}
+
+::ng-deep .range-card app-aoi-filter .mat-form-field-wrapper {
+  padding-bottom: 0 !important;
+}
+
+.panel-section {
+  padding-top: 14px;
+  margin-top: 14px;
+  border-top: 1px solid #eef1f6;
+}
+
+::ng-deep .panel-section app-date-selector .date-selector {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+::ng-deep .panel-section app-date-selector .date-input-field {
+  width: calc(50% - 4px);
+  min-width: 0;
+  font-size: 12px;
+}
+
+::ng-deep .panel-section app-date-selector .mat-mdc-form-field-subscript-wrapper {
+  display: none;
+}
+
+.quick-ranges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.quick-range {
+  height: 26px;
+  padding: 0 10px;
+  font-size: 12px;
+  color: #5b6475;
+  cursor: pointer;
+  background: #ffffff;
+  border: 1px solid #e3e8f4;
+  border-radius: 13px;
+  transition: all 0.15s ease;
+
+  &:hover {
+    color: #2f54eb;
+    border-color: #b9c6ff;
+  }
+
+  &.active {
+    color: #2f54eb;
+    background: #eef3ff;
+    border-color: #2f54eb;
+  }
+}
+
+.slider-row {
+  display: grid;
+  grid-template-columns: 62px minmax(0, 1fr) 40px;
+  gap: 8px;
+  align-items: center;
+  margin-top: 4px;
+}
+
+.slider-label {
+  font-size: 12px;
+  color: #5b6475;
+}
+
+.slider {
+  width: 100%;
+}
+
+::ng-deep .slider .mat-mdc-slider {
+  width: 100%;
+  min-width: 0;
+  height: 32px;
+}
+
+.slider-value {
+  font-size: 12px;
+  color: #2f54eb;
+  text-align: right;
+}
+
+.panel-info {
+  padding-top: 10px;
+  margin-top: 14px;
+  overflow: hidden;
+  font-size: 11px;
+  color: #8a93a5;
+  border-top: 1px solid #eef1f6;
+}
+
+.panel-footer {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 10px;
+  align-items: center;
+  padding: 12px 16px;
+  background: #ffffff;
+  border-top: 1px solid #eef1f6;
+  box-shadow: 0 -4px 14px rgb(29 40 72 / 6%);
+}
+
+.reset-button {
+  flex: 0 0 auto;
+  height: 40px;
+  padding: 0 18px;
+  font-size: 14px;
+  color: #5b6475;
+  cursor: pointer;
+  background: #ffffff;
+  border: 1px solid #dfe5f2;
+  border-radius: 8px;
+
+  &:hover {
+    color: #2f54eb;
+    border-color: #b9c6ff;
+  }
+}
+
+app-search-button {
+  flex: 1;
+  min-width: 0;
+}
+
+::ng-deep app-search-button #dataset-button-toggle-group {
+  width: 100%;
+  border-radius: 8px;
+}
+
+::ng-deep app-search-button .search-button {
+  width: 100%;
+  height: 40px !important;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 8px 0 0 8px !important;
+}
+
+::ng-deep app-search-button .arrow-button-toggle {
+  height: 40px;
+  padding-top: 8px !important;
+  border-radius: 0 8px 8px 0 !important;
+}
+
+// ===== 精准查询 =====
+.precise-field {
+  margin-top: 14px;
+}
+
+.precise-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #1d2433;
+}
+
+.precise-text-input {
+  width: 100%;
+  height: 38px;
+  padding: 0 12px;
+  margin-top: 6px;
+  font-size: 13px;
+  color: #1d2433;
+  background: #f3f5f9;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  outline: none;
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease;
+
+  &::placeholder {
+    color: #9aa3b2;
+  }
+
+  &:focus {
+    background: #ffffff;
+    border-color: #2f54eb;
+  }
+}

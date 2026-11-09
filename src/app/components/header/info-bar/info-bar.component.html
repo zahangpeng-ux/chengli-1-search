@@ -1,0 +1,248 @@
+@if (breakpoint$ | async; as breakpoint) {
+  <div class="info-bar">
+    <div class="first-info">
+      @if (searchType() === searchTypes.CUSTOM_PRODUCTS) {
+        <span>
+          <app-hyp3-url></app-hyp3-url>
+          <span>
+            @if (!!userID()) {
+              <span>
+                <b>{{ 'USER_ID_INFO_BAR' | translate }}:</b> {{ userID() }}
+              </span>
+            }
+            @if (jobIds()?.length) {
+              <span>
+                <b>{{ 'HYP3_JOB_IDS_INFO_BAR' | translate }}:</b>
+                {{ jobIds().length }}
+              </span>
+            }
+          </span>
+        </span>
+      }
+      @if (breakpoint > breakpoints.SMALL && !!startDate()) {
+        <span>
+          <b>{{ 'START' | translate }}:</b> {{ startDate() | shortDate }}
+        </span>
+      }
+      @if (breakpoint > breakpoints.SMALL && !!endDate()) {
+        <span>
+          <b>{{ 'END' | translate }}:</b> {{ endDate() | shortDate }}
+        </span>
+      }
+      @if (pathRange().start || pathRange().end) {
+        <span>
+          <b>
+            @if (useTrack()) {
+              {{ 'TRACK' | translate }}
+            } @else {
+              {{ 'PATH' | translate }}
+            }
+            :</b
+          >
+          {{ pathRange().start }} - {{ pathRange().end }}
+        </span>
+      }
+      @if (frameRange().start || frameRange().end) {
+        <span>
+          <b>{{ 'FRAME' | translate }}:</b> {{ frameRange().start }} -
+          {{ frameRange().end }}
+        </span>
+      }
+      @if (season().start || season().end) {
+        <span>
+          <b>{{ 'SEASON' | translate }}:</b> {{ season().start }} -
+          {{ season().end }}
+        </span>
+      }
+      @if (shouldOmitSearchPolygon()) {
+        <span>
+          <b>{{ 'OMIT_GEO' | translate }}:</b>
+          {{ shouldOmitSearchPolygon() ? 'Yes' : 'No' }}
+        </span>
+      }
+      @if (productTypes()) {
+        <span>
+          <b>{{ 'FILE_TYPES' | translate }}:</b> {{ productTypes() }}
+        </span>
+      }
+      @if (beamModes().length) {
+        <span>
+          <b>{{ 'BEAM_MODES' | translate | titlecase }}:</b> {{ beamModes() }}
+        </span>
+      }
+      @if (polarizations().length) {
+        <span>
+          <b>
+            @if (dataset().id !== 'NISAR') {
+              {{ 'POLARIZATIONS' | translate }}
+            } @else {
+              {{ 'MAIN_POLARIZATIONS' | translate }}
+            }
+            :</b
+          >
+          {{ polarizations() | join: ', ' }}
+        </span>
+      }
+      @if (sidePolarizations().length) {
+        <span>
+          <b>{{ 'SIDE_POLARIZATIONS' | translate }}:</b>
+          {{ sidePolarizations() | join: ', ' }}
+        </span>
+      }
+      @if (instruments().length) {
+        <span>
+          <b>{{ 'INSTRUMENTS' | translate }}:</b> {{ instruments() }}
+        </span>
+      }
+      @if (frameCoverage().length) {
+        <span>
+          <b>{{ 'FRAME_COVERAGE' | translate }}:</b> {{ frameCoverage() }}
+        </span>
+      }
+      @if (rangeBandwidth().length) {
+        <span>
+          <b>{{ 'RANGE_BANDWIDTH' | translate }}:</b> {{ rangeBandwidth() }}
+        </span>
+      }
+      @if (jointObservation().length) {
+        <span>
+          <b>{{ 'ACQUISITION_COVERAGE' | translate }}:</b>
+          {{ jointObservation() }}
+        </span>
+      }
+      @if (dataset().id === 'NISAR') {
+        @if (scienceProducts().length) {
+          <span>
+            <b>{{ 'SCIENCE_PRODUCT' | translate }}:</b>
+            {{ scienceProducts() | join: ', ' }}
+          </span>
+        }
+        @if (productionConfig().length) {
+          <span>
+            <b>{{ 'PRODUCTION_CONFIGURATION' | translate }}:</b>
+            {{ productionConfig() }}
+          </span>
+        }
+        @if (productMaturity().length) {
+          <span>
+            <b>{{ 'PRODUCT_MATURITY' | translate }}:</b>
+            {{ productMaturity() | join: ', ' }}
+          </span>
+        }
+      }
+      @if (flightDirections().length) {
+        <span>
+          <b>{{ 'FLIGHT_DIR' | translate }}:</b> {{ flightDirections() }}
+        </span>
+      }
+      @if (platforms()) {
+        <span>
+          <b>{{ 'SATELLITES' | translate }}:</b> {{ platforms() }}
+        </span>
+      }
+      @if (mission()) {
+        <span>
+          @if (dataset() | isRelevant: p.SITE_DESCRIPTION) {
+            <b>{{ 'SITE_DESCRIPTION' | translate }}:</b>
+          } @else {
+            <b>{{ 'CAMPAIGN' | translate }}:</b>
+          }
+          {{ mission() }}
+        </span>
+      }
+      @if (searchType() !== searchTypes.DISPLACEMENT) {
+        <span>
+          @if (tempRange().start || tempRange().end) {
+            <span>
+              <b>{{ 'TEMPORAL' | translate }}:</b> {{ tempRange().start }}
+              @if (!!tempRange().end) {
+                <span> {{ 'TO' | translate }} {{ tempRange().end }}</span>
+              }
+            </span>
+          }
+        </span>
+      }
+      @if (perpRange().start || perpRange().end) {
+        <span>
+          <b>{{ 'PERPENDICULAR' | translate }}:</b> {{ perpRange().start }}
+          @if (!!perpRange().end) {
+            <span> {{ 'TO' | translate }} {{ perpRange().end }} </span>
+          }
+        </span>
+      }
+      <span>
+        @if (fullBurstIDs()?.length > 0) {
+          <span>
+            <b>{{ 'FULL_BURST_ID' | translate }}:</b>
+            {{
+              fullBurstIDs().length <= 4
+                ? fullBurstIDs().join(', ')
+                : fullBurstIDs().length + ' IDs'
+            }}
+          </span>
+        }
+      </span>
+      <span>
+        @if (operaBurstIDs()?.length > 0) {
+          <span>
+            <b>{{ 'OPERA_BURST_ID' | translate }}:</b>
+            {{
+              operaBurstIDs().length <= 4
+                ? operaBurstIDs().join(', ')
+                : operaBurstIDs().length + ' IDs'
+            }}
+          </span>
+        }
+      </span>
+      <span>
+        @if (useCalibrationData()) {
+          <span>
+            <b>{{ 'DATA_TYPE' | translate }}:</b>
+            {{ 'CALIBRATION' | translate }}
+          </span>
+        }
+      </span>
+      <span>
+        @if (!!groupID()) {
+          <span>
+            <b> {{ 'GROUP_ID_INFO_BAR' | translate }}:</b> {{ groupID() }}
+          </span>
+        }
+      </span>
+      <span>
+        @if (!!shortNames()) {
+          <span>
+            <b> {{ 'SHORT_NAMES' | translate }}:</b> {{ shortNames() }}
+          </span>
+        }
+      </span>
+      <span>
+        @if (!!ariaVersion()) {
+          <span>
+            <b> {{ 'ARIA_VERSION' | translate }}:</b> {{ ariaVersion() }}
+          </span>
+        }
+      </span>
+      @if (!!tileID()) {
+        <span>
+          <b> {{ 'TILE_ID' | translate }}:</b> {{ tileID() }}
+        </span>
+      }
+      @if (granuleList()) {
+        <span>
+          <b> {{ 'SCENE_PATTERN_LIST' | translate }}:</b>
+          @if (granuleList().length > maxStringLength) {
+            {{
+              (granuleListMinified() > 1
+                ? 'SCENE_PATTERN_LIST_COUNTS'
+                : 'SCENE_PATTERN_LIST_COUNT'
+              ) | translate: { count: granuleListMinified() }
+            }}
+          } @else {
+            {{ granuleList() }}
+          }
+        </span>
+      }
+    </div>
+  </div>
+}

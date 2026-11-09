@@ -1,0 +1,40 @@
+export enum Props {
+  DATE = 'Date',
+  BEAM_MODE = 'Beam Mode',
+  PATH = 'Path',
+  FRAME = 'Frame',
+  FLIGHT_DIRECTION = 'Flight Direction',
+  POLARIZATION = 'Polarization',
+  ABSOLUTE_ORBIT = 'Absolute Orbit',
+  MISSION_NAME = 'Mission Name',
+  SITE_DESCRIPTION = 'Site Description',
+  FLIGHT_LINE = 'Flight Line',
+  OFF_NADIR_ANGLE = 'Off Nadir Angle',
+  FARADAY_ROTATION = 'Faraday Rotation',
+  STACK_SIZE = 'Stack Size',
+  BASELINE_TOOL = 'Baseline Tool',
+  PLATFORM = 'Platform',
+  INSTRUMENT = 'Instrument',
+  POINTING_ANGLE = 'Pointing Angle',
+  COVERAGE_ANGLE = 'Coverage Angle',
+  JOINT_OBSERVATION = 'Joint Observation',
+  SIDE_POLARIZATION = 'Side Polarization',
+  RANGE_BANDWIDTH = 'Range Bandwidth',
+  USE_BEAM_MODE = 'Use Beam Mode Filter',
+  USE_PROCESSING_TYPE = 'Use Processing Type',
+  USE_TRACK = 'Use Track for Path',
+  FRAME_ORDERING = 'Allow ordering frames via SBAS tooling',
+  SINGLE_PRODUCT = 'Scene list toggle button only adds/removes base product',
+  DEPRECATED = 'Dataset pending deprecation',
+  PAIR_SELECTION = 'Enable Pair Selection Tool',
+}
+
+export enum JointObservation {
+  JOINT = 'Joint',
+  SINGLE = 'Single',
+}
+
+export const apiParamNames = {
+  [Props.PATH]: 'relativeOrbit',
+  [Props.FRAME]: 'frame',
+};

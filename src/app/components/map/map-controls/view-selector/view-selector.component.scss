@@ -1,0 +1,61 @@
+@use "asf-theme-variables" as *;
+
+.view-btn {
+  @include themify($themes) {
+    svg {
+      fill: themed('dark-primary-text');
+    }
+  }
+
+  width: 19px;
+  height: 19px;
+  margin-right: 0;
+  margin-left: 0;
+}
+
+.view-button-group {
+  line-height: 14px !important;
+}
+
+.projection-container {
+ display: flex;
+ flex-direction: row;
+}
+
+.view-select-button {
+  @include themify($themes) {
+    color: themed('dark-primary-text');
+    background: themed('background-white');
+  }
+
+  display: grid;
+  place-content: center;
+  width: 18px !important;
+  min-width: 53px !important;
+  height: 27px !important;
+  margin: 0;
+  font-size: 18px !important;
+  line-height: 19px;
+  text-align: center;
+  border: solid 1px rgb(0 0 0 / 12%);
+  border-radius: 4px !important;
+}
+
+.view-select-icon {
+  display: inline-block;
+}
+
+.view-menu-icon {
+  margin-right: 12px;
+}
+
+.bottom-right {
+  @include themify($themes) {
+    color: themed('primary');
+  }
+
+  position: absolute;
+  right: -21px;
+  bottom: -9px;
+  transform: rotate(-45deg);
+}

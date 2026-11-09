@@ -1,0 +1,115 @@
+@use "asf-theme-variables" as *;
+
+.search-options-row {
+  display: flex;
+  margin-top: 25px;
+
+  app-search-type-selector {
+    margin-right: 10px;
+  }
+}
+
+.ls-example {
+  font-style: italic;
+  color: grey;
+  word-break: break-all;
+}
+
+.list-type-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  margin-bottom: 10px;
+}
+
+.list-type-label {
+  margin-right: 15px;
+}
+
+.list-input {
+  width: 80%;
+  padding-right: 12px;
+}
+
+.file-upload-container {
+  width: 30%;
+  margin-bottom: 20px;
+}
+
+.drop-file-area {
+  @include themify($themes) {
+    outline: 2px dashed themed('primary');
+    background-color: darken(themed('background-white'), 10%);
+  }
+
+  display: inline-block;
+  width: 230px;
+  height: 175px;
+  outline-offset: -8px;
+  background-image: url('/assets/icons/cloud_upload_black_48dp.svg');
+  background-repeat: no-repeat;
+  background-position: center 40%;
+  background-size: 35%;
+}
+
+.dd-text {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  font-size: 18px;
+  font-weight: bold;
+  text-align: center;
+
+  @include themify($themes) {
+    color: lighten(themed('dark-primary-text'), 20%);
+  }
+
+  .dd-text-1 {
+    margin-top: 20px;
+    font-size: 18px;
+  }
+
+  .dd-bottom-text {
+    margin-bottom: 10px;
+
+    .dd-text-2 {
+      font-size: 12px;
+    }
+  }
+}
+
+.file-upload-text {
+  margin-top: 25%;
+  margin-right: 15%;
+  margin-left: 20%;
+  font-weight: 400;
+  color: rgb(0 0 0 / 54%);
+}
+
+.input-field-container {
+  display: flex;
+  flex-direction: row;
+}
+
+.panel-title {
+  @include themify($themes) {
+    color: themed('dark-primary-text') !important;
+  }
+}
+
+.asf-manual-link {
+  @include themify($themes) {
+    color: themed('dark-secondary-text')
+  }
+
+  display: inline-block;
+  line-height: 0;
+
+  ::ng-deep.material-icons {
+    margin-top: 8px;
+    margin-left: 5px;
+    font-size: 16px !important;
+  }
+}

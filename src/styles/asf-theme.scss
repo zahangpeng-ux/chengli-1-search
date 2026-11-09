@@ -1,0 +1,56 @@
+/* csslint ignoreAtRules: ["include"] */
+@use "@angular/material" as mat;
+@use "asf-theme-variables" as theme-vars;
+
+// Re-export everything from theme variables for backward compatibility
+@forward "asf-theme-variables";
+
+// Import with wildcard to use variables directly
+@use "asf-theme-variables" as *;
+
+// Include the common styles for Angular Material. We include this here so that you only
+// have to load a single css file for Angular Material in your app.
+// Be sure that you only ever include this mixin once!
+// TODO(v15): As of v15 mat.legacy-core no longer includes default typography styles.
+//  The following line adds:
+//    1. Default typography styles for all components
+//    2. Styles for typography hierarchy classes (e.g. .mat-headline-1)
+//  If you specify typography styles for the components you use elsewhere, you should delete this line.
+//  If you don't need the default component typographies but still want the hierarchy styles,
+//  you can delete this line and instead use:
+//    `@include mat.legacy-typography-hierarchy(mat.define-legacy-typography-config());`
+// @include mat.all-legacy-component-typographies();
+@include mat.elevation-classes;
+@include mat.app-background;
+
+
+$theme-ignore-duplication-warnings: true;
+
+button,
+.mat-expansion-panel,
+.mat-panel,
+.mat-mdc-card {
+  border-radius: 0 !important;
+
+  // font-size: 14px;
+}
+
+// Define light theme
+$asf-light-theme: mat.m2-define-light-theme((
+  color: (
+    primary: $asf-app-primary,
+    accent: $asf-app-accent,
+  ),
+  typography: mat.m2-define-typography-config(),
+  density: -1,
+));
+
+// Define dark theme
+$asf-dark-theme: mat.m2-define-dark-theme((
+  color: (
+    primary: $asf-app-dark-primary,
+    accent: $asf-app-accent,
+  ),
+  typography: mat.m2-define-typography-config(),
+  density: -1,
+));

@@ -1,0 +1,14 @@
+<mat-form-field>
+  <mat-label>{{ 'JOB_STATUS' | translate }}</mat-label>
+  <mat-select
+    (selectionChange)="onNewJobStatusSelected($event.value)"
+    [(ngModel)]="selectedJobStatuses"
+    multiple
+  >
+    @for (jobStatus of jobStatuses; track jobStatus) {
+      <mat-option [value]="jobStatus">
+        {{ upperCaseFirst(jobStatus | translate, true) }}
+      </mat-option>
+    }
+  </mat-select>
+</mat-form-field>

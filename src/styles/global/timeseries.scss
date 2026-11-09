@@ -1,0 +1,26 @@
+@use "asf-theme" as *;
+
+.ts-best-fit-formulas {
+  timeseries-chart .cdk-virtual-scrollable {
+    overflow: auto clip;
+  }
+}
+
+.ts-snackbar {
+  // timeseries-results-menu
+  @include themify($themes) {
+    color: themed('dark-primary-text');
+    background-color: themed('primary-light');
+  }
+
+  margin-bottom: 27px !important;
+  text-align: center;
+
+}
+
+.ts-invalid-point {
+  // timeseries-chart
+  fill: rgb(0 0 0 / 0%) !important;
+  stroke-width: 1;
+  stroke-dasharray: 2;
+}

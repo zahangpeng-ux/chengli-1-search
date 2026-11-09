@@ -1,0 +1,115 @@
+import { Injectable, inject } from '@angular/core';
+import { DateAdapter } from '@angular/material/core';
+import { Title } from '@angular/platform-browser';
+import { Store } from '@ngrx/store';
+import { TranslateService } from '@ngx-translate/core';
+import * as moment from 'moment';
+import 'moment/locale/zh-cn';
+import { CookieService } from 'ngx-cookie-service';
+import { SubSink } from 'subsink';
+
+import { AppState } from '@store';
+import * as uiStore from '@store/ui';
+
+const defaultLanguage = 'zh';
+
+@Injectable({
+  providedIn: 'root',
+})
+export class AsfLanguageService {
+  translate = inject(TranslateService);
+  private cookieService = inject(CookieService);
+  private dateAdapter = inject<DateAdapter<Date>>(DateAdapter);
+  private store$ = inject<Store<AppState>>(Store);
+  private titleService = inject(Title);
+
+  public languageNamesInEnglish = new Intl.DisplayNames(['en'], {
+    type: 'language',
+  });
+  public browserLang: string;
+  private defaultProfileLanguage: string;
+  public languageCookie = 'Language';
+  public cookieOptions = {
+    path: '/',
+  };
+  private matchLanguagesRegex = /zh/;
+  private listLanguagesRegex = ['en', 'es', 'zh'];
+
+  public languageName = {
+    de: 'Deutsch',
+    en: 'English',
+    es: 'Español',
+    fr: 'Français',
+    pt: 'Português',
+    zh: '中文 (Chinese)',
+  };
+
+  private subs = new SubSink();
+
+  constructor() {
+    this.browserLang = this.translate.getBrowserLang();
+    this.initialize();
+  }
+
+  public setProfileLanguage(language: string): void {
+    this.defaultProfileLanguage = language;
+  }
+
+  private setCurrentLanguage(language: string): void {
+    this.store$.dispatch(new uiStore.SetCurrentLanguage(language));
+  }
+
+  public getName(langName?: string) {
+    if (!langName) {
+      if (this.translate.currentLang) {
+        return this.languageName[this.translate.currentLang];
+      } else {
+        moment.locale(defaultLanguage === 'zh' ? 'zh-cn' : defaultLanguage);
+        this.translate.use(defaultLanguage);
+        return this.languageName[defaultLanguage];
+      }
+    }
+    return this.languageName[langName];
+  }
+
+  public getEnglishName(langName: string) {
+    return this.languageNamesInEnglish.of(langName);
+  }
+
+  public setCurrent(language: string): void {
+    this.cookieService.set(this.languageCookie, language, this.cookieOptions);
+    moment.locale(language === 'zh' ? 'zh-cn' : language);
+    this.translate.use(language);
+    this.dateAdapter.setLocale(language);
+    this.setCurrentLanguage(language);
+    this.subs.add(
+      this.translate.get('ASF_DATA_SEARCH_TITLE').subscribe((title) => {
+        this.titleService.setTitle(title);
+      }),
+    );
+  }
+
+  public initialize(): void {
+    this.translate.addLangs(this.listLanguagesRegex);
+    this.translate.setDefaultLang(defaultLanguage);
+    // If the browser reports a language we support and if so use it as the current language
+    let currentLanguage = this.browserLang.match(this.matchLanguagesRegex)
+      ? this.browserLang
+      : defaultLanguage;
+    // If the user has a profile and established a language preference then set the current language to it
+    if (this.defaultProfileLanguage !== undefined) {
+      currentLanguage = this.defaultProfileLanguage;
+    }
+    // If a language cookie exists, override the current language with it.
+    // Else, set a language cookie to the current language
+    const cookieExists: boolean = this.cookieService.check(this.languageCookie);
+    if (cookieExists) {
+      const cookieLanguage = this.cookieService.get(this.languageCookie);
+      if (cookieLanguage.match(this.matchLanguagesRegex)) {
+        currentLanguage = cookieLanguage;
+      }
+    }
+    // Use the current language for the translation target
+    this.setCurrent(currentLanguage);
+  }
+}

@@ -1,0 +1,33 @@
+<ng-container class="browse-list">
+  <cdk-virtual-scroll-viewport
+    style="height: 150px"
+    orientation="horizontal"
+    class="browse-list-viewport w100 h100"
+    itemSize="110"
+    minBufferPx="10"
+    maxBufferPx="50"
+  >
+    <div
+      *cdkVirtualFor="let scene of scenes$ | async"
+      (click)="onNewSceneSelected(scene)"
+      [class.selected]="scene.id === selectedId"
+      class="clickable"
+    >
+      <div
+        class="browse-image--container"
+        [matBadgeHidden]="scene.browses.length <= 1"
+        [matBadge]="scene.browses.length"
+        matBadgePosition="above after"
+      >
+        <img
+          [src]="scene.browses[0]"
+          onerror="this.src='assets/no-browse.png'"
+          class="browse-image no-drag"
+        />
+        <div class="browse-image--date">
+          {{ scene.metadata.date | shortDate }}
+        </div>
+      </div>
+    </div>
+  </cdk-virtual-scroll-viewport>
+</ng-container>

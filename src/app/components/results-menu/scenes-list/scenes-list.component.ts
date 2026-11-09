@@ -1,0 +1,582 @@
+import {
+  CdkVirtualScrollViewport,
+  CdkFixedSizeVirtualScroll,
+  CdkVirtualForOf,
+} from '@angular/cdk/scrolling';
+import { NgClass, AsyncPipe, SlicePipe } from '@angular/common';
+import {
+  Component,
+  OnInit,
+  Input,
+  ViewChild,
+  ViewEncapsulation,
+  OnDestroy,
+  AfterContentInit,
+  inject,
+} from '@angular/core';
+import { MatButton } from '@angular/material/button';
+import { MatActionList, MatListItem } from '@angular/material/list';
+import { Store } from '@ngrx/store';
+import { TranslateModule } from '@ngx-translate/core';
+import { ActiveToast } from 'ngx-toastr';
+import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
+import {
+  tap,
+  withLatestFrom,
+  filter,
+  map,
+  delay,
+  debounceTime,
+  first,
+  distinctUntilChanged,
+} from 'rxjs/operators';
+import { SubSink } from 'subsink';
+
+import * as models from '@models';
+import { CMRProduct, QueuedHyp3Job } from '@models';
+import * as services from '@services';
+import { AppState } from '@store';
+import * as filtersStore from '@store/filters';
+import * as hyp3Store from '@store/hyp3';
+import * as queueStore from '@store/queue';
+import * as scenesStore from '@store/scenes';
+import * as searchStore from '@store/search';
+
+import { PairComponent } from './pair/pair.component';
+import { SceneComponent } from './scene/scene.component';
+
+const INFINITY = 2e10;
+
+@Component({
+  selector: 'app-scenes-list',
+  templateUrl: './scenes-list.component.html',
+  styleUrls: ['./scenes-list.component.scss'],
+  encapsulation: ViewEncapsulation.None,
+  imports: [
+    MatActionList,
+    NgClass,
+    CdkVirtualScrollViewport,
+    CdkFixedSizeVirtualScroll,
+
+    CdkVirtualForOf,
+    SceneComponent,
+    MatListItem,
+    MatButton,
+    PairComponent,
+    AsyncPipe,
+    SlicePipe,
+    TranslateModule,
+  ],
+})
+export class ScenesListComponent
+  implements OnInit, OnDestroy, AfterContentInit
+{
+  private store$ = inject<Store<AppState>>(Store);
+  private screenSize = inject(services.ScreenSizeService);
+  private keyboardService = inject(services.KeyboardService);
+  private scenesService = inject(services.ScenesService);
+  private pairService = inject(services.PairService);
+  private hyp3 = inject(services.Hyp3ApiService);
+  private hyp3JobPolling = inject(services.Hyp3JobPollingService);
+  private notificationService = inject(services.NotificationService);
+
+  @ViewChild(CdkVirtualScrollViewport, { static: true })
+  scroll: CdkVirtualScrollViewport;
+  @Input() resize$: Observable<void>;
+  private pairs$ = this.pairService.pairs$;
+
+  public scenes: CMRProduct[] = [];
+  public pairs: {
+    pair: models.CMRProductPair;
+    hyp3able: {
+      byJobType: models.Hyp3ableProductByJobType[];
+      total: number;
+    };
+  }[] = [];
+
+  public numberOfQueue: Record<string, number> = {};
+  public allQueued: Record<string, boolean> = {};
+  public allJobNames: string[] = [];
+  public queuedJobs: QueuedHyp3Job[] = [];
+  public selected: string;
+
+  public hyp3ableByScene: Record<
+    string,
+    { byJobType: models.Hyp3ableProductByJobType[]; total: number }
+  > = {};
+  public newHyp3JobNotification: ActiveToast<any> = null;
+
+  public offsets = this.store$.selectSignal(scenesStore.getMasterOffsets);
+  public selectedFromList = false;
+  public hoveredSceneName: string | null = null;
+  public hoveredPairNames: string | null = null;
+
+  private subs = new SubSink();
+
+  private productPageSize = 250;
+  private numberProductsInList$ = new BehaviorSubject(INFINITY);
+  public numberProductsInList: number;
+  private loadingDummyJobs = new Set<string>();
+  private loadingJobs = {};
+  private loadedInProjects = new Set<string>();
+
+  public breakpoint$ = this.screenSize.breakpoint$;
+  public breakpoints = models.Breakpoints;
+
+  public searchType: models.SearchType;
+  public SearchTypes = models.SearchType;
+
+  ngOnInit() {
+    this.keyboardService.init();
+
+    this.store$.select(queueStore.getQueuedJobs).subscribe((jobs) => {
+      const flattened: string[] = [];
+      for (const job of jobs) {
+        for (const product of job.granules) {
+          flattened.push(product?.name);
+        }
+      }
+
+      this.queuedJobs = jobs;
+      this.allJobNames = flattened;
+    });
+
+    this.subs.add(
+      this.store$
+        .select(searchStore.getSearchType)
+        .subscribe((searchType) => (this.searchType = searchType)),
+    );
+
+    const scenes$ = this.scenesService.scenes$;
+    const sortedScenes$: Observable<CMRProduct[]> =
+      this.scenesService.sortScenes$(scenes$);
+    const sortedScenesWithDelay$ = sortedScenes$.pipe(
+      debounceTime(250),
+      distinctUntilChanged(),
+    );
+
+    this.subs.add(
+      this.store$.select(searchStore.getSearchType).subscribe((searchType) => {
+        if (searchType === models.SearchType.CUSTOM_PRODUCTS) {
+          this.numberProductsInList = this.productPageSize;
+        } else {
+          this.numberProductsInList = INFINITY;
+        }
+
+        this.numberProductsInList$.next(this.numberProductsInList);
+      }),
+    );
+
+    this.subs.add(
+      this.numberProductsInList$.subscribe(
+        (num) => (this.numberProductsInList = num),
+      ),
+    );
+
+    this.subs.add(
+      sortedScenesWithDelay$.subscribe((scenes) => {
+        this.scenes = scenes;
+
+        this.loadDummyProducts(scenes);
+        this.removeLoadedScenes(scenes);
+      }),
+    );
+
+    this.subs.add(
+      this.store$
+        .select(scenesStore.getSelectedScene)
+        .pipe(
+          withLatestFrom(sortedScenes$),
+          /* There is some race condition with scrolling before the list is rendered.
+           * Doesn't scroll without the delay even though the function is called.
+           * */
+          delay(20),
+          filter(([selected, _]) => !!selected),
+          tap(([selected, _]) => (this.selected = selected.id)),
+          map(([selected, scenes]) => {
+            let sceneIdx = -1;
+            scenes.forEach((scene, idx) => {
+              if (scene.id === selected.id) {
+                sceneIdx = idx;
+              }
+            });
+            return Math.max(0, sceneIdx - 1);
+          }),
+        )
+        .subscribe((idx) => {
+          if (!this.selectedFromList) {
+            this.scrollTo(idx);
+          }
+
+          this.selectedFromList = false;
+        }),
+    );
+
+    this.subs.add(
+      combineLatest([
+        this.pairs$,
+        this.store$.select(filtersStore.getShouldUseFramesForReference),
+      ]).subscribe(([pairs, isFrameMode]) => {
+        this.pairs = [...pairs.pairs, ...pairs.custom].map((pair) => {
+          const hyp3able = this.hyp3.getHyp3ableProducts(
+            [pair, ...pair.map((p) => [p])],
+            isFrameMode,
+          );
+
+          return {
+            pair,
+            hyp3able,
+          };
+        });
+      }),
+    );
+
+    const baselineReference$ = combineLatest([
+      this.store$.select(scenesStore.getScenes),
+      this.store$.select(scenesStore.getMasterName),
+      this.store$.select(searchStore.getSearchType),
+    ]).pipe(
+      map(([scenes, referenceName, searchType]) => {
+        if (searchType === models.SearchType.BASELINE && !!referenceName) {
+          const referenceSceneIdx = scenes.findIndex(
+            (scene) => scene.name === referenceName,
+          );
+
+          if (referenceSceneIdx !== -1) {
+            return scenes[referenceSceneIdx];
+          }
+        } else {
+          return null;
+        }
+      }),
+    );
+
+    combineLatest([
+      this.store$.select(scenesStore.getAllSceneProducts),
+      this.store$.select(filtersStore.getShouldUseFramesForReference),
+    ])
+      .pipe(withLatestFrom(baselineReference$))
+      .subscribe(([[searchScenes, isFrameMode], baselineReference]) => {
+        this.hyp3ableByScene = {};
+
+        Object.entries(searchScenes).forEach(([groupId, products]) => {
+          const possibleJobs = [];
+          (products as any[]).forEach((product) => {
+            possibleJobs.push([product]);
+
+            if (!!baselineReference && baselineReference.id !== product.id) {
+              possibleJobs.push([baselineReference, product]);
+            }
+          });
+
+          const hyp3able = this.hyp3.getHyp3ableProducts(
+            possibleJobs,
+            isFrameMode,
+          );
+
+          this.hyp3ableByScene[groupId] = hyp3able;
+        });
+      });
+
+    const queueScenes$ = combineLatest([
+      this.store$.select(queueStore.getQueuedProducts),
+      this.store$.select(scenesStore.getAllSceneProductsFiltered),
+    ]).pipe(
+      debounceTime(0),
+      map(([queueProducts, searchScenes]) => {
+        const queuedProductGroups: Record<string, string[]> =
+          queueProducts.reduce((total, product) => {
+            const groupCriteria = this.getGroupCriteria(product);
+            const scene = total[groupCriteria] || [];
+
+            total[groupCriteria] = [...scene, product.id];
+            return total;
+          }, {});
+
+        const numberOfQueuedProducts = {};
+
+        Object.entries(searchScenes).map(([sceneName, products]) => {
+          numberOfQueuedProducts[sceneName] = [
+            (queuedProductGroups[sceneName] || []).length,
+            products.length,
+          ];
+        });
+
+        return numberOfQueuedProducts;
+      }),
+    );
+
+    this.subs.add(
+      queueScenes$
+        .pipe(
+          map((scenes) =>
+            Object.entries(scenes).reduce((total, [scene, amt]) => {
+              total[scene] = `${amt[0]}/${amt[1]}`;
+
+              return total;
+            }, {}),
+          ),
+        )
+        .subscribe((numberOfQueue) => (this.numberOfQueue = numberOfQueue)),
+    );
+
+    this.subs.add(
+      queueScenes$
+        .pipe(
+          map((scenes) =>
+            Object.entries(scenes).reduce((total, [scene, amt]) => {
+              total[scene] = amt[0] >= amt[1];
+              return total;
+            }, {}),
+          ),
+        )
+        .subscribe((allQueued) => (this.allQueued = allQueued)),
+    );
+
+    this.resize$.subscribe((_) => this.scroll.checkViewportSize());
+
+    this.subs.add(
+      this.store$
+        .select(searchStore.getIsLoading)
+        .pipe(filter((_) => !!this.scroll))
+        .subscribe((_) => this.scroll.scrollToOffset(0)),
+    );
+
+    this.subs.add(
+      this.store$
+        .select(scenesStore.getSelectedPair)
+        .pipe(
+          withLatestFrom(this.pairs$),
+          delay(20),
+          filter(([selected, _]) => !!selected),
+          map(([selected, pairs]) => {
+            const pairsCombined = [...pairs.pairs, ...pairs.custom];
+            const sceneIdx = pairsCombined.findIndex(
+              (pair) => pair[0] === selected[0] && pair[1] === selected[1],
+            );
+            return Math.max(0, sceneIdx - 1);
+          }),
+        )
+        .subscribe((idx) => {
+          if (!this.selectedFromList) {
+            this.scrollTo(idx);
+          }
+
+          this.selectedFromList = false;
+        }),
+    );
+
+    this.subs.add(
+      combineLatest([
+        this.scenesService.scenes$,
+        this.store$.select(scenesStore.getSelectedScene),
+      ])
+        .pipe(debounceTime(50))
+        .subscribe(([scenes, selectedScene]: any) => {
+          if (scenes && selectedScene) {
+            if (
+              scenes.slice(0, this.numberProductsInList).findIndex((value) => {
+                return value.id === selectedScene.id;
+              }) === -1
+            ) {
+              this.selectedFromList = false;
+              this.store$.dispatch(new scenesStore.SetSelectedScene(null));
+            }
+          }
+        }),
+    );
+
+    this.subs.add(
+      combineLatest([
+        this.pairService.pairs$,
+        this.store$.select(scenesStore.getSelectedPair),
+      ])
+        .pipe(debounceTime(50))
+        .subscribe(([pairs, selectedPair]: any) => {
+          if (!pairs.pairs || !selectedPair) {
+            return;
+          }
+          if (
+            [...pairs.pairs, ...pairs.custom].findIndex((value) => {
+              return (
+                value[0].id === selectedPair[0].id &&
+                value[1].id === selectedPair[1].id
+              );
+            }) === -1
+          ) {
+            this.selectedFromList = false;
+            this.store$.dispatch(new scenesStore.SetSelectedPair(null));
+          }
+        }),
+    );
+
+    const numFinishedJobs$ = this.hyp3JobPolling.pollHyp3Jobs$(
+      this.store$.select(searchStore.getSearchType),
+      scenes$,
+      this.store$.select(hyp3Store.getOnDemandUserId),
+    );
+
+    this.subs.add(
+      numFinishedJobs$
+        .pipe(
+          filter(
+            (numFinishedJobs) =>
+              numFinishedJobs > 0 && this.newHyp3JobNotification === null,
+          ),
+        )
+        .subscribe((numJobsFinished) => {
+          const plural = numJobsFinished > 1 ? 's' : '';
+
+          this.newHyp3JobNotification = this.notificationService.info(
+            `${numJobsFinished} HyP3 Job${plural} have finished`,
+            'Refresh to view',
+            { disableTimeOut: true },
+          );
+
+          this.subs.add(
+            this.newHyp3JobNotification.onTap.subscribe(
+              () => (this.newHyp3JobNotification = null),
+            ),
+          );
+        }),
+    );
+  }
+
+  ngAfterContentInit() {
+    this.subs.add(
+      this.pairs$
+        .pipe(
+          filter((loaded) => !!loaded),
+          withLatestFrom(this.store$.select(scenesStore.getSelectedPair)),
+          map(([pairs, selected]) => ({ selectedPair: selected, pairs })),
+          delay(400),
+          filter((selected) => !!selected.selectedPair),
+          first(),
+          map((selected) => {
+            const pairsCombined = [
+              ...selected.pairs.pairs,
+              ...selected.pairs.custom,
+            ];
+            const sceneIdx = pairsCombined.findIndex(
+              (pair) =>
+                pair[0] === selected.selectedPair[0] &&
+                pair[1] === selected.selectedPair[1],
+            );
+            return Math.max(0, sceneIdx - 1);
+          }),
+        )
+        .subscribe((idx) => {
+          if (!this.selectedFromList) {
+            this.scrollTo(idx);
+          }
+        }),
+    );
+  }
+
+  private scrollTo(idx: number): void {
+    this.scroll.scrollToIndex(idx);
+  }
+
+  public onSceneSelected(id: string): void {
+    this.selectedFromList = true;
+    this.store$.dispatch(new scenesStore.SetSelectedScene(id));
+  }
+
+  public onPairSelected(pair: string[]) {
+    this.selectedFromList = true;
+    this.store$.dispatch(new scenesStore.SetSelectedPair(pair));
+  }
+
+  public onToggleScene(groupCriteria: string): void {
+    if (!this.allQueued[groupCriteria]) {
+      this.store$.dispatch(new queueStore.QueueScene(groupCriteria));
+    } else {
+      this.store$.dispatch(new queueStore.RemoveSceneFromQueue(groupCriteria));
+    }
+  }
+
+  public getGroupCriteria(scene: CMRProduct): string {
+    const ungrouped_product_types = [
+      ...models.opera_s1.productTypes,
+      { apiValue: 'BURST' },
+      { apiValue: 'BURST_XML' },
+    ].map((m) => m.apiValue);
+
+    if (ungrouped_product_types.includes(scene.metadata.productType)) {
+      return scene.metadata.parentID || scene.id;
+    } else {
+      return scene.groupId;
+    }
+  }
+
+  private addToQueue(scenesToLoad: models.CMRProduct[]) {
+    scenesToLoad.forEach((s) => {
+      this.loadingDummyJobs.add(s.name);
+      this.loadedInProjects.add(s.metadata.job.name);
+    });
+
+    const scenesOutsideInitialLoad = this.scenes
+      .slice(this.numberProductsInList)
+      .filter((s) => s.isDummyProduct)
+      .filter(
+        (s) =>
+          this.loadedInProjects.has(s.metadata.job.name) &&
+          !new Set(Object.keys(this.loadingJobs)).has(s.id),
+      );
+
+    scenesToLoad = [...scenesToLoad, ...scenesOutsideInitialLoad];
+
+    if (
+      scenesToLoad.length === 0 ||
+      scenesToLoad.every((s) => this.loadingJobs.hasOwnProperty(s.id))
+    ) {
+      return;
+    }
+
+    scenesToLoad.forEach((s) => (this.loadingJobs[s.id] = s));
+    const newNumProducts =
+      this.numberProductsInList + scenesOutsideInitialLoad.length;
+
+    this.numberProductsInList$.next(newNumProducts);
+
+    this.store$.dispatch(
+      new searchStore.LoadOnDemandScenesList(Object.values(this.loadingJobs)),
+    );
+  }
+
+  public onLoadMoreCustomProducts() {
+    const oldNumProducts = this.numberProductsInList;
+    const newNumProducts = this.numberProductsInList + this.productPageSize;
+
+    const scenesToLoad = this.scenes
+      .slice(oldNumProducts, newNumProducts)
+      .filter((s) => s.isDummyProduct)
+      .filter((s) => !this.loadingDummyJobs.has(s.name));
+
+    this.addToQueue(scenesToLoad);
+
+    this.numberProductsInList$.next(newNumProducts);
+  }
+
+  private loadDummyProducts(scenes: CMRProduct[]) {
+    const scenesToLoad = scenes
+      .slice(0, this.numberProductsInList)
+      .filter((s) => s.isDummyProduct)
+      .filter((s) => !this.loadingDummyJobs.has(s.name));
+
+    this.addToQueue(scenesToLoad);
+  }
+
+  private removeLoadedScenes(scenes: CMRProduct[]) {
+    scenes
+      .filter((s) => !s.isDummyProduct)
+      .forEach((s) => {
+        this.loadingDummyJobs.delete(s.name);
+        delete this.loadingJobs[s.id];
+      });
+  }
+
+  ngOnDestroy() {
+    this.subs.unsubscribe();
+  }
+}

@@ -1,0 +1,152 @@
+@use "asf-theme-variables" as *;
+@use "variables" as *;
+
+%card-base {
+  @include themify($themes) {
+    color: themed('dark-primary-text');
+    background-color: themed('primary');
+  }
+
+  border-radius: 0;
+}
+
+.bounds {
+  height: 128px;
+}
+
+.content {
+  @extend %card-base;
+
+  box-shadow: none;
+}
+
+.sec1 {
+  margin-right: 9px;
+}
+
+.logo-card {
+  @include themify($themes) {
+    color: themed('background-white');
+    background-color: themed('primary-light');
+  }
+
+  box-sizing: border-box;
+  flex: 1 1 0%;
+  padding: 0 8px 0 0 !important;
+
+  .header {
+    margin-top: -10px;
+    font-size: 20px;
+    font-weight: 400;
+    line-height: 33px;
+    letter-spacing: 0.02em;
+  }
+
+  .subhead {
+    margin-bottom: 10px;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 15px;
+    letter-spacing: 0.1em;
+  }
+
+  p {
+    margin-top: -10px;
+    font-size: 12px;
+    font-style: italic;
+    letter-spacing: 0.02em;
+  }
+
+  a {
+    color: $asf-warn;
+  }
+}
+
+$icon-size: 36px;
+
+.menu-toggle-button {
+  @include themify($themes) {
+    color: themed('dark-primary-text');
+    background-color: themed('primary');
+  }
+
+  margin-top: 19px;
+  margin-left: 8px;
+  vertical-align: center;
+  text-align: center;
+  cursor: pointer;
+  border: none;
+  border-right: 1px solid transparent;
+  box-shadow: none !important;
+}
+
+.toggle-icon {
+  @include md-icon-size($icon-size);
+}
+
+.toggle-text {
+  width: 100%;
+  line-height: 0;
+}
+
+.banner-area {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+}
+
+.banner-image {
+  position: absolute;
+  top: 0;
+  bottom: calc(100% - 120px);
+  left: 0;
+  width: calc(100% - 228px);
+  height: auto;
+  margin: auto;
+  mix-blend-mode: multiply;
+}
+
+.cl-logo {
+  display: block;
+  width: 86px;
+  height: 86px;
+  object-fit: cover;
+  margin-top: 7px;
+  margin-left: 12px;
+  border-radius: 10px;
+}
+
+.cl-logo-text {
+  @include themify($themes) {
+    color: themed('dark-primary-text');
+  }
+
+  width: 110px;
+  margin-top: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 18px;
+  letter-spacing: 0.12em;
+  text-align: center;
+}
+
+.cl-logo-mobile {
+  width: 35px;
+  height: 35px;
+  object-fit: cover;
+  margin: 5px;
+  border-radius: 6px;
+}
+
+.branding-block {
+  box-sizing: border-box;
+  flex: 1 1 130px;
+  min-width: 130px;
+  max-width: 130px;
+  padding-top: 0;
+  margin-left: 10px;
+}
+
+.mat-mdc-card {
+  box-shadow: none !important;
+}

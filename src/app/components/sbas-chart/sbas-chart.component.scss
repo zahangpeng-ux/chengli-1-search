@@ -1,0 +1,17 @@
+@use "asf-theme-variables" as *;
+
+.chart-wrapper {
+  width: calc(100% - 30px);
+  height: calc(100% - 1px);
+}
+
+#sbasChart {
+  width: 100%;
+  height: 100%;
+}
+
+::ng-deep .sbas-label {
+  @include themify($themes) {
+    fill: themed('dark-primary-text');
+  }
+}

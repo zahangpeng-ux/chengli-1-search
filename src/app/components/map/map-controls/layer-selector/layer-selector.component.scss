@@ -1,0 +1,52 @@
+@use "asf-theme-variables" as *;
+
+.layer-select-button {
+  @include themify($themes) {
+    color: themed('dark-primary-text');
+    background: themed('background-white');
+  }
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px !important;
+  min-width: 53px !important;
+  height: 27px !important;
+  padding: 0 0 0 3px;
+  margin: 0;
+  font-size: 18px !important;
+  text-align: center;
+  border: solid 1px rgb(0 0 0 / 12%);
+  border-radius: 4px !important;
+
+  span {
+    height: 26px;
+  }
+}
+
+.layer-select-icon {
+  display: inline-block;
+  margin-top: 1px;
+}
+
+.layer-menu-icon {
+  transform: translateY(6px);
+}
+
+.bottom-right {
+  @include themify($themes) {
+    color: themed('primary');
+  }
+
+  position: absolute;
+  right: -19px;
+  bottom: -13px;
+  transform: rotate(-45deg);
+}
+
+
+.checkbox {
+  margin-right: 22px;
+  margin-left: 2px;
+  cursor: pointer;
+}

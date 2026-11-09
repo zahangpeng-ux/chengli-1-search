@@ -1,0 +1,123 @@
+@use 'asf-theme-variables' as *;
+
+.gdal-button-wrapper {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  margin: 0;
+
+  mat-icon {
+    width: 20px;
+    height: 20px;
+    font-size: 20px;
+    line-height: 20px;
+
+    @include themify($themes) {
+      color: themed('light-black');
+    }
+  }
+}
+
+.group-file-wrapper {
+  display: flex;
+  flex-direction: column;
+  place-content: center center;
+  padding: 10px 24px 8px;
+  margin-bottom: 2px;
+  font-size: 14px;
+}
+
+.group-file-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  height: fit-content;
+}
+
+.file-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  @include themify($themes) {
+    color: themed('dark-primary-text');
+  }
+}
+
+.file-size {
+  white-space: nowrap;
+
+  @include themify($themes) {
+    color: themed('light-black');
+  }
+}
+
+.hyp3-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+
+  mat-icon {
+    width: 20px;
+    height: 20px;
+    font-size: 20px;
+    line-height: 20px;
+
+    @include themify($themes) {
+      color: themed('light-black');
+    }
+  }
+}
+
+.chevron {
+  width: 20px;
+  height: 20px;
+  font-size: 20px;
+  line-height: 20px;
+  transition: transform 0.2s;
+
+  @include themify($themes) {
+    color: themed('dark-primary-text');
+  }
+}
+
+.group-file-wrapper.expanded .chevron {
+  transform: rotate(180deg);
+}
+
+.group-file-wrapper.leaf {
+  margin-right: 30px;
+}
+
+.group-file-wrapper.parent:hover {
+  @include themify($themes) {
+    background-color: themed('dark-focused');
+  }
+}
+
+.compact {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  margin: 0;
+
+  mat-icon {
+    width: 20px;
+    height: 20px;
+    font-size: 20px;
+    line-height: 20px;
+
+    @include themify($themes) {
+      color: themed('light-black');
+    }
+  }
+}

@@ -1,0 +1,155 @@
+<div>
+  @if (dataset.id !== 'SENTINEL-1 BURSTS') {
+    <app-product-type-selector
+      class="product-type-spacing"
+      (typesChange)="onNewProductTypes($event)"
+    >
+    </app-product-type-selector>
+  }
+
+  @if (dataset | isRelevant: p.BEAM_MODE) {
+    <mat-form-field>
+      <mat-label>{{ 'BEAM_MODE' | translate }}</mat-label>
+      <mat-select
+        (selectionChange)="onNewDatasetBeamModes($event.value)"
+        [(ngModel)]="beamModes"
+        [disabled]="!(dataset | isRelevant: p.BEAM_MODE)"
+        multiple
+      >
+        @for (mode of dataset.beamModes; track mode) {
+          <mat-option [value]="mode">
+            {{ mode }}
+          </mat-option>
+        }
+      </mat-select>
+      <mat-hint align="start">
+        @if (dataset | isRelevant: p.BEAM_MODE) {
+          {{ beamModes?.length || 0 }}/{{ dataset.beamModes.length }}
+          {{ 'BEAM_MODES_SELECTED' | translate }}
+        } @else {
+          {{ 'NO_BEAM_MODES_TO_SELECT' | translate }}
+        }
+      </mat-hint>
+    </mat-form-field>
+  }
+
+  <mat-form-field>
+    <mat-label>{{ 'POLARIZATION' | translate }}</mat-label>
+    <mat-select
+      (selectionChange)="onNewDatasetPolarizations($event.value)"
+      [(ngModel)]="polarizations"
+      [disabled]="!(dataset | isRelevant: p.POLARIZATION)"
+      multiple
+    >
+      @for (pol of dataset.polarizations; track pol) {
+        <mat-option [value]="pol">
+          {{ pol }}
+        </mat-option>
+      }
+    </mat-select>
+    <mat-hint align="start">
+      @if (dataset | isRelevant: p.POLARIZATION) {
+        {{ polarizations?.length || 0 }}/{{ dataset.polarizations.length }}
+        {{ 'POLARIZATIONS_SELECTED' | translate }}
+      } @else {
+        {{ 'NO_POLARIZATIONS_TO_SELECT' | translate }}
+      }
+    </mat-hint>
+  </mat-form-field>
+
+  <mat-form-field>
+    <mat-label>{{ 'DIRECTION' | translate }}</mat-label>
+    <mat-select
+      (selectionChange)="onNewFlightDirectionsSelected($event.value)"
+      [(ngModel)]="flightDirections"
+      [disabled]="!(dataset | isRelevant: p.FLIGHT_DIRECTION)"
+      multiple
+    >
+      @for (direction of flightDirectionTypes; track direction) {
+        <mat-option [value]="direction">
+          {{ direction | uppercase | translate }}
+        </mat-option>
+      }
+    </mat-select>
+
+    <mat-hint align="start">
+      @if (dataset | isRelevant: p.FLIGHT_DIRECTION) {
+        {{ flightDirections?.length || 0 }}/{{ flightDirectionTypes.length }}
+        {{ 'FLIGHT_DIRECTIONS_SELECTED' | translate }}
+      } @else {
+        {{ 'NO_FLIGHT_DIRECTIONS_TO_SELECT' | translate }}
+      }
+    </mat-hint>
+  </mat-form-field>
+
+  @if (dataset | isRelevant: p.PLATFORM) {
+    <mat-form-field>
+      <mat-label>{{ 'SATELLITE' | translate }}</mat-label>
+      <mat-select
+        (selectionChange)="onNewPlatformSelected($event.value)"
+        [(ngModel)]="platforms"
+        [disabled]="!(dataset | isRelevant: p.PLATFORM)"
+        multiple
+      >
+        @for (platform of dataset.platforms; track platform) {
+          <mat-option [value]="platform">
+            {{ platform.displayName }}
+          </mat-option>
+        }
+      </mat-select>
+
+      <mat-hint align="start">
+        @if (dataset | isRelevant: p.PLATFORM) {
+          {{ platforms?.length || 0 }}/{{ dataset.platforms?.length }}
+          {{ 'SATELLITES_SELECTED' | translate }}
+        } @else {
+          {{ 'NO_SATELLITES_TO_SELECT' | translate }}
+        }
+      </mat-hint>
+    </mat-form-field>
+  }
+
+  @if (['SENTINEL-1', 'SENTINEL-1 BURSTS', 'OPERA-S1'].includes(dataset.id)) {
+    <mat-form-field>
+      <mat-label>{{ 'GROUP_ID' | translate }}</mat-label>
+      <input
+        matInput
+        (input)="onNewGroupID()"
+        [(ngModel)]="groupID"
+        [maxlength]="29"
+        type="text"
+      />
+    </mat-form-field>
+  }
+  @if (dataset.id === 'OPERA-S1') {
+    <mat-form-field>
+      <mat-label>{{ 'TILE_ID' | translate }}</mat-label>
+      <input
+        matInput
+        type="text"
+        (input)="onNewTileID()"
+        [(ngModel)]="tileID"
+      />
+    </mat-form-field>
+  }
+  @if (dataset.apiValue.dataset === 'ARIA S1 GUNW') {
+    <mat-form-field>
+      <mat-label>{{ 'VERSION_NUMBER' | translate }}</mat-label>
+      <input
+        matInput
+        type="text"
+        placeholder="3.0.1"
+        (input)="onNewAriaVersionSelected($event.target.value)"
+        [(ngModel)]="ariaVersion"
+      />
+    </mat-form-field>
+  }
+
+  @if (dataset.id === 'NISAR') {
+    <app-short-name-selector
+      class="short-name-selector"
+      (shortNamesChange)="onNewShortNames($event)"
+    ></app-short-name-selector>
+  }
+  <!-- <app-opera-calibration-data-selector *ngIf="dataset.id === 'OPERA-S1'"></app-opera-calibration-data-selector> -->
+</div>

@@ -1,0 +1,120 @@
+@use "asf-theme-variables" as *;
+
+.clipboard-icon {
+  margin: 0 10px;
+}
+
+.mat-mdc-list-base {
+  display: flex;
+  flex-wrap: wrap;
+  width: 100%;
+  padding-top: 8px;
+}
+
+.jobs-list {
+  display: flex;
+  flex-flow: row wrap;
+}
+
+.flex-list {
+  .mat-mdc-list-base {
+    display: flex !important;
+    flex-wrap: wrap;
+    width: 100% !important;
+  }
+}
+
+.flex-field {
+  flex: 1 0 auto;
+  margin-left: 25px;
+}
+
+.sort-options {
+  @include themify($themes) {
+    background-color: themed('background-white');
+  }
+
+  display: flex;
+  flex-flow: row wrap;
+  margin-top: 25px;
+}
+
+.jobs-overview {
+  padding: 25px;
+  margin: auto;
+}
+
+.mat-mdc-list-base .mat-mdc-list-item,
+.mat-list-base .mat-list-option {
+  display: flex;
+  flex: 1 1 740px;
+  flex-flow: row wrap;
+  transform: scale(0.97);
+}
+
+.button-remove-job {
+  margin-top: -22px;
+  margin-left: 10px;
+}
+
+.granule-name {
+  width: auto;
+  max-width: 100%;
+}
+
+.pqj-mobile {
+  overflow-y: auto;
+}
+
+.empty-queue {
+  display: flex;
+  flex-flow: column wrap;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.jobs-empty-message {
+  @include themify($themes) {
+    color: themed('dark-primary-text');
+  }
+
+  padding: 30px 0;
+  font-size: 20px;
+  text-align: center;
+}
+
+.empty-queue--action-buttons {
+  display: flex;
+  flex-direction: row;
+  padding: 30px 0;
+  font-size: 20px;
+}
+
+.purchase-credits--button {
+  padding-left: 10px;
+}
+
+.not-logged-in {
+  margin-top: 3px;
+  font-size: small;
+  font-style: italic;
+}
+
+.jobs-empty-message-docs-link,
+.jobs-empty-message-docs-link a {
+  @include themify($themes) {
+    color: themed('blue-link');
+  }
+
+  font-size: 14px;
+}
+
+.pair-expansion-panel-header {
+  @include themify($themes) {
+    background-color: themed('background-white') !important;
+  }
+
+  border-style: none !important;
+}

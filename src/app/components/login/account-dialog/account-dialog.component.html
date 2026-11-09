@@ -1,0 +1,140 @@
+<div class="account-dialog">
+  <header class="account-dialog__head">
+    <span class="account-dialog__icon">
+      <mat-icon>{{ isReset ? 'lock_reset' : 'person_add' }}</mat-icon>
+    </span>
+    <div>
+      <h2>{{ isReset ? '找回密码' : '申请账号' }}</h2>
+      <p>
+        {{
+          isReset
+            ? '验证账号后即可重置平台登录密码'
+            : '提交申请后由平台管理员开通账号'
+        }}
+      </p>
+    </div>
+  </header>
+
+  @if (!done()) {
+    <div class="account-dialog__body">
+      @if (isReset) {
+        <div class="account-field">
+          <label for="reset-email">账号</label>
+          <input
+            id="reset-email"
+            name="email"
+            type="email"
+            placeholder="请输入注册账号"
+            [(ngModel)]="email"
+            (input)="error.set('')"
+          />
+        </div>
+
+        <div class="account-field">
+          <label for="reset-password">新密码</label>
+          <input
+            id="reset-password"
+            name="newPassword"
+            type="password"
+            placeholder="至少 6 位字符"
+            [(ngModel)]="newPassword"
+            (input)="error.set('')"
+          />
+        </div>
+
+        <div class="account-field">
+          <label for="reset-confirm">确认新密码</label>
+          <input
+            id="reset-confirm"
+            name="confirmPassword"
+            type="password"
+            placeholder="再次输入新密码"
+            [(ngModel)]="confirmPassword"
+            (input)="error.set('')"
+          />
+        </div>
+      } @else {
+        <div class="account-field">
+          <label for="apply-name">姓名</label>
+          <input
+            id="apply-name"
+            name="name"
+            type="text"
+            placeholder="请输入姓名"
+            [(ngModel)]="name"
+            (input)="error.set('')"
+          />
+        </div>
+
+        <div class="account-field">
+          <label for="apply-org">单位 / 机构</label>
+          <input
+            id="apply-org"
+            name="organization"
+            type="text"
+            placeholder="请输入所属单位"
+            [(ngModel)]="organization"
+            (input)="error.set('')"
+          />
+        </div>
+
+        <div class="account-field">
+          <label for="apply-email">联系邮箱</label>
+          <input
+            id="apply-email"
+            name="email"
+            type="email"
+            placeholder="用于接收开通通知"
+            [(ngModel)]="email"
+            (input)="error.set('')"
+          />
+        </div>
+
+        <div class="account-field">
+          <label for="apply-purpose">申请用途</label>
+          <textarea
+            id="apply-purpose"
+            name="purpose"
+            rows="3"
+            placeholder="简述使用场景，例如科研、教学或项目支撑"
+            [(ngModel)]="purpose"
+            (input)="error.set('')"
+          ></textarea>
+        </div>
+      }
+
+      @if (error()) {
+        <p class="account-error" role="alert">{{ error() }}</p>
+      }
+    </div>
+  } @else {
+    <div class="account-dialog__body account-dialog__body--done">
+      <span class="account-done-icon">
+        <mat-icon>check_circle</mat-icon>
+      </span>
+      <h3>{{ isReset ? '密码已重置' : '申请已提交' }}</h3>
+      <p>
+        {{
+          isReset
+            ? '请关闭窗口后使用新密码重新登录'
+            : '管理员审核通过后，将通过邮箱通知你开通结果'
+        }}
+      </p>
+    </div>
+  }
+
+  <footer class="account-dialog__foot">
+    @if (!done()) {
+      <button type="button" class="account-btn account-btn--ghost" (click)="close()">
+        取消
+      </button>
+      <button type="button" class="account-btn" (click)="onSubmit()">
+        {{ isReset ? '重置密码' : '提交申请' }}
+      </button>
+    } @else {
+      <button type="button" class="account-btn" (click)="finish()">
+        {{ isReset ? '返回登录' : '完成' }}
+      </button>
+    }
+  </footer>
+</div>

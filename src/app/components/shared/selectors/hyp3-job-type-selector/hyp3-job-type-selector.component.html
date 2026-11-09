@@ -1,0 +1,14 @@
+<mat-form-field>
+  <mat-select
+    [value]="selected"
+    (selectionChange)="onSelect($event)"
+    [placeholder]="'PRODUCT_TYPE' | translate"
+    multiple
+  >
+    @for (jobType of hyp3JobTypes; track jobType) {
+      <mat-option [value]="jobType">
+        {{ jobType }}
+      </mat-option>
+    }
+  </mat-select>
+</mat-form-field>

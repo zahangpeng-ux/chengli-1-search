@@ -1,0 +1,95 @@
+@use "asf-theme-variables" as *;
+
+.add-files-btn {
+  float: right;
+}
+
+.limit-text {
+  display: inline-block;
+  max-width: 250px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.actions {
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  height: 100%;
+}
+
+.container {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  height: 100%;
+}
+
+.drop-file-area {
+  @include themify($themes) {
+    outline: 2px dashed themed('primary');
+    background-color: darken(themed('background-white'), 10%);
+  }
+
+  display: inline-block;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  min-height: 140px;
+  padding: 24px 12px 16px;
+  outline-offset: -8px;
+  background-image: url('/assets/icons/cloud_upload_black_48dp.svg');
+  background-repeat: no-repeat;
+  background-position: center 15px;
+  background-size: 32px;
+  box-sizing: border-box;
+}
+
+.dd-text {
+  margin-top: 36px;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
+
+  @include themify($themes) {
+    color: lighten(themed('dark-primary-text'), 20%);
+  }
+
+  .dd-text-1 {
+    margin-top: 6px;
+    font-size: 14px;
+  }
+
+  .dd-text-2 {
+    margin-top: 2px;
+    font-size: 12px;
+    font-weight: 400;
+    opacity: 0.75;
+  }
+
+  .dd-text-3 {
+    margin-top: 4px;
+    font-size: 11px;
+    opacity: 0.6;
+  }
+}
+
+.import-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 12px;
+}
+
+.file-upload-target--layout {
+  box-sizing: border-box;
+  display: grid;
+  flex: 1 1 0%;
+  flex-direction: row;
+  place-content: center;
+  align-items: stretch;
+  margin-top: -10px;
+  transform: none;
+  max-width: 100%;
+}

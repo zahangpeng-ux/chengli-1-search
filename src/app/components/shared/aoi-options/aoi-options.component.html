@@ -1,0 +1,65 @@
+<div (dragover)="onFileHovered($event)" class="layout">
+  @if (showHeader) {
+    <div class="header-layout mb">
+      <div class="header-layout">
+        <b>{{ 'AOI_OPTIONS' | translate }}</b>
+        <mat-icon (click)="onOpenHelp()" class="clickable help-icon"
+          >info</mat-icon
+        >
+      </div>
+      <div>
+        <button
+          (click)="onClose()"
+          [matTooltip]="'HIDE_OPTIONS' | translate"
+          mat-icon-button
+        >
+          <mat-icon>clear</mat-icon>
+        </button>
+      </div>
+    </div>
+  }
+
+  <div class="aoi-input-area">
+    <div class="aoi-text-container">
+      <form
+        #polygonInputForm="ngForm"
+        (keydown.enter)="$event.preventDefault()"
+        [class.aoi-input--desktop]="breakpoint !== breakpoints.MOBILE"
+        [class.aoi-input--mobile]="breakpoint === breakpoints.MOBILE"
+      >
+        <mat-form-field
+          [class.invalid-input-animation]="isAOIError"
+          class="w100"
+        >
+          <mat-label> {{ 'AREA_OF_INTEREST_WKT' | translate }} </mat-label>
+          <textarea
+            (change)="onInputSearchPolygon($event)"
+            [value]="polygon"
+            [(ngModel)]="polygon"
+            name="searchPolygonLarge"
+            rows="4"
+            cdkTextareaAutosize
+            matInput
+          >
+          </textarea>
+          <button
+            matSuffix
+            mat-button
+            (click)="onClearPolygon()"
+            [attr.aria-label]="'CLEAR' | translate"
+          >
+            {{ 'CLEAR' | translate }}
+          </button>
+        </mat-form-field>
+      </form>
+
+      <app-geocode-selector
+        (geocodeWkt)="onInputGeocodePolygon($event)"
+      ></app-geocode-selector>
+    </div>
+
+    @if (breakpoint !== breakpoints.MOBILE) {
+      <app-file-upload-dialog class="upload-trigger"></app-file-upload-dialog>
+    }
+  </div>
+</div>

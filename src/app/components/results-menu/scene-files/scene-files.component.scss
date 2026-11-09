@@ -1,0 +1,116 @@
+@use 'asf-theme-variables' as *;
+
+$prod-row-height: 58px;
+$thumb-size: 50px;
+
+.products-list {
+  padding-top: 0;
+  padding-bottom: 15px;
+  overflow-y: auto;
+}
+
+.event-products {
+  height: 100%;
+}
+
+.dem-warning {
+  @include themify($themes) {
+    color: themed('err');
+    background-color: lighten(themed('primary-light'), 10%);
+  }
+
+  padding-top: 2px;
+  padding-bottom: 5px;
+  padding-left: 25px;
+  font-size: 14px;
+  background-color: rgb(220 220 220);
+}
+
+.more-link {
+  @include themify($themes) {
+    color: themed('blue-link');
+  }
+}
+
+.map-icon {
+  position: absolute;
+  display: inline;
+  margin-left: 5px;
+  cursor: pointer;
+}
+
+.map-button-toggle {
+  @include themify($themes) {
+    color: themed('light-primary-text') !important;
+    background-color: themed('primary') !important;
+  }
+
+  padding-right: 40px;
+  font-size: 12px;
+  line-height: 24px !important;
+  border: 1px groove rgb(0 0 0 / 25%) !important;
+  border-radius: 4px !important;
+}
+
+.position-in-header {
+  position: fixed;
+  margin-top: -37px;
+  margin-right: 290px;
+}
+
+.criteria-button-group {
+  outline: none;
+
+  // width: auto;
+}
+
+::ng-deep div.mat-mdc-menu-panel {
+  min-width: 112px;
+  max-height: calc(100vh - 48px);
+
+  /** set width to 500px */
+  // max-width: 500px;
+  overflow: auto;
+  outline: 0;
+  border-radius: 4px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.event-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.event-product-map-row {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  width: 100%;
+}
+
+.event-products-wrapper {
+  width: 100%;
+  height: 100%;
+}
+
+.prod-viewport {
+  height: 100%;
+}
+
+.prod-list-option {
+  height: $prod-row-height !important;
+  margin-right: 0 !important;
+}
+
+.prod-thumb {
+  width: $thumb-size;
+  height: $thumb-size;
+  margin-right: 18px;
+}
+
+.no-scroll {
+  overflow: visible !important;
+}
+
+

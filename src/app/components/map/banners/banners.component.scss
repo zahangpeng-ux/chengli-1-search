@@ -1,0 +1,38 @@
+@use "asf-theme-variables" as *;
+
+.banner-card {
+  @include themify($themes) {
+    color: themed("dark-primary-text");
+    background-color: themed("primary-light");
+  }
+
+  padding-top: 5px;
+  padding-right: 0;
+  padding-bottom: 9px;
+  margin-bottom: 5px;
+
+  // color: darken($asf-accent, 50%);
+  margin-left: 0;
+  line-height: 1.4;
+  pointer-events: auto;
+  border-color: $asf-primary-dark;
+  border-style: solid;
+  border-width: 2px;
+}
+
+.banner-text {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.inner-banner-text {
+  width: 100%;
+  height: fit-content;
+  max-height: 67px;
+  overflow-y: auto;
+}
+
+.toastr-div {
+  position: relative;
+}

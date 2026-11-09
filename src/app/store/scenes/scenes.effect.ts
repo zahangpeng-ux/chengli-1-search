@@ -1,0 +1,106 @@
+import { Injectable, inject } from '@angular/core';
+import { Actions, createEffect, ofType } from '@ngrx/effects';
+import { Store } from '@ngrx/store';
+import {
+  map,
+  distinctUntilChanged,
+  filter,
+  withLatestFrom,
+  debounceTime,
+} from 'rxjs/operators';
+
+import { CMRProduct, SearchType } from '@models';
+import { ScenesService } from '@services';
+import { AppState } from '@store/app.reducer';
+import { HideS1RawData, UIActionType } from '@store/ui';
+
+import { ScenesActionType, SetScenes, SetSelectedScene } from './scenes.action';
+
+import { allScenesFrom, getSelectedScene } from '.';
+
+@Injectable()
+export class ScenesEffects {
+  private actions$ = inject(Actions);
+  private store$ = inject<Store<AppState>>(Store);
+  private sceneService = inject(ScenesService);
+
+  public setSelectedSceneOnLoad = createEffect(() =>
+    this.actions$.pipe(
+      ofType<SetScenes>(ScenesActionType.SET_SCENES),
+      filter((scenes) => !!scenes.payload.products),
+      filter((scenes) => scenes.payload.products.length > 0),
+      withLatestFrom(this.sceneService.scenes$),
+      map(([action, filtered]) => ({
+        products: filtered,
+        searchType: action.payload.searchType,
+      })),
+      distinctUntilChanged(),
+      withLatestFrom(this.store$.select(getSelectedScene)),
+      map(([action, selected]) => {
+        const products = action.products.reduce((total, product) => {
+          total[product.id] = product;
+
+          return total;
+        }, {});
+
+        let current_selected = selected?.id ?? null;
+
+        if (action.searchType === SearchType.BASELINE) {
+          Object.values(products).forEach((product: CMRProduct) => {
+            if (
+              product.metadata.temporal === 0 &&
+              product.metadata.perpendicular === 0
+            ) {
+              current_selected = product.id;
+            }
+          });
+        }
+        const productGroups: Record<string, string[]> = action.products.reduce(
+          (total, product) => {
+            const scene = total[product.groupId] || [];
+
+            total[product.groupId] = [...scene, product.id];
+            return total;
+          },
+          {},
+        );
+
+        const scenes: Record<string, string[]> = {};
+        for (const [groupId, productNames] of Object.entries(productGroups)) {
+          (productNames as string[])
+            .sort((a, b) => products[a].bytes - products[b].bytes)
+            .reverse();
+
+          scenes[groupId] = Array.from(new Set(productNames));
+        }
+
+        if (current_selected === null) {
+          const sceneList = allScenesFrom(scenes, products);
+          const firstScene = sceneList[0];
+
+          if (firstScene) {
+            current_selected = firstScene.id;
+          }
+        }
+
+        return new SetSelectedScene(current_selected);
+      }),
+    ),
+  );
+
+  public onHideRawData = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType<HideS1RawData>(UIActionType.HIDE_S1_RAW_DATA),
+        debounceTime(1000),
+        withLatestFrom(this.sceneService.scenes$),
+        withLatestFrom(this.store$.select(getSelectedScene)),
+        map(([[_, scenes], selected]) => {
+          if (!scenes.map((scene) => scene.id).includes(selected.id)) {
+            this.store$.dispatch(new SetSelectedScene(scenes[0].id));
+          }
+        }),
+      ),
+    { dispatch: false },
+  );
+}

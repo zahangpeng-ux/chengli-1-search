@@ -1,0 +1,26 @@
+@use "asf-theme-variables" as *;
+
+.dialog-title {
+  @include themify($themes) {
+    background: darken(themed('background-white'), 10%);
+  }
+
+  margin-bottom: 9px;
+}
+
+.flex-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  padding: 15px 24px 0;
+
+  @include themify($themes) {
+    background: darken(themed('background-white'), 10%);
+  }
+
+}
+
+.flex-item {
+  flex: 0 1 auto;
+}
+

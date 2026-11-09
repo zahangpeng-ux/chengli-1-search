@@ -1,0 +1,226 @@
+@use "asf-theme-variables" as *;
+
+$light-grey: rgb(0 0 0 / 60%);
+
+.description-layout {
+  display: flex;
+}
+
+.menu-item-icon {
+  @include md-icon-size(100px);
+
+  height: 47px !important;
+  margin-right: 0;
+  font-size: 24px !important;
+
+  @include themify($themes) {
+    color: themed('dark-primary-text');
+  }
+}
+
+.dataset-hr {
+  padding: 0;
+}
+
+.mat-mdc-menu-item {
+  padding: 0;
+  line-height: 0;
+}
+
+.menu-item {
+  margin: 0;
+}
+
+.menu-item-inner {
+  display: flex;
+  width: 100%;
+  margin: 5px 5px 5px 15px;
+}
+
+.mat-mdc-card-actions {
+  padding: 0;
+  margin: 0;
+}
+
+.mat-mdc-button {
+  @include themify_non_host($themes) {
+    color: themed('blue');
+  }
+
+  font-style: italic;
+  font-weight: 400;
+
+  // color: $asf-blue;
+}
+
+.limitTextHeight {
+  height: 72px;
+  overflow: hidden;
+}
+
+.formField {
+  flex: 130px;
+}
+
+.selectOptions {
+  width: 230px;
+}
+
+.option-description {
+  text-wrap: normal;
+}
+
+.matOption {
+  height: auto !important;
+}
+
+.button-label {
+  // color: rgb(0 0 0 / 60%);
+  @include themify($themes) {
+    color: themed('dark-secondary-text');
+  }
+
+  font-size: 14px;
+  font-weight: 400;
+  transform:
+    translateY(-1.2812em)
+    scale(0.75)
+    perspective(100px)
+    translateZ(0.0011px);
+}
+
+.button-menu-trigger {
+  padding: 0;
+}
+
+.button-text {
+  padding: 0;
+  margin: 0;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 29px;
+  text-align: left;
+
+  @include themify($themes) {
+    color: themed('dark-primary-text');
+  }
+}
+
+.menu-button-wrapper {
+  display: block;
+}
+
+.hr-wrapper {
+  height: 1px;
+  transform: matrix(1, 0, 0, 1.0001, 0, 0);
+}
+
+.text-underline {
+  height: 1px;
+  border: none;
+
+  @include themify($themes) {
+    color: themed('dark-secondary-text');
+    background-color: themed('dark-secondary-text');
+  }
+}
+
+/* TODO(mdc-migration): The following rule targets internal classes of select that may no longer apply for the MDC version. */
+.mat-select-arrow {
+  display: inline-flex;
+  width: 0;
+  height: 0;
+  margin: 0 4px 3px 3px;
+  border-top: 5px solid;
+  border-right: 5px solid transparent;
+  border-left: 5px solid transparent;
+}
+
+.info-text {
+  margin: 5px 0 15px;
+  font-size: 14px;
+  font-style: italic;
+  line-height: 30px;
+}
+
+.item-title {
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.mobile-search-item {
+  height: 40px;
+  padding: 3px 10px;
+  margin: 0;
+  line-height: 30px;
+}
+
+
+.mobile-button-wrapper {
+  // transform: scale(0.82);
+  // margin-top: -6px;
+}
+
+/* TODO(mdc-migration): The following rule targets internal classes of menu that may no longer apply for the MDC version. */
+::ng-deep.mat-menu-submenu-icon {
+  // visibility: hidden;
+}
+
+.disable-search-type {
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+::ng-deep.dataset__subName {
+  line-height: 12px;
+}
+
+.dataset-list {
+
+}
+
+.dataset-item {
+  margin: 16px;
+}
+
+.dataset-light-text {
+  font-size: 12px;
+  font-style: normal;
+}
+
+.push-right {
+  float: right;
+  text-align: right;
+}
+
+.dataset-date-range {
+  @include themify($themes) {
+    color: themed('dark-disabled-text') !important;
+  }
+
+  padding: 0;
+  margin: 0;
+  font-size: 14px;
+  font-weight: bold;
+  line-height: 30px;
+}
+
+.dataset-source {
+  @include themify_non_host($themes) {
+    color: themed('blue-link');
+
+    a {
+      color: themed('blue-link');
+    }
+  }
+
+  padding-top: 22px;
+  font-size: 12px;
+}
+
+.hyp3-icon {
+  width: 15px;
+  height: 15px;
+  margin-top: -7px;
+}

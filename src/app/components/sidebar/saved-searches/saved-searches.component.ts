@@ -1,0 +1,186 @@
+import { NgClass, AsyncPipe } from '@angular/common';
+import {
+  Component,
+  OnInit,
+  ViewChild,
+  ElementRef,
+  OnDestroy,
+  inject,
+} from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { MatButton } from '@angular/material/button';
+import {
+  MatButtonToggleGroup,
+  MatButtonToggle,
+} from '@angular/material/button-toggle';
+import { MatDialog } from '@angular/material/dialog';
+import { MatFormField, MatInput } from '@angular/material/input';
+import { Store } from '@ngrx/store';
+import { TranslateModule } from '@ngx-translate/core';
+import { switchMap } from 'rxjs/operators';
+import { SubSink } from 'subsink';
+
+import { SaveSearchDialogComponent } from '@components/shared/save-search-dialog';
+import * as models from '@models';
+import {
+  SavedSearchService,
+  ScreenSizeService,
+  SearchService,
+} from '@services';
+import { AsfLanguageService } from '@services/asf-language.service';
+import { AppState } from '@store';
+import * as searchStore from '@store/search';
+import * as uiStore from '@store/ui';
+import * as userStore from '@store/user';
+
+import { SavedSearchComponent } from './saved-search/saved-search.component';
+
+@Component({
+  selector: 'app-saved-searches',
+  templateUrl: './saved-searches.component.html',
+  styleUrls: ['./saved-searches.component.scss'],
+  imports: [
+    NgClass,
+
+    MatButtonToggleGroup,
+    MatButtonToggle,
+    FormsModule,
+    MatFormField,
+    MatInput,
+    MatButton,
+
+    SavedSearchComponent,
+    AsyncPipe,
+    TranslateModule,
+  ],
+})
+export class SavedSearchesComponent implements OnInit, OnDestroy {
+  private dialog = inject(MatDialog);
+  private store$ = inject<Store<AppState>>(Store);
+  private savedSearchService = inject(SavedSearchService);
+  private screenSize = inject(ScreenSizeService);
+  private searchService = inject(SearchService);
+  private language = inject(AsfLanguageService);
+
+  @ViewChild('filterInput', { static: true }) filterInput: ElementRef;
+
+  public searchType$ = this.store$.select(searchStore.getSearchType);
+  public SearchType = models.SearchType;
+
+  public sidebarType = this.store$.selectSignal(uiStore.getSidebar);
+  public SidebarType = models.SidebarType;
+
+  public searches$ = this.store$
+    .select(uiStore.getSidebar)
+    .pipe(
+      switchMap((savedSearchType) =>
+        savedSearchType === models.SidebarType.SAVED_SEARCHES
+          ? this.store$.select(userStore.getSavedSearches)
+          : this.store$.select(userStore.getSearchHistory),
+      ),
+    );
+  public lockedFocus = false;
+
+  public breakpoint: models.Breakpoints;
+  public breakpoints = models.Breakpoints;
+
+  private filterTokens = [];
+  public filteredSearches = new Set<string>();
+  public searchFilter = '';
+  public expandedSearchId: string;
+  public newSearchId: string;
+
+  private subs = new SubSink();
+
+  ngOnInit() {
+    this.savedSearchService.loadSearches();
+
+    this.subs.add(
+      this.screenSize.breakpoint$.subscribe(
+        (breakpoint) => (this.breakpoint = breakpoint),
+      ),
+    );
+
+    this.subs.add(
+      this.searches$.subscribe((searches) => {
+        this.filterTokens = this.savedSearchService.filterTokensFrom(searches);
+        this.updateFilter();
+      }),
+    );
+  }
+
+  public onSidebarTypeChange(sidebarType: models.SidebarType): void {
+    this.store$.dispatch(new uiStore.OpenSidebar(sidebarType));
+  }
+
+  public saveCurrentSearch(): void {
+    this.dialog.open(SaveSearchDialogComponent, {
+      id: 'ConfirmProcess',
+      width: '550px',
+      height: '500px',
+      maxWidth: '550px',
+      maxHeight: '500px',
+      data: { saveType: models.SidebarType.SAVED_SEARCHES },
+    });
+  }
+
+  public updateSearchFilters(id: string): void {
+    this.savedSearchService.updateSearchWithCurrentFilters(id);
+  }
+
+  public onNewFilter(event: Event): void {
+    const filterStr = (event.target as HTMLInputElement).value;
+    this.searchFilter = filterStr;
+    this.updateFilter();
+  }
+
+  private updateFilter(): void {
+    this.filteredSearches = new Set();
+    const filterStr = this.searchFilter.toLocaleLowerCase();
+
+    this.filterTokens.forEach((search) => {
+      if (search.token.includes(filterStr)) {
+        this.filteredSearches.add(search.id);
+      }
+    });
+  }
+
+  public unfocusFilter(): void {
+    this.filterInput.nativeElement.blur();
+  }
+
+  public updateSearchName(update: { id: string; name: string }): void {
+    if (update.name === '') {
+      const noName = this.language.translate.instant('NO_NAME');
+      update.name = noName;
+    }
+    this.newSearchId = '';
+
+    this.savedSearchService.updateSearchName(update.id, update.name);
+  }
+
+  public onClose(): void {
+    this.store$.dispatch(new uiStore.CloseSidebar());
+  }
+
+  public deleteSearch(id: string): void {
+    this.savedSearchService.deleteSearch(id);
+  }
+
+  public onSetSearch(search: models.Search): void {
+    this.store$.dispatch(new uiStore.CloseSidebar());
+    this.searchService.load(search);
+  }
+
+  public onExpandSearch(searchId: string): void {
+    this.expandedSearchId = this.expandedSearchId === searchId ? '' : searchId;
+  }
+
+  public onUnlockFocus(): void {
+    this.lockedFocus = false;
+  }
+
+  ngOnDestroy() {
+    this.subs.unsubscribe();
+  }
+}

@@ -1,0 +1,5 @@
+Chengli-1 logo concept v1
+Generated using the built-in image_gen tool; transparent PNG.
+Prompt: Original icon-only logo for the Chengli-1 satellite imagery platform. Combine a mountain and geological strata evoking Chengdu University of Technology's geology heritage, an Earth-observation satellite, an orbital arc and a negative-space numeral 1. Deep blue and cyan. Compact flat vector-like geometry, transparent background, no text or university seal.
+Refinement: Preserve composition; simplify solar panels and strata, clean contours and remove distressed texture.
+This is an original concept, not the official university emblem. Asset is supplied for review and has not replaced the platform header.

@@ -1,0 +1,21 @@
+export const PLATFORM = {
+  name: '成理一号',
+  fullName: '成理一号卫星数据平台',
+  englishName: 'Chengli-1 Satellite Data Platform',
+  organization: '成都理工大学',
+  datasetId: 'CHENGLI-1',
+  features: {
+    auth: false,
+    onDemand: false,
+    downloadQueue: false,
+    banners: false,
+    healthCheck: false,
+    missions: false,
+    baselineSearch: false,
+    sbasSearch: false,
+    displacementSearch: false,
+    pairSelection: false,
+    derivedDatasets: false,
+    asfHelpLinks: false,
+  },
+} as const;

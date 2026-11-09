@@ -1,0 +1,56 @@
+@use "asf-theme-variables" as *;
+
+.number-input--size {
+  width: 40%;
+}
+
+.mat-mdc-form-field {
+  width: 120px;
+}
+
+// Declared after .mat-mdc-form-field so the wider widths win at equal specificity,
+// matching the previous inline-style behavior.
+.path-field {
+  width: 160px;
+}
+
+.frame-field {
+  width: 150px;
+}
+
+.range-form-input {
+  margin-right: 10px;
+}
+
+.flex-container {
+  display: flex;
+  flex-flow: row wrap;
+}
+
+.flex-item {
+  flex: 0 1 auto;
+}
+
+.date-item {
+  margin-right: 10px;
+}
+
+.clear-button {
+  margin-top: 7px;
+  margin-left: 10px;
+  font-weight: 400;
+}
+
+// Hides input field up/down arrows
+
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  margin: 0;
+  appearance: none;
+}
+
+/* Firefox */
+input[type="number"] {
+  appearance: textfield;
+}

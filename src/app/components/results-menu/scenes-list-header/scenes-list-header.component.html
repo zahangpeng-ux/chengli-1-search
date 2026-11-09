@@ -1,0 +1,613 @@
+@if ((numberOfScenes$ | async) > 0) {
+  @if (breakpoint$ | async; as breakpoint) {
+    <div
+      [className]="
+        searchType() === SearchTypes.BASELINE && breakpoint > breakpoints.MOBILE
+          ? 'files-header-baseline'
+          : 'files-header mobile-size'
+      "
+    >
+      <div
+        class="header-row-left"
+        [ngClass]="{
+          'sbas-header-row-left': searchType() === SearchTypes.SBAS,
+          'mobile-size': breakpoint <= breakpoints.SMALL,
+        }"
+      >
+        @if (
+          searchType() === SearchTypes.DATASET ||
+          searchType() === SearchTypes.LIST
+        ) {
+          <div class="mr-10 scene-count">
+            {{ numberOfScenes$ | async }}
+            {{
+              (numberOfScenes$ | async) === 1
+                ? ('SCENE' | translate)
+                : ('SCENES' | translate)
+            }}
+            @if (breakpoint > breakpoints.MOBILE) {
+              <span class="count-detail">
+                <br />
+                @let virtualCount = totalVirtualProducts$ | async;
+                {{ (numberOfProducts$ | async) - virtualCount }}
+                @if (virtualCount > 0) {
+                  ({{ virtualCount }} {{ 'ADDITIONAL' | translate }})
+                }
+                {{ 'OF' | translate }}
+                {{ formatNumber(totalResultCount$ | async) }}
+                {{
+                  (numberOfProducts$ | async) === 1
+                    ? ('FILE' | translate)
+                    : ('FILES' | translate)
+                }}
+              </span>
+            }
+          </div>
+        }
+        @if (searchType() === SearchTypes.SBAS) {
+          <div class="mr-10 pair-count-offset">
+            {{ numPairs$ | async }}
+            {{
+              (numPairs$ | async) === 1
+                ? ('PAIR' | translate)
+                : ('PAIRS' | translate)
+            }}
+            <mat-icon
+              [matTooltip]="'SBAS_COUNT_TOOLTIP' | translate"
+              class="sbas-count-tooltip"
+              >info</mat-icon
+            >
+            @if (!!sbasProducts && breakpoint > breakpoints.MEDIUM) {
+              <span class="count-detail">
+                <br />
+                ({{ sbasProducts.length }}
+                {{
+                  sbasProducts.length === 1
+                    ? ('SCENE' | translate)
+                    : ('SCENES' | translate)
+                }})
+              </span>
+            }
+          </div>
+        }
+        @if (searchType() === SearchTypes.BASELINE) {
+          <div class="mr-10">
+            {{ numBaselineScenes$ | async }} {{ 'OF' | translate }}
+            {{ numUnfilteredBaselineScenes$ | async }}
+            {{
+              (numUnfilteredBaselineScenes$ | async) === 1
+                ? ('SCENE' | translate)
+                : ('SCENES' | translate)
+            }}
+          </div>
+        }
+        @if (searchType() === SearchTypes.CUSTOM_PRODUCTS) {
+          <div class="mr-10">
+            {{ numBaselineScenes$ | async
+            }}{{ moreHyp3JobsToLoad() ? '+' : '' }}
+            {{
+              (numBaselineScenes$ | async) === 1
+                ? ('PRODUCT' | translate)
+                : ('PRODUCTS' | translate)
+            }}
+          </div>
+        }
+        @if (breakpoint !== breakpoints.MOBILE) {
+          <div class="space-filler"></div>
+        }
+        @if (products) {
+          <div class="scenes-list-buttons--layout">
+            @if (canHideRawData) {
+              <div class="list-button-group">
+                <div class="fx-row-center button-group-label">
+                  <label>{{ 'RAW' | translate }}</label>
+                </div>
+                <div class="fx-row">
+                  <div class="scenes-list-button-container">
+                    <mat-button-toggle-group
+                      name="fx-empty layerType"
+                      class="mr-10"
+                      [hideSingleSelectionIndicator]="true"
+                    >
+                      <mat-button-toggle
+                        (click)="onToggleS1RawData()"
+                        class="control-mat-button-toggle clickable noselect"
+                        [matTooltip]="
+                          showS1RawData
+                            ? ('HIDE_RAW_DATA' | translate)
+                            : ('SHOW_RAW_DATA' | translate)
+                        "
+                      >
+                        <mat-icon
+                          class="list-icon"
+                          [class.material-icons-outlined]="showS1RawData()"
+                        >
+                          remove_red_eye
+                        </mat-icon>
+                      </mat-button-toggle>
+                    </mat-button-toggle-group>
+                  </div>
+                </div>
+              </div>
+            }
+            @if (canHideExpiredData) {
+              <div class="fx-empty list-button-group">
+                <div class="fx-row-center button-group-label">
+                  <label>{{ 'EXPIRED' | translate }}</label>
+                </div>
+                <div class="fx-row">
+                  <div class="scenes-list-button-container">
+                    <mat-button-toggle-group
+                      name="layerType"
+                      class="fx-empty mr-10"
+                      [hideSingleSelectionIndicator]="true"
+                    >
+                      <mat-button-toggle
+                        (click)="onToggleExpiredData()"
+                        class="control-mat-button-toggle clickable noselect"
+                        [matTooltip]="
+                          showExpiredData
+                            ? 'Hide expired products'
+                            : 'Show expired products'
+                        "
+                      >
+                        <mat-icon
+                          class="list-icon"
+                          [class.material-icons-outlined]="showExpiredData()"
+                        >
+                          remove_red_eye
+                        </mat-icon>
+                      </mat-button-toggle>
+                    </mat-button-toggle-group>
+                  </div>
+                </div>
+              </div>
+            }
+            @if (searchType() !== SearchTypes.DISPLACEMENT) {
+              <div class="fx-empty list-button-group">
+                <div class="fx-row-center button-group-label">
+                  <label>{{ 'ZOOM' | translate }}</label>
+                </div>
+                <div class="fx-row">
+                  <div class="scenes-list-button-container">
+                    <mat-button-toggle-group
+                      name="layerType"
+                      class="fx-empty mr-10"
+                      [hideSingleSelectionIndicator]="true"
+                    >
+                      <mat-button-toggle
+                        [disabled]="(numOfScenesWithPolygon$ | async) === 0"
+                        (click)="onZoomToResults()"
+                        class="control-mat-button-toggle clickable noselect"
+                        [matTooltip]="'ZOOM_TO_RESULTS' | translate"
+                      >
+                        <mat-icon class="list-icon">
+                          settings_overscan
+                        </mat-icon>
+                      </mat-button-toggle>
+                    </mat-button-toggle-group>
+                  </div>
+                </div>
+              </div>
+            }
+            @if (searchType() !== SearchTypes.DISPLACEMENT) {
+              <div class="fx-empty list-button-group">
+                <div class="fx-row-center button-group-label">
+                  <label>{{ 'QUEUE' | translate }}</label>
+                </div>
+                <div class="fx-row">
+                  <div class="scenes-list-button-container">
+                    <mat-button-toggle-group
+                      name="layerType"
+                      class="fx-empty mr-10 clickable noselect"
+                      [hideSingleSelectionIndicator]="true"
+                    >
+                      <mat-button-toggle
+                        class="control-mat-button-toggle"
+                        [matMenuTriggerFor]="addAllProducts"
+                        [matTooltip]="
+                          'ADD_ALL_RESULTS_TO_DOWNLOADS' | translate
+                        "
+                      >
+                        <mat-icon class="list-icon">
+                          add_shopping_cart
+                        </mat-icon>
+                      </mat-button-toggle>
+                    </mat-button-toggle-group>
+                  </div>
+                </div>
+              </div>
+            }
+            @if (
+              searchType() !== SearchTypes.CUSTOM_PRODUCTS && hyp3able.total > 0
+            ) {
+              <div class="fx-empty list-button-group">
+                <div class="fx-row-center button-group-label">
+                  <label>{{ 'ON_DEMAND' | translate }}</label>
+                </div>
+                <div class="fx-row">
+                  <div class="scenes-list-button-container">
+                    <mat-button-toggle-group
+                      name="layerType"
+                      class="fx-empty mr-10"
+                      [hideSingleSelectionIndicator]="true"
+                    >
+                      <mat-button-toggle
+                        class="control-mat-button-toggle clickable noselect"
+                        [matMenuTriggerFor]="listAdd.addMenu"
+                        [matMenuTriggerData]="{ hyp3able: hyp3able.byJobType }"
+                        [matTooltip]="
+                          'ADD_ALL_RESULTS_TO_ON_DEMAND_QUEUE' | translate
+                        "
+                        [aria-label]="
+                          'ADD_ALL_RESULTS_TO_ON_DEMAND_QUEUE' | translate
+                        "
+                      >
+                        <mat-icon class="list-icon" svgIcon="hyp3"> </mat-icon>
+                      </mat-button-toggle>
+                    </mat-button-toggle-group>
+                    <app-on-demand-add-menu #listAdd> </app-on-demand-add-menu>
+                  </div>
+                </div>
+              </div>
+            }
+            @if (searchType() === SearchTypes.CUSTOM_PRODUCTS) {
+              <div class="fx-empty list-button-group">
+                <div class="fx-row-center button-group-label">
+                  <label> {{ 'EXPORT' | translate }}</label>
+                </div>
+                <div class="fx-row">
+                  <div class="scenes-list-button-container">
+                    <mat-button-toggle-group
+                      name="layerType"
+                      class="fx-empty mr-10"
+                      [hideSingleSelectionIndicator]="true"
+                    >
+                      <mat-button-toggle
+                        class="control-mat-button-toggle clickable noselect"
+                        [matMenuTriggerFor]="OnDemandCodeExport"
+                        [matTooltip]="
+                          'SDK_PYTHON_CODE_EXPORT_TOOLTIP' | translate
+                        "
+                      >
+                        <mat-icon class="list-icon"> get_app </mat-icon>
+                      </mat-button-toggle>
+                    </mat-button-toggle-group>
+                  </div>
+                </div>
+              </div>
+              <mat-menu #OnDemandCodeExport="matMenu">
+                <div>
+                  <button (click)="onPythonCodeExport()" mat-menu-item>
+                    {{ 'SDK_PYTHON_CODE_EXPORT' | translate }}
+                  </button>
+                </div>
+              </mat-menu>
+              <div class="fx-empty list-button-group">
+                <div class="fx-row-center button-group-label">
+                  <label>{{ 'PROJECT' | translate }}</label>
+                </div>
+                <div class="fx-row">
+                  <div class="scenes-list-button-container">
+                    <mat-button-toggle-group
+                      name="layerType"
+                      class="fx-empty mr-10"
+                      [hideSingleSelectionIndicator]="true"
+                    >
+                      <mat-button-toggle
+                        class="control-mat-button-toggle clickable noselect"
+                        [matMenuTriggerFor]="BulkProjectNameUpdate"
+                        [matTooltip]="
+                          'PROJECT_NAME_UPDATE_ALL_TOOLTIP' | translate
+                        "
+                      >
+                        <mat-icon class="list-icon"> edit </mat-icon>
+                      </mat-button-toggle>
+                    </mat-button-toggle-group>
+                  </div>
+                </div>
+              </div>
+
+              <mat-menu #BulkProjectNameUpdate="matMenu">
+                <div>
+                  <button (click)="onBulkProjectNameUpdate()" mat-menu-item>
+                    {{
+                      'PROJECT_NAME_UPDATE_FOR_JOBS'
+                        | translate: { count: products.length }
+                    }}
+                  </button>
+                </div>
+              </mat-menu>
+            }
+            @if (searchType() === SearchTypes.BASELINE) {
+              <div class="fx-empty list-button-group">
+                <div class="fx-row-center button-group-label">
+                  <label> {{ 'EXPORT' | translate }}</label>
+                </div>
+                <div class="fx-row">
+                  <div class="scenes-list-button-container">
+                    <mat-button-toggle-group
+                      name="layerType"
+                      class="fx-empty mr-10"
+                      [hideSingleSelectionIndicator]="true"
+                    >
+                      <mat-button-toggle
+                        class="control-mat-button-toggle clickable noselect"
+                        [matMenuTriggerFor]="ExportAll"
+                        [matTooltip]="'DOWNLOAD_DATA_METADATA_AS' | translate"
+                      >
+                        <mat-icon class="list-icon"> get_app </mat-icon>
+                      </mat-button-toggle>
+                    </mat-button-toggle-group>
+                  </div>
+                </div>
+              </div>
+            }
+            @if (searchType() === SearchTypes.SBAS) {
+              <div class="fx-empty list-button-group">
+                <div class="fx-row-center button-group-label">
+                  <label>{{ 'PAIRS' | translate }}</label>
+                </div>
+                <div class="fx-row">
+                  <div class="scenes-list-button-container">
+                    <mat-button-toggle-group
+                      name="layerType"
+                      class="fx-empty mr-10"
+                      [hideSingleSelectionIndicator]="true"
+                    >
+                      <mat-button-toggle
+                        (click)="onDownloadPairCSV()"
+                        class="control-mat-button-toggle clickable noselect"
+                        [matTooltip]="'DOWNLOAD_PAIR_CSV' | translate"
+                      >
+                        <mat-icon class="list-icon"> get_app </mat-icon>
+                      </mat-button-toggle>
+                    </mat-button-toggle-group>
+                  </div>
+                </div>
+              </div>
+            }
+            <mat-menu #addAllProducts="matMenu">
+              @if (
+                searchType() !== SearchTypes.SBAS &&
+                !(isBurstStack$ | async) &&
+                !(
+                  currentDatasetID() === 'SENTINEL-1 BURSTS' &&
+                  searchType() === SearchTypes.DATASET
+                )
+              ) {
+                <button
+                  (click)="queueAllProducts(downloadableProds)"
+                  mat-menu-item
+                >
+                  {{ 'ADD' | translate }} {{ downloadableProds.length }}
+                  {{
+                    downloadableProds.length === 1
+                      ? ('FILE' | translate)
+                      : ('FILES' | translate)
+                  }}
+                  {{ 'TO_DOWNLOADS' | translate }}
+                </button>
+              }
+              @if (
+                searchType() === SearchTypes.SBAS && !(isBurstStack$ | async)
+              ) {
+                <button (click)="queueSBASProducts(sbasProducts)" mat-menu-item>
+                  {{ 'ADD' | translate }} {{ sbasProducts.length }}
+                  {{
+                    sbasProducts.length === 1
+                      ? ('FILE' | translate)
+                      : ('FILES' | translate)
+                  }}
+                  {{ 'TO_DOWNLOADS' | translate }}
+                </button>
+              }
+              @if (
+                (currentDatasetID() === 'SENTINEL-1 BURSTS' &&
+                  searchType() === SearchTypes.DATASET) ||
+                (isBurstStack$ | async)
+              ) {
+                <button
+                  mat-menu-item
+                  [matMenuTriggerFor]="addAllBurstProducts"
+                  [matMenuTriggerData]="{
+                    burstData:
+                      searchType() === SearchTypes.SBAS
+                        ? (SBASburstDataProducts$ | async)
+                        : (burstDataProducts$ | async),
+                    burstMetadata:
+                      searchType() === SearchTypes.SBAS
+                        ? (SBASburstMetadataProducts$ | async)
+                        : (burstMetadataProducts$ | async),
+                  }"
+                >
+                  {{
+                    searchType() !== SearchTypes.SBAS
+                      ? downloadableProds.length
+                      : (SBASBurstProductsLength$ | async)
+                  }}
+                  BURST
+                  {{
+                    downloadableProds.length === 1
+                      ? ('FILE' | translate)
+                      : ('FILES' | translate)
+                  }}
+                </button>
+              }
+              @if (searchType() === SearchTypes.DATASET && datasetGroups()) {
+                <button
+                  mat-menu-item
+                  [matMenuTriggerFor]="addAllProductsOfGroup"
+                  [matMenuTriggerData]="{
+                    productGroups: productsByGroup(),
+                  }"
+                >
+                  {{ 'ADD_BY_GROUP' | translate }}
+                </button>
+              }
+              @if (searchType() === SearchTypes.DATASET && addByFileType()) {
+                <button
+                  mat-menu-item
+                  [matMenuTriggerFor]="addAllProductsOfType"
+                  [matMenuTriggerData]="{
+                    productData: (productCountByType$ | async),
+                  }"
+                >
+                  {{
+                    currentDatasetID() === 'NISAR'
+                      ? ('ADD_BY_FILE_TYPE' | translate)
+                      : ('ADD_BY_PRODUCT_TYPE' | translate)
+                  }}
+                </button>
+              }
+            </mat-menu>
+
+            <mat-menu #addAllProductsOfGroup>
+              <ng-template matMenuContent let-productGroups="productGroups">
+                @for (group of productGroups; track group.name) {
+                  <button mat-menu-item (click)="queueProductsOfGroup(group)">
+                    @let numProducts = group.products.length;
+
+                    {{ 'ADD' | translate }} {{ numProducts }}
+                    {{ group.name | translate }}
+                    {{
+                      numProducts === 1
+                        ? ('FILE' | translate)
+                        : ('FILES' | translate)
+                    }}
+                    {{ 'TO_DOWNLOADS' | translate }}
+                  </button>
+                }
+              </ng-template>
+            </mat-menu>
+
+            <mat-menu #addAllProductsOfType>
+              <ng-template matMenuContent let-productData="productData">
+                @for (item of productData | keyvalue; track item) {
+                  <button mat-menu-item (click)="queueProductsOfType(item.key)">
+                    {{ 'ADD' | translate }} {{ item.value }} {{ item.key }}
+                    {{
+                      item.value === 1
+                        ? ('FILE' | translate)
+                        : ('FILES' | translate)
+                    }}
+                    {{ 'TO_DOWNLOADS' | translate }}
+                  </button>
+                }
+              </ng-template>
+            </mat-menu>
+            <mat-menu #addAllBurstProducts>
+              <ng-template
+                matMenuContent
+                let-burstData="burstData"
+                let-burstMetadata="burstMetadata"
+              >
+                <button (click)="queueAllProducts(burstData)" mat-menu-item>
+                  {{ 'ADD' | translate }} {{ burstData.length }}
+                  {{
+                    burstData.length === 1
+                      ? ('FILE' | translate)
+                      : ('FILES' | translate)
+                  }}
+                  {{ 'TO_DOWNLOADS' | translate }} (TIFF)
+                </button>
+                <button (click)="queueAllProducts(burstMetadata)" mat-menu-item>
+                  {{ 'ADD' | translate }} {{ burstMetadata.length }}
+                  {{
+                    burstMetadata.length === 1
+                      ? ('FILE' | translate)
+                      : ('FILES' | translate)
+                  }}
+                  {{ 'TO_DOWNLOADS' | translate }} (XML)
+                </button>
+              </ng-template>
+            </mat-menu>
+            <mat-menu #ExportAll="matMenu">
+              <button mat-menu-item [matMenuTriggerFor]="ExportAllMetadata">
+                {{ 'METADATA' | translate }}
+              </button>
+              <button mat-menu-item [matMenuTriggerFor]="ExportAllData">
+                {{ 'DATA' | translate }}
+              </button>
+            </mat-menu>
+          </div>
+        }
+      </div>
+      <mat-menu #ExportAllMetadata="matMenu">
+        @if (products) {
+          <div>
+            <button (click)="onMetadataExport(ApiFormat.CSV)" mat-menu-item>
+              {{ 'CSV' | translate }}
+            </button>
+            <button (click)="onMetadataExport(ApiFormat.GEOJSON)" mat-menu-item>
+              {{ 'GEOJSON' | translate }}
+            </button>
+            <button (click)="onMetadataExport(ApiFormat.KML)" mat-menu-item>
+              {{ 'KML' | translate }}
+            </button>
+          </div>
+        }
+      </mat-menu>
+      <mat-menu #ExportAllData="matMenu">
+        @if (products) {
+          <div>
+            <button (click)="onMakeDownloadScript(products)" mat-menu-item>
+              {{ 'PYTHON_PY' | translate }}
+            </button>
+            <button
+              (click)="onMetadataExport(ApiFormat.METALINK)"
+              mat-menu-item
+            >
+              {{ 'METALINK' | translate }}
+            </button>
+          </div>
+        }
+      </mat-menu>
+      @if (searchType() === SearchTypes.BASELINE) {
+        @if (breakpoint > breakpoints.MOBILE) {
+          <div class="header-row-right">
+            <div
+              (click)="onTogglePerpendicularSort()"
+              class="header-column noselect clickable"
+            >
+              {{ 'METERS' | translate }}
+              @if (perpendicularSort() === SortDirection.NONE) {
+                <mat-icon class="sort-icon">unfold_more</mat-icon>
+              }
+              @if (perpendicularSort() === SortDirection.INCREASING) {
+                <mat-icon class="sort-icon sort-active"
+                  >keyboard_arrow_up</mat-icon
+                >
+              }
+              @if (perpendicularSort() === SortDirection.DECREASING) {
+                <mat-icon class="sort-icon sort-active"
+                  >keyboard_arrow_down</mat-icon
+                >
+              }
+            </div>
+            <div
+              (click)="onToggleTemporalSort()"
+              class="header-column clickable noselect"
+            >
+              {{ 'DAYS' | translate }}
+              @if (temporalSort() === SortDirection.NONE) {
+                <mat-icon class="sort-icon">unfold_more</mat-icon>
+              }
+              @if (temporalSort() === SortDirection.INCREASING) {
+                <mat-icon class="sort-icon sort-active"
+                  >keyboard_arrow_up</mat-icon
+                >
+              }
+              @if (temporalSort() === SortDirection.DECREASING) {
+                <mat-icon class="sort-icon sort-active"
+                  >keyboard_arrow_down</mat-icon
+                >
+              }
+            </div>
+            <div class="header-column header-cart"></div>
+          </div>
+        }
+      }
+    </div>
+  }
+}

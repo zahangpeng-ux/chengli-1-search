@@ -1,0 +1,57 @@
+import { Injectable } from '@angular/core';
+
+import * as models from '@models';
+
+@Injectable({
+  providedIn: 'root',
+})
+export class DatasetForProductService {
+  public match(scene: models.CMRProduct): models.Dataset {
+    if (scene.dataset === 'ALOS') {
+      return scene.metadata.instrument === 'AVNIR-2'
+        ? models.avnir
+        : models.alos;
+    }
+    if (scene.metadata.productType === 'BURST') {
+      return models.sentinel_1_bursts;
+    }
+    if (['TROPO-ZENITH', 'ECMWF_TROPO'].includes(scene.metadata.productType)) {
+      return models.tropo;
+    }
+    if (scene.id.startsWith('OPERA')) {
+      if (scene.id.startsWith('OPERA_L3_DISP')) {
+        // return models.opera_disp;
+      }
+      return models.opera_s1;
+    }
+
+    const exact = (datasetID, sceneDataset) => datasetID === sceneDataset;
+
+    const partial = (datasetID, sceneDataset) =>
+      datasetID.includes(sceneDataset) || sceneDataset.includes(datasetID);
+
+    if (scene?.name?.startsWith('S1-GUNW')) {
+      return models.getDataset('SENTINEL-1 INTERFEROGRAM (BETA)');
+    }
+
+    return (
+      this.getDatasetMatching(scene, exact) ||
+      this.getDatasetMatching(scene, partial) ||
+      models.datasetList[0]
+    );
+  }
+
+  private getDatasetMatching(
+    scene: models.CMRProduct,
+    comparator: (datasetName: string, sceneDataset: string) => boolean,
+  ): models.Dataset {
+    return models.datasetList.filter((dataset) => {
+      const [datasetName, sceneDataset] = [
+        dataset.id.toLowerCase(),
+        scene.dataset.toLocaleLowerCase(),
+      ];
+
+      return comparator(datasetName, sceneDataset);
+    })[0];
+  }
+}

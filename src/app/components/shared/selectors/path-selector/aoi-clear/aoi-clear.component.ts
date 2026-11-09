@@ -1,0 +1,86 @@
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
+import { MatButton } from '@angular/material/button';
+import { MatIcon } from '@angular/material/icon';
+import { Store } from '@ngrx/store';
+import { TranslateModule } from '@ngx-translate/core';
+import { map, tap } from 'rxjs/operators';
+import { SubSink } from 'subsink';
+
+import { SearchType } from '@models';
+import { MapService, WktService } from '@services';
+import { AppState } from '@store';
+import * as filtersStore from '@store/filters';
+import { getSearchType } from '@store/search';
+
+@Component({
+  selector: 'app-aoi-clear',
+  templateUrl: './aoi-clear.component.html',
+  styleUrls: ['./aoi-clear.component.scss'],
+  imports: [MatButton, MatIcon, TranslateModule],
+})
+export class AoiClearComponent implements OnInit, OnDestroy {
+  private mapService = inject(MapService);
+  private wktService = inject(WktService);
+  private store$ = inject<Store<AppState>>(Store);
+
+  public searchTypes = SearchType;
+  public searchType$ = this.store$.select(getSearchType);
+
+  public polygon: string;
+  public savedPolygon: string | null = null;
+  public anyPathFrameValues = false;
+
+  private subs = new SubSink();
+
+  ngOnInit() {
+    this.subs.add(
+      this.mapService.searchPolygon$
+        .pipe(
+          tap((polygon) => {
+            if (polygon) {
+              this.savedPolygon = null;
+            }
+          }),
+        )
+        .subscribe((polygon) => (this.polygon = polygon)),
+    );
+
+    this.subs.add(
+      this.store$
+        .select(filtersStore.getPathFrameRanges)
+        .pipe(
+          map(
+            ({ frameRange, pathRange }) =>
+              !!(
+                frameRange.start ||
+                frameRange.end ||
+                pathRange.start ||
+                pathRange.end
+              ),
+          ),
+        )
+        .subscribe(
+          (anyPathFrameValues) =>
+            (this.anyPathFrameValues = anyPathFrameValues),
+        ),
+    );
+  }
+
+  public onClearSearchArea(): void {
+    this.savedPolygon = this.polygon;
+    this.mapService.clearDrawLayer();
+  }
+
+  public undoPolygonClear(): void {
+    const features = this.wktService.wktToFeature(
+      this.savedPolygon,
+      this.mapService.epsg(),
+    );
+
+    this.mapService.setDrawFeature(features);
+  }
+
+  ngOnDestroy() {
+    this.subs.unsubscribe();
+  }
+}

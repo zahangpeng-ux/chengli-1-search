@@ -1,0 +1,73 @@
+@if (breakpoint$ | async; as breakpoint) {
+  @if (searchType$ | async; as selectedSearchType) {
+    @if (breakpoint > breakpoints.MOBILE) {
+      <div class="breadcrumb-row baseline-header-layout">
+        <div class="baseline-header-wrapper">
+          <app-search-type-selector class="breadcrumb">
+          </app-search-type-selector>
+          <div class="breadcrumb reference-toggle-wrapper">
+            <app-baseline-frame-reference-toggle></app-baseline-frame-reference-toggle>
+          </div>
+          @if (shouldUseFramesForReference()) {
+            <div class="breadcrumb dataset-selector--layout">
+              <app-dataset-selector
+                class="w100"
+                [(selected)]="selectedDataset"
+                (selectedChange)="onDatasetChange($event)"
+                [datasets]="datasets"
+              ></app-dataset-selector>
+            </div>
+          }
+          <div
+            class="breadcrumb scene-selector"
+            [class.scene-selector]="breakpoint === breakpoints.FULL"
+            [class.medium-scene-selector]="breakpoint === breakpoints.MEDIUM"
+            [class.small-scene-selector]="breakpoint === breakpoints.SMALL"
+          >
+            <app-master-scene-selector></app-master-scene-selector>
+          </div>
+          <div class="breadcrumb search-button-layout">
+            <app-search-button></app-search-button>
+          </div>
+          <div class="icon-cluster">
+            <app-header-buttons> </app-header-buttons>
+          </div>
+        </div>
+      </div>
+    }
+    @if (breakpoint === breakpoints.MOBILE) {
+      <div>
+        <div class="mobile-nav-bar">
+          <button
+            (click)="onToggleFiltersMenu()"
+            class="mobile-filters-button"
+            mat-flat-button
+          >
+            <mat-icon>edit</mat-icon>
+            @switch (selectedSearchType) {
+              @case (searchTypes.SBAS) {
+                <span> SBAS </span>
+              }
+              @case (searchTypes.BASELINE) {
+                <span>
+                  {{ 'BASELINE' | translate }}
+                </span>
+              }
+              @case (searchTypes.CUSTOM_PRODUCTS) {
+                <span>
+                  {{ 'ON_DEMAND' | translate }}
+                </span>
+              }
+              @default {
+                <span> </span>
+              }
+            }
+          </button>
+          <div class="mobile-icon-cluster">
+            <app-header-buttons> </app-header-buttons>
+          </div>
+        </div>
+      </div>
+    }
+  }
+}
