@@ -186,33 +186,51 @@ label {
 }
 
 .tool-bar-control {
-  @include themify($themes) {
-    color: themed('dark-secondary-text');
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 34px;
+  height: 34px;
+  margin-top: 6px;
+  margin-left: 8px;
+  color: #3d4659;
+  cursor: pointer;
+  background: #fff;
+  border: 1px solid #e6e9f0;
+  border-radius: 50%;
+  box-shadow: 0 4px 12px rgb(29 40 72 / 12%);
+
+  &:hover {
+    color: #2f54eb;
+    background: #f3f6fc;
   }
 
-  display: block;
-  width: 30px;
-  padding: 14px 0;
-  margin-left: 10px;
-  cursor: pointer;
+  .mat-icon {
+    width: 20px;
+    height: 20px;
+    font-size: 20px;
+  }
 }
 
 .tool-bar-control-bottom {
-  @include themify($themes) {
-    background-color: themed('primary');
-  }
-
-  width: calc(100% + 10px);
-  height: 14px;
-  margin: 3px 0 0 -10px;
+  display: none;
 }
 
 .visible-toggle {
   // transition: all 1.2s ease-in-out;
 }
 
+// 外层只负责布局，背景/边框/圆角交给内层 .tool-bar-common，避免左侧出现双重圆角
+.icon-bar.icon-bar--shell {
+  padding: 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
 .tool-bar-common {
-  margin-left: 10px;
+  margin-left: 0;
 
   &.spread-buttons {
     justify-content: space-between;

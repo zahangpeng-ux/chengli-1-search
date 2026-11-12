@@ -1,0 +1,43 @@
+<h2 mat-dialog-title>{{ 'MY_AOI' | translate }}</h2>
+
+<mat-dialog-content class="dialog-body">
+  @if (items.length === 0) {
+    <div class="empty-state">
+      <mat-icon>inbox</mat-icon>
+      <p>{{ 'NO_SAVED_AOI' | translate }}</p>
+      <small>{{ 'SAVE_AOI_HINT' | translate }}</small>
+    </div>
+  } @else {
+    <div class="aoi-list">
+      @for (item of items; track item.id) {
+        <div
+          class="aoi-item"
+          (click)="onUse(item)"
+          matTooltip="{{ 'CLICK_TO_USE' | translate }}"
+        >
+          <div class="aoi-info">
+            <div class="aoi-name">
+              <mat-icon class="aoi-icon">bookmark</mat-icon>
+              {{ item.name }}
+            </div>
+            <div class="aoi-time">
+              {{ 'CREATED_AT' | translate }}: {{ formatDate(item.createdAt) }}
+            </div>
+          </div>
+          <button
+            type="button"
+            class="delete-btn"
+            (click)="onDelete(item, $event)"
+            matTooltip="{{ 'DELETE' | translate }}"
+          >
+            <mat-icon>delete_outline</mat-icon>
+          </button>
+        </div>
+      }
+    </div>
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="dialog-footer">
+  <button mat-button (click)="onClose()">{{ 'CLOSE' | translate }}</button>
+</mat-dialog-actions>

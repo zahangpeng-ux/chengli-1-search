@@ -1,0 +1,216 @@
+@use "asf-theme-variables" as *;
+
+// 与购物车弹窗（queue.component.scss）完全一致的外壳尺寸与配色
+$header-height: 67px;
+$footer-height: 60px;
+$idk-pad: 21px;
+
+.dl-action-icon {
+  margin-right: 5px;
+}
+
+.dl-title-group {
+  @include themify($themes) {
+    color: themed("dark-primary-text");
+  }
+
+  padding: 0 10px;
+  margin-top: 0;
+  margin-right: -24px;
+  margin-left: -23px;
+
+  h1 {
+    margin-top: 0;
+  }
+}
+
+.dl-subtitle {
+  @include themify($themes) {
+    color: themed("dark-secondary-text");
+  }
+
+  margin-top: -25px;
+  font-size: 16px;
+  font-style: italic;
+}
+
+.dl-card-actions {
+  @include themify($themes) {
+    color: themed("dark-primary-text");
+    background-color: themed("primary-light");
+    border-top-color: themed("primary-dark");
+  }
+
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-width: 100%;
+  height: 80px;
+  min-height: 100%;
+  padding: 20px 20px 0;
+  padding-top: 0;
+  border-top-style: solid;
+  border-top-width: 1px;
+}
+
+.dl-clear-button {
+  box-sizing: border-box;
+  flex: 1 1 100%;
+  max-width: 15%;
+  text-align: left;
+
+  .mat-mdc-button {
+    font-size: 16px;
+
+    @include themify($themes) {
+      color: themed("dark-primary-text");
+    }
+  }
+}
+
+.dl-download-buttons {
+  box-sizing: border-box;
+  flex: 1 1 100%;
+  max-width: 85%;
+  text-align: right;
+
+  .mat-mdc-button {
+    font-size: 16px;
+
+    @include themify($themes) {
+      color: themed("dark-primary-text");
+    }
+  }
+}
+
+.dl-close-x {
+  position: absolute;
+  top: 6px;
+  right: 12px;
+  z-index: 100;
+  float: right;
+  text-align: right;
+  cursor: pointer;
+
+  @include themify($themes) {
+    color: themed("dark-primary-text");
+  }
+}
+
+.dl-empty-message {
+  font-size: 20px;
+  text-align: center;
+
+  @include themify($themes) {
+    color: themed("dark-primary-text");
+  }
+}
+
+button {
+  height: 36px;
+  font-weight: 500;
+}
+
+.dl-mat-dialog-content {
+  @include themify($themes) {
+    background-color: themed("background-white");
+  }
+
+  height: calc(100% - #{$header-height} - #{$footer-height} - #{$idk-pad});
+  max-height: calc(100% - #{$header-height} - #{$footer-height} - #{$idk-pad});
+  padding: 0;
+  margin: 0;
+}
+
+.dl-mat-dialog-actions {
+  @include themify($themes) {
+    background-color: themed("dark-secondary-text");
+  }
+
+  position: absolute;
+  bottom: 0;
+  display: flex;
+  width: 100%;
+  padding: 0;
+  margin-bottom: 0;
+}
+
+.mdc-dialog__title::before {
+  display: none;
+}
+
+[mat-dialog-title] {
+  padding: 18px 24px;
+  text-align: left;
+  cursor: move;
+
+  @include themify($themes) {
+    color: themed("dark-primary-text");
+    background-color: themed("primary-light");
+  }
+}
+
+// 公告列表
+.nc-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.nc-item {
+  display: flex;
+  gap: 12px;
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &.is-unread {
+    background: #fafbff;
+  }
+
+  .nc-type {
+    flex: 0 0 22px;
+    width: 22px;
+    height: 22px;
+    margin-top: 2px;
+    font-size: 22px;
+    color: #2f54eb;
+  }
+
+  .nc-body {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+  }
+
+  .nc-title {
+    font-size: 14px;
+    font-weight: 600;
+
+    @include themify($themes) {
+      color: themed("dark-primary-text");
+    }
+  }
+
+  .nc-message {
+    font-size: 13px;
+    line-height: 1.6;
+    word-break: break-word;
+
+    @include themify($themes) {
+      color: themed("dark-secondary-text");
+    }
+  }
+
+  .nc-time {
+    font-size: 12px;
+
+    @include themify($themes) {
+      color: themed("dark-secondary-text");
+    }
+  }
+}

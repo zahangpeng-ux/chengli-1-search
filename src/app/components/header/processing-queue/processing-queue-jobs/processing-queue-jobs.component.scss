@@ -72,7 +72,8 @@
   align-items: center;
   justify-content: center;
   width: 100%;
-  height: 100%;
+  min-height: 240px;
+  padding: 24px 0;
 }
 
 .jobs-empty-message {
@@ -87,19 +88,15 @@
 
 .empty-queue--action-buttons {
   display: flex;
-  flex-direction: row;
-  padding: 30px 0;
-  font-size: 20px;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 0 0;
+  font-size: 16px;
 }
 
 .purchase-credits--button {
   padding-left: 10px;
-}
-
-.not-logged-in {
-  margin-top: 3px;
-  font-size: small;
-  font-style: italic;
 }
 
 .jobs-empty-message-docs-link,

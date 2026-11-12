@@ -1,0 +1,57 @@
+<div
+  mat-dialog-title
+  cdkDrag
+  cdkDragHandle
+  cdkDragRootElement=".cdk-overlay-pane"
+  cdkDragBoundary=".cdk-global-overlay-wrapper"
+>
+  <div class="dl-title-group">
+    <h1>
+      {{ 'DOWNLOADS' | translate }}
+    </h1>
+    <div class="dl-subtitle">
+      {{ downloadCount() }} {{ 'FILES' | translate }}
+    </div>
+  </div>
+
+  <div class="dl-close-x" (click)="onClose()">
+    <mat-icon>close</mat-icon>
+  </div>
+</div>
+
+<mat-dialog-content class="dl-mat-dialog-content">
+  @if (downloadCount() === 0) {
+    <div class="dl-empty-message">
+      <br /><br />
+      {{ 'NO_DOWNLOADS' | translate }}
+    </div>
+  } @else {
+    <mat-list id="matListDownloads" role="list" class="dl-list">
+      @for (entry of downloadsList(); track entry.id) {
+        <mat-list-item role="listitem">
+          <div matListItemTitle class="item-content">
+            <b>{{ entry.filename }}</b>
+            •
+            <span>{{ entry.state }}</span>
+          </div>
+        </mat-list-item>
+      }
+    </mat-list>
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions class="dl-mat-dialog-actions">
+  <div class="fx-row dl-card-actions">
+    <div class="dl-clear-button btn-primary">
+      <button (click)="onOpenCart()" mat-button>
+        <mat-icon class="dl-action-icon">shopping_cart</mat-icon>
+        <span>{{ 'OPEN_DOWNLOAD_QUEUE' | translate }}</span>
+      </button>
+    </div>
+    <div class="dl-download-buttons btn-primary">
+      <button (click)="onClose()" mat-button>
+        <span>{{ 'CLOSE' | translate }}</span>
+      </button>
+    </div>
+  </div>
+</mat-dialog-actions>

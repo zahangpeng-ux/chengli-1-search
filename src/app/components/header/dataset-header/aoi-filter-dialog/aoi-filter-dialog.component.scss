@@ -1,0 +1,21 @@
+// 说明：弹窗内容挂在 CDK overlay 下，:deep() 在 Angular 里不生效，
+// 所有跨组件布局覆盖统一写在 src/styles.scss 的 .aoi-filter-dialog 中。
+.aoi-title {
+  padding: 16px 20px 4px !important;
+  font-size: 16px;
+  font-weight: 600;
+  color: #1d2433;
+}
+
+.aoi-content {
+  padding: 4px 20px 4px !important;
+}
+
+.aoi-actions {
+  padding: 10px 20px 14px !important;
+  border-top: 1px solid #eef1f6;
+
+  button {
+    font-size: 13px;
+  }
+}

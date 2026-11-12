@@ -20,27 +20,92 @@
     </div>
     <div class="brand-right">
       <span class="brand-org">{{ platform.organization }}</span>
-      @if (sessionEmail()) {
-        <span class="brand-user">
-          <mat-icon>account_circle</mat-icon>
-          <span class="brand-user-email">{{ sessionEmail() }}</span>
-        </span>
-        <button
-          class="brand-help"
-          title="退出登录"
-          aria-label="退出登录"
-          (click)="onLogout()"
-        >
-          <mat-icon>logout</mat-icon>
-        </button>
-      }
+
       <button
-        class="brand-help"
-        [attr.title]="'HELP' | translate"
-        [attr.aria-label]="'HELP' | translate"
+        class="brand-action"
+        [attr.title]="'CART' | translate"
+        [attr.aria-label]="'CART' | translate"
+        (click)="onOpenDownloadQueue()"
       >
-        <mat-icon>help_outline</mat-icon>
+        <mat-icon
+          [matBadge]="(queuedProducts$ | async)?.length || 0"
+          matBadgeColor="accent"
+          matBadgePosition="above after"
+          matBadgeOverlap="true"
+          matBadgeSize="small"
+          [matBadgeHidden]="((queuedProducts$ | async)?.length || 0) === 0"
+          >shopping_cart</mat-icon
+        >
       </button>
+
+      <button
+        class="brand-action"
+        [attr.title]="'ORDERS' | translate"
+        [attr.aria-label]="'ORDERS' | translate"
+        (click)="onOpenProcessingQueue()"
+      >
+        <mat-icon
+          [matBadge]="queuedCustomProducts().length || 0"
+          matBadgeColor="accent"
+          matBadgePosition="above after"
+          matBadgeOverlap="true"
+          matBadgeSize="small"
+          [matBadgeHidden]="(queuedCustomProducts().length || 0) === 0"
+          >receipt_long</mat-icon
+        >
+      </button>
+
+      <button
+        class="brand-action"
+        [attr.title]="'DOWNLOADS' | translate"
+        [attr.aria-label]="'DOWNLOADS' | translate"
+        (click)="onOpenDownloadsDialog()"
+      >
+        <mat-icon>file_download</mat-icon>
+      </button>
+
+      <button
+        class="brand-action"
+        [attr.title]="'NOTIFICATIONS' | translate"
+        [attr.aria-label]="'NOTIFICATIONS' | translate"
+        (click)="onOpenNotifications()"
+      >
+        <mat-icon
+          [matBadge]="(unreadCount$ | async) || 0"
+          matBadgeColor="accent"
+          matBadgePosition="above after"
+          matBadgeOverlap="true"
+          matBadgeSize="small"
+          [matBadgeHidden]="((unreadCount$ | async) || 0) === 0"
+          >notifications</mat-icon
+        >
+      </button>
+
+      @if (sessionEmail()) {
+        <button
+          class="brand-action"
+          [matMenuTriggerFor]="accountMenu"
+          [attr.title]="'PROFILE' | translate"
+          [attr.aria-label]="'PROFILE' | translate"
+        >
+          <mat-icon>account_circle</mat-icon>
+        </button>
+        <mat-menu
+          #accountMenu="matMenu"
+          class="account-menu"
+          panelClass="account-menu"
+          xPosition="before"
+        >
+          <button mat-menu-item (click)="onOpenUserInfo()">
+            <mat-icon>person_outline</mat-icon>
+            <span>{{ 'USER_INFO' | translate }}</span>
+          </button>
+          <button mat-menu-item (click)="onLogout()">
+            <mat-icon>logout</mat-icon>
+            <span>{{ 'SIGN_OUT' | translate }}</span>
+          </button>
+        </mat-menu>
+      }
     </div>
   </header>
 
@@ -106,4 +171,8 @@
       </div>
     </mat-sidenav-content>
   </mat-sidenav-container>
+
+  @if (isUserCenterOpen()) {
+    <app-user-center (closed)="isUserCenterOpen.set(false)"></app-user-center>
+  }
 </div>

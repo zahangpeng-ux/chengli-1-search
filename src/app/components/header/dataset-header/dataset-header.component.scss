@@ -49,7 +49,7 @@
 
 .sensor-segment {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 2px;
   padding: 3px;
   background: #f3f5f9;
@@ -59,12 +59,10 @@
 .sensor-btn {
   height: 32px;
   font-size: 13px;
-  color: #5b6475;
-  cursor: pointer;
+  cursor: default;
   background: transparent;
   border: none;
   border-radius: 6px;
-  transition: all 0.15s ease;
 
   &.active {
     font-weight: 600;

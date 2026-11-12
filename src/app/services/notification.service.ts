@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { TranslateService } from '@ngx-translate/core';
 import { ActiveToast, IndividualConfig, ToastrService } from 'ngx-toastr';
+import { BehaviorSubject } from 'rxjs';
 import { take } from 'rxjs/operators';
 
 import { SearchRedirect } from '@models';
@@ -9,6 +10,42 @@ import { AppState } from '@store';
 import * as uiStore from '@store/ui';
 
 import { SearchService } from './search.service';
+
+export interface AppNotification {
+  id: number;
+  title: string;
+  content: string;
+  date: Date;
+  read: boolean;
+}
+
+/** 平台公告（后续可替换为后端接口数据源） */
+const PLATFORM_ANNOUNCEMENTS: AppNotification[] = [
+  {
+    id: 3,
+    title: '平台维护公告',
+    content:
+      '平台将于近期进行系统升级维护，届时数据检索与下载服务可能出现短暂中断，请提前安排相关工作。',
+    date: new Date('2026-11-10T09:00:00'),
+    read: false,
+  },
+  {
+    id: 2,
+    title: '数据更新公告',
+    content:
+      '成理一号卫星最新一期 SAR 数据已完成入库，覆盖区域与成像模式有所扩展，欢迎检索使用。',
+    date: new Date('2026-11-05T14:30:00'),
+    read: false,
+  },
+  {
+    id: 1,
+    title: '平台上线公告',
+    content:
+      '成理一号卫星数据搜索平台正式上线，支持按区域、时间等条件检索 SAR 数据，欢迎体验并反馈意见。',
+    date: new Date('2026-10-28T10:00:00'),
+    read: true,
+  },
+];
 
 @Injectable({
   providedIn: 'root',
@@ -209,17 +246,8 @@ export class NotificationService {
     const title = this.translateService.instant('LIST_IMPORT_FAILED', {
       extension: fileExtension,
     });
-    const message = this.translateService.instant(
-      'CLICK_TO_OPEN_FILE_FORMAT_DOCS',
-    );
-    const errorToast = this.error(message, title);
-    errorToast.onTap
-      .pipe(take(1))
-      .subscribe((_) =>
-        window.open(
-          'https://docs.asf.alaska.edu/vertex/manual/#list-search-file-import',
-        ),
-      );
+    const message = this.translateService.instant('CHENGLI_1_DOCS_BUILDING');
+    this.error(message, title);
   }
 
   public redirectTo(message_key: string, searchRedirectInfo: SearchRedirect) {
@@ -256,5 +284,17 @@ export class NotificationService {
       ...options,
       ...this.toastOptions,
     });
+  }
+
+  /** 消息中心：平台公告（来自运营方发布，非系统运行提示） */
+  private notifications = new BehaviorSubject<AppNotification[]>(
+    PLATFORM_ANNOUNCEMENTS,
+  );
+  public notifications$ = this.notifications.asObservable();
+
+  public markAllNotificationsRead(): void {
+    this.notifications.next(
+      this.notifications.getValue().map((n) => ({ ...n, read: true })),
+    );
   }
 }

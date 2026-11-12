@@ -1,0 +1,57 @@
+<div
+  mat-dialog-title
+  cdkDrag
+  cdkDragHandle
+  cdkDragRootElement=".cdk-overlay-pane"
+  cdkDragBoundary=".cdk-global-overlay-wrapper"
+>
+  <div class="dl-title-group">
+    <h1>
+      {{ 'NOTIFICATIONS' | translate }}
+    </h1>
+    <div class="dl-subtitle">
+      {{ (notifications$ | async)?.length || 0 }} {{ 'ITEMS' | translate }}
+    </div>
+  </div>
+
+  <div class="dl-close-x" (click)="onClose()">
+    <mat-icon>close</mat-icon>
+  </div>
+</div>
+
+<mat-dialog-content class="dl-mat-dialog-content">
+  @if (notifications$ | async; as notifications) {
+    @if (notifications.length === 0) {
+      <div class="dl-empty-message">
+        <br /><br />
+        {{ 'NO_ANNOUNCEMENTS' | translate }}
+      </div>
+    } @else {
+      <div class="nc-list">
+        @for (notification of notifications; track notification.id) {
+          <div class="nc-item" [class.is-unread]="!notification.read">
+            <mat-icon class="nc-type">campaign</mat-icon>
+            <div class="nc-body">
+              <span class="nc-title">{{ notification.title }}</span>
+              <span class="nc-message">{{ notification.content }}</span>
+              <span class="nc-time">
+                {{ notification.date | date: 'yyyy-MM-dd HH:mm' }}
+              </span>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions class="dl-mat-dialog-actions">
+  <div class="fx-row dl-card-actions">
+    <div class="dl-clear-button btn-primary"></div>
+    <div class="dl-download-buttons btn-primary">
+      <button (click)="onClose()" mat-button>
+        <span>{{ 'CLOSE' | translate }}</span>
+      </button>
+    </div>
+  </div>
+</mat-dialog-actions>

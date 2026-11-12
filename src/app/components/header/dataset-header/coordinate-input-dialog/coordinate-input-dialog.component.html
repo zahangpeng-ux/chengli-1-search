@@ -1,0 +1,134 @@
+<h2 mat-dialog-title class="dialog-title">
+  {{ 'COORDINATE_INPUT' | translate }}
+</h2>
+
+<mat-dialog-content class="dialog-body">
+  <div class="tabs">
+    <button
+      type="button"
+      class="tab"
+      [class.active]="mode === 'bbox'"
+      (click)="setMode('bbox')"
+    >
+      {{ 'BOUNDING_BOX' | translate }}
+    </button>
+    <button
+      type="button"
+      class="tab"
+      [class.active]="mode === 'wkt'"
+      (click)="setMode('wkt')"
+    >
+      {{ 'WKT_TEXT' | translate }}
+    </button>
+    <button
+      type="button"
+      class="tab"
+      [class.active]="mode === 'center'"
+      (click)="setMode('center')"
+    >
+      {{ 'CENTER_POINT' | translate }}
+    </button>
+  </div>
+
+  @if (mode === 'bbox') {
+    <div class="bbox-grid">
+      <label class="field bbox-top">
+        <input
+          type="number"
+          step="any"
+          placeholder=" "
+          [(ngModel)]="maxLat"
+        />
+        <span class="ph">{{ 'MAX_LATITUDE' | translate }} <i>*</i></span>
+      </label>
+
+      <label class="field bbox-left">
+        <input
+          type="number"
+          step="any"
+          placeholder=" "
+          [(ngModel)]="minLon"
+        />
+        <span class="ph">{{ 'MIN_LONGITUDE' | translate }} <i>*</i></span>
+      </label>
+
+      <label class="field bbox-right">
+        <input
+          type="number"
+          step="any"
+          placeholder=" "
+          [(ngModel)]="maxLon"
+        />
+        <span class="ph">{{ 'MAX_LONGITUDE' | translate }} <i>*</i></span>
+      </label>
+
+      <label class="field bbox-bottom">
+        <input
+          type="number"
+          step="any"
+          placeholder=" "
+          [(ngModel)]="minLat"
+        />
+        <span class="ph">{{ 'MIN_LATITUDE' | translate }} <i>*</i></span>
+      </label>
+    </div>
+  }
+
+  @if (mode === 'wkt') {
+    <div class="textarea-wrap">
+      <textarea rows="8" placeholder=" " [(ngModel)]="wktText"></textarea>
+      <span class="ph ph-text">WKT</span>
+    </div>
+    <p class="hint">{{ 'WKT_HINT' | translate }}</p>
+  }
+
+  @if (mode === 'center') {
+    <div class="center-grid">
+      <label class="field">
+        <input
+          type="number"
+          step="any"
+          placeholder=" "
+          [(ngModel)]="centerLon"
+        />
+        <span class="ph">{{ 'LONGITUDE' | translate }} <i>*</i></span>
+      </label>
+
+      <label class="field">
+        <input
+          type="number"
+          step="any"
+          placeholder=" "
+          [(ngModel)]="centerLat"
+        />
+        <span class="ph">{{ 'LATITUDE' | translate }} <i>*</i></span>
+      </label>
+
+      <label class="field-line">
+        <span class="line-label">{{ 'WIDTH_KM' | translate }} <i>*</i></span>
+        <input type="number" step="any" [(ngModel)]="centerWidth" />
+      </label>
+
+      <label class="field-line">
+        <span class="line-label">{{ 'HEIGHT_KM' | translate }} <i>*</i></span>
+        <input type="number" step="any" [(ngModel)]="centerHeight" />
+      </label>
+    </div>
+  }
+
+  @if (errorMessage) {
+    <p class="error">
+      <mat-icon>error</mat-icon>
+      {{ errorMessage }}
+    </p>
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions class="dialog-footer">
+  <button type="button" class="btn-ghost" (click)="onClose()">
+    {{ 'CLOSE' | translate }}
+  </button>
+  <button type="button" class="btn-primary" (click)="onConfirm()">
+    {{ 'CONFIRM' | translate }}
+  </button>
+</mat-dialog-actions>

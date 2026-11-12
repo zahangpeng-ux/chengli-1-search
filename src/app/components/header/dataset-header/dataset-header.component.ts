@@ -8,8 +8,10 @@ import { Store } from '@ngrx/store';
 import { TranslateModule } from '@ngx-translate/core';
 
 import { AdminRegionDialogComponent } from '@components/header/dataset-header/admin-region-dialog/admin-region-dialog.component';
-import { AoiFilterComponent } from '@components/header/dataset-header/aoi-filter/aoi-filter.component';
+import { AoiFilterDialogComponent } from '@components/header/dataset-header/aoi-filter-dialog/aoi-filter-dialog.component';
+import { CoordinateInputDialogComponent } from '@components/header/dataset-header/coordinate-input-dialog/coordinate-input-dialog.component';
 import { InfoBarComponent } from '@components/header/info-bar/info-bar.component';
+import { MyAoiDialogComponent } from '@components/header/dataset-header/my-aoi-dialog/my-aoi-dialog.component';
 import { SearchButtonComponent } from '@components/shared/search-button/search-button.component';
 import { DatasetSelectorComponent } from '@components/shared/selectors/dataset-selector/dataset-selector.component';
 import { DateSelectorComponent } from '@components/shared/selectors/date-selector/date-selector.component';
@@ -36,7 +38,6 @@ import * as uiStore from '@store/ui';
     DatasetSelectorComponent,
     DateSelectorComponent,
     SearchButtonComponent,
-    AoiFilterComponent,
     InfoBarComponent,
   ],
 })
@@ -54,7 +55,6 @@ export class DatasetHeaderComponent {
   public sceneIds = this.store$.selectSignal(filterStore.getSearchList);
 
   public activeTab: 'condition' | 'precise' = 'condition';
-  public isOptical = true;
   public activeQuickRange: number = null;
   public cloudCover = 20;
   public sideLookAngle = 30;
@@ -72,19 +72,9 @@ export class DatasetHeaderComponent {
     this.store$.dispatch(new filterStore.SetSelectedDataset(dataset));
   }
 
-  public onSensorChange(isOptical: boolean): void {
-    this.isOptical = isOptical;
-  }
-
   public onToggleAoiOptions(): void {
-    this.store$.dispatch(new mapStore.SetMapInteractionMode(
-      models.MapInteractionModeType.DRAW,
-    ));
+    // 旧入口保留给 aoi-filter 内部的下箭头
     this.store$.dispatch(new uiStore.ToggleAOIOptions());
-  }
-
-  public closeAOIOptions(): void {
-    this.store$.dispatch(new uiStore.CloseAOIOptions());
   }
 
   public onDrawMode(mode: models.MapDrawModeType): void {
@@ -95,23 +85,30 @@ export class DatasetHeaderComponent {
     this.store$.dispatch(new uiStore.CloseAOIOptions());
   }
 
-  public onClearRange(): void {
-    this.mapService.clearDrawLayer();
-    this.store$.dispatch(new filterStore.SetGeocode(''));
-    this.store$.dispatch(new filterStore.SetGeocodeCenter(null));
-    this.store$.dispatch(
-      new mapStore.SetMapInteractionMode(models.MapInteractionModeType.DRAW),
-    );
+  public onCoordinateInput(): void {
+    this.dialog.open(CoordinateInputDialogComponent, {
+      width: '520px',
+      maxWidth: '92vw',
+      maxHeight: '90vh',
+      panelClass: 'coordinate-dialog',
+    });
   }
 
   public onUploadFile(): void {
-    this.store$.dispatch(new mapStore.SetMapInteractionMode(
-      models.MapInteractionModeType.UPLOAD,
-    ));
+    this.dialog.open(AoiFilterDialogComponent, {
+      width: '560px',
+      maxWidth: '92vw',
+      height: 'auto',
+      maxHeight: '90vh',
+      panelClass: 'aoi-filter-dialog',
+    });
   }
 
   public onMyAOI(): void {
-    this.store$.dispatch(new uiStore.ToggleAOIOptions());
+    this.dialog.open(MyAoiDialogComponent, {
+      width: '520px',
+      maxWidth: '92vw',
+    });
   }
 
   public onOpenAdminRegion(): void {

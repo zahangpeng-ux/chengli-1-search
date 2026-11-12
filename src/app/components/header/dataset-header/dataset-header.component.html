@@ -23,20 +23,7 @@
       @if (activeTab === 'condition') {
         <!-- ===== 条件查询 ===== -->
         <div class="sensor-segment">
-          <button
-            type="button"
-            class="sensor-btn"
-            [class.active]="isOptical"
-            (click)="onSensorChange(true)"
-          >
-            {{ 'OPTICAL' | translate }}
-          </button>
-          <button
-            type="button"
-            class="sensor-btn"
-            [class.active]="!isOptical"
-            (click)="onSensorChange(false)"
-          >
+          <button type="button" class="sensor-btn active">
             {{ 'SAR' | translate }}
           </button>
         </div>
@@ -93,8 +80,6 @@
           </div>
 
           <p class="range-tip">{{ 'DRAW_RANGE_TIP' | translate }}</p>
-
-          <app-aoi-filter></app-aoi-filter>
         </section>
 
         <mat-menu #moreMenu="matMenu">
@@ -102,7 +87,7 @@
             <mat-icon>upload_file</mat-icon>
             <span>{{ 'UPLOAD_FILE' | translate }}</span>
           </button>
-          <button mat-menu-item (click)="onToggleAoiOptions()">
+          <button mat-menu-item (click)="onCoordinateInput()">
             <mat-icon>near_me</mat-icon>
             <span>{{ 'COORDINATE_INPUT' | translate }}</span>
           </button>
@@ -178,20 +163,7 @@
       @if (activeTab === 'precise') {
         <!-- ===== 精准查询 ===== -->
         <div class="sensor-segment">
-          <button
-            type="button"
-            class="sensor-btn"
-            [class.active]="isOptical"
-            (click)="onSensorChange(true)"
-          >
-            {{ 'OPTICAL' | translate }}
-          </button>
-          <button
-            type="button"
-            class="sensor-btn"
-            [class.active]="!isOptical"
-            (click)="onSensorChange(false)"
-          >
+          <button type="button" class="sensor-btn active">
             {{ 'SAR' | translate }}
           </button>
         </div>

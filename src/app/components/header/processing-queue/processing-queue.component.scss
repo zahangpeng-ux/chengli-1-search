@@ -1,22 +1,31 @@
 @use "asf-theme-variables" as *;
 
-$header-height: 120px;
 $footer-height: 60px;
-$bottom-offset: 10px;
 
 ::ng-deep .tab-menu .mat-mdc-menu-content {
   width: 160px !important;
 }
 
+// 标题栏与购物车弹窗（queue.component.scss）外壳保持一致
 [mat-dialog-title] {
-  color: $light-primary-text;
-  text-align: center;
+  flex: 0 0 auto;
+  box-sizing: border-box;
+  padding: 14px 24px 10px;
+  text-align: left;
   cursor: move;
-  background: #369; // TODO: check this
 
   @include themify($themes) {
-    color: themed('light-primary-text');
+    color: themed('dark-primary-text');
+    background-color: themed('primary-light');
+    border-bottom-color: themed('primary-dark');
   }
+
+  border-bottom-style: solid;
+  border-bottom-width: 1px;
+}
+
+.mdc-dialog__title::before {
+  display: none;
 }
 
 .processing-queue {
@@ -26,43 +35,70 @@ $bottom-offset: 10px;
   }
 
   position: relative;
-  display: flex;
-  align-items: flex-start;
-  justify-content: flex-start;
   min-width: 350px;
-  height: 100%;
-  min-height: 500px;
-  padding: 0;
   margin: 0;
-  font-size: 25px;
-  font-weight: bold;
 }
 
-.pq-card-title-group {
+.dl-title-group {
   @include themify($themes) {
     color: themed('dark-primary-text');
-    background-color: themed('primary-light');
-    header-bottom-color: themed('primary-dark');
   }
 
+  padding: 0 10px;
+  margin-top: 0;
+
+  h1 {
+    margin: 0;
+    font-size: 40px;
+    font-weight: 700;
+    line-height: 1.25;
+  }
+}
+
+.dl-subtitle {
+  @include themify($themes) {
+    color: themed('dark-secondary-text');
+  }
+
+  margin-top: 0;
+  font-size: 16px;
+  font-style: italic;
+  line-height: 1.4;
+}
+
+.pq-job-buttons {
+  display: flex;
+  flex-flow: row wrap;
+  align-items: center;
+  gap: 4px;
+  min-height: 0;
+  margin-top: 6px;
+  padding: 0 10px;
+
+  &:empty {
+    display: none;
+  }
+}
+
+.dl-close-x {
   position: absolute;
-  top: 0;
-  flex: 1 1 auto;
-  width: 100%;
-  height: $header-height;
-  padding: 10px 0 0;
-  text-align: left;
-  border-bottom-style: solid;
-  border-bottom-width: 1px;
+  top: 6px;
+  right: 12px;
+  z-index: 100;
+  cursor: pointer;
+
+  @include themify($themes) {
+    color: themed('dark-primary-text');
+  }
 }
 
 .jobs-dialog {
   width: 100%;
-  height: calc(100% - #{$footer-height});
+  height: 100%;
 }
 
 .jobs-display--mobile {
-  height: 463px;
+  height: 100%;
   overflow: visible;
 }
 
@@ -114,75 +150,6 @@ $bottom-offset: 10px;
   font-size: 28px;
 }
 
-.on-demand-branding {
-  display: inline-block;
-  margin-bottom: -5px;
-  margin-left: 5px;
-  vertical-align: middle;
-}
-
-.on-demand-icon {
-  @include md-icon-size(72px);
-
-  @include themify($themes) {
-    color: themed('dark-primary-text');
-  }
-}
-
-.on-demand-text {
-  margin-top: -16px;
-  vertical-align: middle;
-}
-
-.close-x {
-  position: absolute;
-  top: 10px;
-  right: 16px;
-  float: right;
-  text-align: right;
-  cursor: pointer;
-}
-
-.close-x-mobile {
-  right: 32px;
-}
-
-.project-name {
-  display: inline-block;
-  margin-top: 10px;
-  margin-left: 20px;
-  font-size: 14px;
-}
-
-.project-name-mobile {
-  margin-left: 4px;
-  transform: scale(0.75);
-}
-
-.dataset-menu {
-  @include themify($themes) {
-    background-color: adjust-color(themed('primary-light'), $lightness: +7%);
-  }
-
-  position: absolute;
-  top: 84px;
-  display: block;
-  width: 100%;
-  height: 36px;
-  text-align: left;
-  border-top: 1px solid #3d3e38; // TODO: check this
-}
-
-.processing-type-text {
-  margin: 0 10px;
-  font-size: 16px;
-}
-
-.processing-type-count {
-  font-size: 8px;
-  vertical-align: super;
-}
-
 .error-header {
   @include themify($themes) {
     background-color: themed('background-white');
@@ -197,90 +164,27 @@ $bottom-offset: 10px;
   border-bottom-width: 1px;
 }
 
-.mobile-tab-selector {
-  @include themify($themes) {
-    border-bottom-color: themed('primary-dark');
-  }
-
-  border-bottom-style: solid;
-  border-bottom-width: 1px;
-}
-
-.doc-feedback-div {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: -42px;
-  margin-right: 20px;
-}
-
-.doc-feedback-div-mobile {
-  margin-right: 36px;
-}
-
-.docs-div {
-  flex: 0 1 auto;
-  margin-top: 2px;
-  margin-right: 20px;
-  cursor: pointer;
-}
-
-.feedback-div {
-  flex: 0 1 auto;
-  width: 133px;
-  cursor: pointer;
-}
-
-.header-link {
-  font-size: 18px;
-
-  a {
-    text-decoration: underline;
-
-    @include themify($themes) {
-      color: themed('blue-link');
-    }
-  }
-}
-
-.help-div {
-  position: absolute;
-  top: 53px;
-  right: 130px;
-  float: right;
-  text-align: right;
-  cursor: pointer;
-}
-
-.on-demand-subtitle {
-  @include themify($themes) {
-    color: themed('dark-secondary-text');
-  }
-
-  font-size: 14px;
-  font-style: italic;
-  line-height: 12px;
-}
-
 .mat-mdc-dialog-content {
   @include themify($themes) {
     background-color: themed('background-white');
   }
 
-  position: absolute;
-  top: $header-height;
+  // 流式布局：标题/内容/底部操作栏互不遮挡
+  position: static;
+  flex: 1 1 auto;
   display: block;
   width: 100%;
-  height: calc(100% - #{$header-height} - #{$footer-height} - #{$bottom-offset});
-  max-height: calc(100% - #{$header-height} - #{$footer-height} - #{$bottom-offset});
+  height: auto;
+  max-height: none;
+  min-height: 0;
   padding: 0;
   margin: 0;
   overflow-x: hidden;
   overflow-y: auto !important;
 
-  /* TODO(mdc-migration): The following rule targets internal classes of dialog that may no longer apply for the MDC version. */
   .mat-dialog-content-2 {
     top: initial;
-    height: calc(100% - #{$footer-height});
+    height: auto;
     overflow: initial;
   }
 }
@@ -293,6 +197,7 @@ $bottom-offset: 10px;
   display: flex;
   flex-direction: column;
   width: 100%;
+  min-height: 100%;
   text-align: left;
 }
 
@@ -305,7 +210,7 @@ $bottom-offset: 10px;
 .content-top-area {
   display: flex;
   flex-flow: row wrap;
-  height: 100%;
+  height: auto;
   padding: 10px 16px;
   border-bottom: solid 2px grey;
 }
@@ -318,10 +223,12 @@ $bottom-offset: 10px;
 
 .content-bottom-area {
   display: flex;
+  flex: 1 1 auto;
   flex-direction: row;
-  height: 100%;
-
-  // overflow-y: auto;
+  min-height: 0;
+  // 覆盖模板里旧的像素高度绑定，避免内容溢出二次滚动
+  height: auto !important;
+  overflow-y: visible;
 }
 
 .content-bottom-area-mobile {
@@ -330,7 +237,7 @@ $bottom-offset: 10px;
 
 .bottom-item {
   width: 100%;
-  height: 100%;
+  height: auto;
 }
 
 .mat-mdc-dialog-actions {
@@ -338,8 +245,9 @@ $bottom-offset: 10px;
     background-color: themed('primary-light');
   }
 
-  position: absolute;
-  bottom: $bottom-offset;
+  // 流式布局：固定在内容区下方，不再绝对定位压住内容
+  position: static;
+  flex: 0 0 auto;
   display: flex;
   width: 100%;
   height: $footer-height;
@@ -452,25 +360,6 @@ $bottom-offset: 10px;
 
 .job-type--button {
   margin-right: 5px;
-}
-
-.hyp3-url {
-  @include themify($themes) {
-    color: themed('dark-secondary-text');
-  }
-
-  height: 32px;
-  margin: -4px 0 6px;
-  font-size: 12px;
-}
-
-.hyp3-url-mobile {
-  margin: 17px 0 0;
-}
-
-.branding-block {
-  display: flex;
-  flex-direction: column;
 }
 
 a {

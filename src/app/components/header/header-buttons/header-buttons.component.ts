@@ -1,4 +1,4 @@
-import { AsyncPipe, TitleCasePipe } from '@angular/common';
+import { AsyncPipe, KeyValuePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import {
   Component,
@@ -23,6 +23,8 @@ import { saveAs } from 'file-saver';
 import { SubSink } from 'subsink';
 
 import { SearchButtonComponent } from '@components/shared/search-button/search-button.component';
+
+import { NotificationCenterComponent } from '../notification-center/notification-center.component';
 import {
   CMRProduct,
   Breakpoints,
@@ -71,9 +73,10 @@ declare global {
     MatMenu,
     MatMenuItem,
     SearchButtonComponent,
+    NotificationCenterComponent,
     MatSuffix,
     AsyncPipe,
-    TitleCasePipe,
+    KeyValuePipe,
     TranslateModule,
   ],
 })
@@ -100,6 +103,7 @@ export class HeaderButtonsComponent implements OnInit, OnDestroy {
   );
   public breakpoint$ = this.screenSize.breakpoint$;
   public breakpoints = Breakpoints;
+  public downloads = this.store$.selectSignal(queueStore.getDownloads);
   private subs = new SubSink();
 
   public accentPalette: ThemePalette = 'accent' as const;
@@ -222,16 +226,6 @@ export class HeaderButtonsComponent implements OnInit, OnDestroy {
       this.language.translate.instant('CHENGLI_1_DOCS_BUILDING'),
     );
   }
-  public onOpenHyP3Guide(): void {
-    const url = 'https://hyp3-docs.asf.alaska.edu/';
-    const analyticsEvent = {
-      name: 'open-user-guide',
-      value: url,
-    };
-
-    this.openNewWindow(url, analyticsEvent);
-  }
-
   public onOpenWhatsNew(): void {
     const url =
       'https://docs.google.com/document/d/e/2PACX-1vSqQxPT8nhDQfbCLS8gBZ9SqSEeJy8BdSCiYVlBOXwsFwJ6_ct7pjtOqbXHo0Q3wzinzvO8bGWtHj0H/pub';
@@ -243,51 +237,11 @@ export class HeaderButtonsComponent implements OnInit, OnDestroy {
     this.openNewWindow(url, analyticsEvent);
   }
 
-  public onOpenASFWebSite(): void {
-    const url = this.asfWebsite.home;
-    const analyticsEvent = {
-      name: 'open-asf-web-site',
-      value: url,
-    };
-
-    this.openNewWindow(url, analyticsEvent);
-  }
-
   public onOpenStoryMap(): void {
     const url =
       'https://storymaps.arcgis.com/collections/c52e34d6f5a34538a45a9c9c4dfbc3dc';
     const analyticsEvent = {
       name: 'open-storymap',
-      value: url,
-    };
-
-    this.openNewWindow(url, analyticsEvent);
-  }
-
-  public onOpenOperaInfo(): void {
-    const url = 'https://asf.alaska.edu/datasets/daac/opera/';
-    const analyticsEvent = {
-      name: 'open-opera-info',
-      value: url,
-    };
-
-    this.openNewWindow(url, analyticsEvent);
-  }
-
-  public onOpenOnDemandDocs(): void {
-    const url = 'https://hyp3-docs.asf.alaska.edu/';
-    const analyticsEvent = {
-      name: 'open-hyp3-docs',
-      value: url,
-    };
-
-    this.openNewWindow(url, analyticsEvent);
-  }
-
-  public onOpenAPIWebSite(): void {
-    const url = `https://docs.asf.alaska.edu/api/basics/`;
-    const analyticsEvent = {
-      name: 'open-api-web-site',
       value: url,
     };
 

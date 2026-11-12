@@ -2,6 +2,7 @@ import { TitleCasePipe } from '@angular/common';
 import { Component, OnInit, OnDestroy, inject, computed } from '@angular/core';
 import { MatButton } from '@angular/material/button';
 import { ThemePalette } from '@angular/material/core';
+import { MatDialog } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
 import { MatMenuTrigger, MatMenu, MatMenuItem } from '@angular/material/menu';
 import { MatSlideToggle } from '@angular/material/slide-toggle';
@@ -9,6 +10,7 @@ import { Store } from '@ngrx/store';
 import { TranslateModule } from '@ngx-translate/core';
 import { SubSink } from 'subsink';
 
+import { AoiFilterDialogComponent } from '@components/header/dataset-header/aoi-filter-dialog/aoi-filter-dialog.component';
 import {
   MapDrawModeType,
   MapInteractionModeType,
@@ -20,7 +22,6 @@ import { ScreenSizeService } from '@services';
 import { AppState } from '@store';
 import * as mapStore from '@store/map';
 import * as searchStore from '@store/search';
-import * as uiStore from '@store/ui';
 
 @Component({
   selector: 'app-draw-selector',
@@ -41,6 +42,7 @@ import * as uiStore from '@store/ui';
 export class DrawSelectorComponent implements OnInit, OnDestroy {
   private store$ = inject<Store<AppState>>(Store);
   private screenSize = inject(ScreenSizeService);
+  private dialog = inject(MatDialog);
 
   public drawMode = this.store$.selectSignal(mapStore.getMapDrawMode);
   public types = MapDrawModeType;
@@ -91,8 +93,13 @@ export class DrawSelectorComponent implements OnInit, OnDestroy {
   }
 
   public onImportSelected() {
-    const action = new uiStore.OpenAOIOptions();
-    this.store$.dispatch(action);
+    this.dialog.open(AoiFilterDialogComponent, {
+      width: '560px',
+      maxWidth: '92vw',
+      height: 'auto',
+      maxHeight: '90vh',
+      panelClass: 'aoi-filter-dialog',
+    });
   }
 
   public onPolygonSelected = () => this.selectMode(MapDrawModeType.POLYGON);

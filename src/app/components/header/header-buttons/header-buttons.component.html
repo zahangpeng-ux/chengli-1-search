@@ -8,13 +8,12 @@
             [matMenuTriggerFor]="onDemandQueue"
             class="spacing nav-icon-buttons"
             color="basic"
-            [matTooltip]="'ON_DEMAND_QUEUE' | translate"
+            [matTooltip]="'ORDERS' | translate"
             mat-button
           >
             <mat-icon
               class="large-icon"
               aria-hidden="false"
-              svgIcon="hyp3"
               [matBadge]="queuedCustomProducts.length"
               [matBadgeColor]="
                 this.queuedCustomProducts.length > 0
@@ -25,9 +24,10 @@
               matBadgeOverlap="true"
               matBadgeSize="small"
             >
+              receipt_long
             </mat-icon>
             <div class="text-under faint-text">
-              {{ 'ON_DEMAND' | translate }}
+              {{ 'ORDERS' | translate }}
             </div>
           </button>
           <mat-menu #onDemandQueue="matMenu">
@@ -41,9 +41,6 @@
             >
               {{ 'SUBMITTED_PRODUCTS' | translate }}
             </button>
-            <button mat-menu-item (click)="onOpenOnDemandDocs()">
-              {{ 'ON_DEMAND_HYP3_DOCS' | translate }}
-            </button>
           </mat-menu>
           }
           @if (features.downloadQueue) {
@@ -51,7 +48,7 @@
             (click)="onOpenDownloadQueue()"
             class="spacing nav-icon-buttons"
             color="basic"
-            [matTooltip]="'DOWNLOADS' | translate"
+            [matTooltip]="'CART' | translate"
             mat-button
           >
             <mat-icon
@@ -70,10 +67,42 @@
               shopping_cart
             </mat-icon>
             <div class="text-under faint-text">
-              {{ 'DOWNLOADS' | translate }}
+              {{ 'CART' | translate }}
             </div>
           </button>
           }
+
+          <button
+            [matMenuTriggerFor]="downloadsMenu"
+            class="spacing nav-icon-buttons"
+            color="basic"
+            [matTooltip]="'DOWNLOADS' | translate"
+            mat-button
+          >
+            <mat-icon class="large-icon" aria-hidden="false">file_download</mat-icon>
+            <div class="text-under faint-text">
+              {{ 'DOWNLOADS' | translate }}
+            </div>
+          </button>
+          <mat-menu #downloadsMenu="matMenu" class="downloads-menu" xPosition="before">
+            @if ((downloads() | keyvalue).length === 0) {
+              <div class="downloads-empty">{{ 'NO_DOWNLOADS' | translate }}</div>
+            } @else {
+              @for (entry of downloads() | keyvalue; track entry.key) {
+                <div class="downloads-item">
+                  <span class="downloads-name" [title]="entry.value.filename">
+                    {{ entry.value.filename }}
+                  </span>
+                  <span class="downloads-state">{{ entry.value.state }}</span>
+                </div>
+              }
+              <button mat-menu-item (click)="onOpenDownloadQueue()">
+                {{ 'OPEN_DOWNLOAD_QUEUE' | translate }}
+              </button>
+            }
+          </mat-menu>
+
+          <app-notification-center></app-notification-center>
         }
         @if (
           searchType === searchTypes.DISPLACEMENT &&
@@ -114,29 +143,9 @@
                 [matTooltip]="'STORYMAP' | translate"
                 (click)="onOpenStoryMap()"
               >
-                <img
-                  src="assets/StoryMaps.png"
-                  alt="StoryMap"
-                  class="storymap-icon"
-                />
+                <mat-icon class="large-icon">map</mat-icon>
                 <div class="text-under faint-text text-adjust-storymap">
                   {{ 'STORYMAP' | translate }}
-                  <mat-icon class="external-link-icon">open_in_new</mat-icon>
-                </div>
-              </button>
-              <button
-                class="spacing nav-icon-buttons nav-icon-buttons-raised panel-info-button"
-                color="basic"
-                mat-button
-                [matTooltip]="'DATASET_INFO' | translate"
-                (click)="onOpenOperaInfo()"
-              >
-                <mat-icon class="material-symbols-outlined large-icon"
-                  >description</mat-icon
-                >
-                <div class="text-under faint-text text-adjust-info">
-                  {{ 'INFO' | translate }}
-                  <mat-icon class="external-link-icon">open_in_new</mat-icon>
                 </div>
               </button>
               <button
@@ -211,29 +220,9 @@
             [matTooltip]="'STORYMAP' | translate"
             (click)="onOpenStoryMap()"
           >
-            <img
-              src="assets/StoryMaps.png"
-              alt="StoryMap"
-              class="storymap-icon"
-            />
+            <mat-icon class="large-icon">map</mat-icon>
             <div class="text-under faint-text text-adjust-storymap">
               {{ 'STORYMAP' | translate }}
-              <mat-icon class="external-link-icon">open_in_new</mat-icon>
-            </div>
-          </button>
-          <button
-            class="spacing nav-icon-buttons disp-icon-adjust panel-info-button"
-            color="basic"
-            mat-button
-            [matTooltip]="'DATASET_INFO' | translate"
-            (click)="onOpenOperaInfo()"
-          >
-            <mat-icon class="material-symbols-outlined large-icon"
-              >description</mat-icon
-            >
-            <div class="text-under faint-text text-adjust-info">
-              {{ 'INFO' | translate }}
-              <mat-icon class="external-link-icon">open_in_new</mat-icon>
             </div>
           </button>
         }
@@ -323,9 +312,6 @@
           [disabled]="!isLoggedIn()"
         >
           {{ 'SUBMITTED_PRODUCTS' | translate }}
-        </button>
-        <button mat-menu-item (click)="onOpenOnDemandDocs()">
-          {{ 'ON_DEMAND_HYP3_DOCS' | translate }}
         </button>
       </mat-menu>
       }
@@ -426,96 +412,6 @@
   </button>
 
   @if (features.asfHelpLinks) {
-  <hr />
-
-  <button mat-menu-item matSuffix (click)="onOpenHyP3Guide()">
-    @if ((breakpoint$ | async) === breakpoints.MOBILE) {
-      <div>
-        <mat-icon>book</mat-icon>
-        {{ 'HYP3_USER_GUIDE' | translate | titlecase }}
-      </div>
-    } @else {
-      <div class="menu-item">
-        <div class="menu-item-content">
-          <div class="item-title">
-            {{ 'READ_OUR_ON_DEMAND_GUIDE' | translate }}
-          </div>
-          <div class="item-content">
-            {{
-              'YOU_CAN_HAVE_ASF_PERFORM_SAR_PROCESSING_FOR_YOU_ON_DEMAND_THE_ON_DEMAND_SYSTEM'
-                | translate
-            }}
-            {{ 'IS_POWERED_BY_THE_HYP3_READ_ABOUT_IT_HERE' | translate }}
-          </div>
-        </div>
-        <div class="menu-item-aside">
-          <mat-icon class="menu-item-icon" svgIcon="hyp3"></mat-icon>
-        </div>
-      </div>
-    }
-  </button>
-
-  <hr />
-
-  <button mat-menu-item matSuffix (click)="onOpenAPIWebSite()">
-    @if ((breakpoint$ | async) === breakpoints.MOBILE) {
-      <div>
-        <mat-icon>api</mat-icon>
-        {{ 'ASF_SEARCH_API' | translate }}
-      </div>
-    } @else {
-      <div class="menu-item">
-        <div class="menu-item-content">
-          <div class="item-title">
-            {{ 'FIND_SAR_DATA_USING_ASF_API' | translate }}
-          </div>
-          <div class="item-content">
-            {{
-              'THIS_INTERFACE_IS_POWERED_BY_A_ROBUST_API_YOU_CAN_USE_THAT_API_DIRECTLY_ALLOWING'
-                | translate
-            }}
-            {{
-              'YOU_TO_SEARCH_FOR_DATA_FROM_A_COMMAND_LINE_INTERFACE_SO_YOU_CAN_WRITE_YOUR_OWN'
-                | translate
-            }}
-            {{ 'SCRIPTS_FOR_ACCESSING_SAR_DATA' | translate }}
-          </div>
-        </div>
-        <div class="menu-item-aside">
-          <mat-icon class="menu-item-icon">api</mat-icon>
-        </div>
-      </div>
-    }
-  </button>
-
-  <hr />
-
-  <button mat-menu-item (click)="onOpenASFWebSite()">
-    @if ((breakpoint$ | async) === breakpoints.MOBILE) {
-      <div>
-        <mat-icon>language</mat-icon>
-        {{ 'ASF_WEBSITE' | translate }}
-      </div>
-    } @else {
-      <div class="menu-item">
-        <div class="menu-item-content">
-          <div class="item-title">
-            {{ 'LEARN_MORE_ABOUT_ASF_AND_SAR' | translate }}
-          </div>
-          <div class="item-content">
-            {{
-              'WE_HAVE_A_LARGE_WEBSITE_FULL_OF_RICH_CONTENT_ABOUT_SAR_DATA_AND_HOW_TO_USE_IT'
-                | translate
-            }}
-          </div>
-        </div>
-        <div class="menu-item-aside">
-          <mat-icon class="menu-item-icon">language</mat-icon>
-        </div>
-      </div>
-    }
-  </button>
-
   <hr />
 
   <button mat-menu-item [matMenuTriggerFor]="developerMenu">

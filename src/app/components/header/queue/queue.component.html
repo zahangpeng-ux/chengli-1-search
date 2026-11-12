@@ -8,7 +8,7 @@
 >
   <div class="dl-title-group">
     <h1>
-      {{ 'DOWNLOADS' | translate }}
+      {{ 'CART' | translate }}
     </h1>
     <div class="dl-subtitle">
       {{ numberOfProducts$ | async }} {{ 'FILES' | translate }},
@@ -52,13 +52,6 @@
 @if (showDemWarning) {
   <div class="dem-warning">
     {{ 'RESAMPLED_DEM_SRTM_OR_NED_USED_FOR_RTC_PROCESSING' | translate }}
-    <a
-      class="more-link"
-      target="_blank"
-      href="https://asf.alaska.edu/information/palsar-rtc-dem-information/"
-    >
-      {{ 'MORE' | translate }}...
-    </a>
   </div>
 }
 
@@ -68,13 +61,6 @@
       'PRODUCTS_IN_YOUR_QUEUE_MAY_REQUIRE_A_RESTRICTED_DATASET_AGREEMENT'
         | translate
     }}
-    <a
-      class="more-link"
-      target="_blank"
-      href="https://asf.alaska.edu/restricted-data-access-request/"
-    >
-      {{ 'MORE' | translate }}...
-    </a>
   </div>
 }
 

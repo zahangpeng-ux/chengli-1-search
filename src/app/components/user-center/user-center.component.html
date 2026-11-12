@@ -1,0 +1,125 @@
+<div class="user-center">
+  <aside class="uc-rail">
+    <div class="uc-logo">
+      <mat-icon>grid_view</mat-icon>
+    </div>
+    <nav class="uc-nav">
+      <button class="uc-nav-item is-active" type="button">
+        <mat-icon>account_circle</mat-icon>
+        <span>{{ 'UC_PROFILE' | translate }}</span>
+      </button>
+      <button class="uc-nav-item" type="button">
+        <mat-icon>info_outline</mat-icon>
+        <span>{{ 'UC_INFO' | translate }}</span>
+      </button>
+      <button class="uc-nav-item" type="button">
+        <mat-icon>shopping_cart</mat-icon>
+        <span>{{ 'UC_CART' | translate }}</span>
+      </button>
+      <button class="uc-nav-item" type="button">
+        <mat-icon>receipt_long</mat-icon>
+        <span>{{ 'UC_ORDERS' | translate }}</span>
+      </button>
+      <button class="uc-nav-item" type="button">
+        <mat-icon>file_download</mat-icon>
+        <span>{{ 'UC_DOWNLOADS' | translate }}</span>
+      </button>
+      <button class="uc-nav-item" type="button">
+        <mat-icon>notifications_none</mat-icon>
+        <span>{{ 'UC_MESSAGES' | translate }}</span>
+      </button>
+      <button class="uc-nav-item" type="button">
+        <mat-icon>settings</mat-icon>
+        <span>{{ 'UC_SETTINGS' | translate }}</span>
+      </button>
+    </nav>
+  </aside>
+
+  <main class="uc-main">
+    <header class="uc-header">
+      <h1>{{ 'USER_CENTER' | translate }}</h1>
+      <button class="uc-close" type="button" (click)="onClose()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </header>
+
+    <section class="uc-stats">
+      <article class="uc-card">
+        <div class="uc-card-label">
+          <mat-icon>shopping_cart</mat-icon>
+          <span>{{ 'UC_CART' | translate }}</span>
+        </div>
+        <strong class="uc-card-value">{{ queuedProductsCount() }}</strong>
+      </article>
+
+      <article class="uc-card">
+        <div class="uc-card-label">
+          <mat-icon>inventory_2</mat-icon>
+          <span>{{ 'ARCHIVED_ORDERS' | translate }}</span>
+        </div>
+        <strong class="uc-card-value">{{ archivedCount() }}</strong>
+      </article>
+
+      <article class="uc-card">
+        <div class="uc-card-label">
+          <mat-icon>tune</mat-icon>
+          <span>{{ 'PROGRAMMED_ORDERS' | translate }}</span>
+        </div>
+        <strong class="uc-card-value">{{ queuedJobsCount() }}</strong>
+      </article>
+
+      <article class="uc-card">
+        <div class="uc-card-label">
+          <mat-icon>check_circle_outline</mat-icon>
+          <span>{{ 'COMPLETED_ORDERS' | translate }}</span>
+        </div>
+        <strong class="uc-card-value">{{ completedCount() }}</strong>
+      </article>
+
+      <article class="uc-card">
+        <div class="uc-card-label">
+          <mat-icon>notifications_none</mat-icon>
+          <span>{{ 'UNREAD_MESSAGES' | translate }}</span>
+        </div>
+        <strong class="uc-card-value">{{ (unreadCount$ | async) || 0 }}</strong>
+      </article>
+    </section>
+
+    <section class="uc-panel">
+      <div class="uc-panel-header">
+        <h2>{{ 'DATA_STATS' | translate }}</h2>
+        <div class="uc-tabs">
+          <button
+            type="button"
+            class="uc-tab"
+            [class.is-active]="activeTab() === 'status'"
+            (click)="activeTab.set('status')"
+          >
+            {{ 'BY_ORDER_STATUS' | translate }}
+          </button>
+          <button
+            type="button"
+            class="uc-tab"
+            [class.is-active]="activeTab() === 'satellite'"
+            (click)="activeTab.set('satellite')"
+          >
+            {{ 'BY_SATELLITE' | translate }}
+          </button>
+          <button
+            type="button"
+            class="uc-tab"
+            [class.is-active]="activeTab() === 'sensor'"
+            (click)="activeTab.set('sensor')"
+          >
+            {{ 'BY_SENSOR' | translate }}
+          </button>
+        </div>
+      </div>
+
+      <div class="uc-empty">
+        <mat-icon>bar_chart</mat-icon>
+        <p>{{ 'NO_STATS' | translate }}</p>
+      </div>
+    </section>
+  </main>
+</div>

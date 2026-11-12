@@ -46,6 +46,24 @@ app-root {
   }
 }
 
+// 全局 dialog surface：统一圆角、阴影、无边框
+.mat-mdc-dialog-panel {
+  .mat-mdc-dialog-surface,
+  .mdc-dialog__surface,
+  .mat-mdc-dialog-container {
+    border-radius: 12px !important;
+    border: none !important;
+    box-shadow:
+      0 1px 2px rgba(16, 24, 40, 0.06),
+      0 12px 32px rgba(16, 24, 40, 0.14) !important;
+  }
+
+  .mat-mdc-dialog-container,
+  .mat-dialog-container {
+    padding: 0 !important;
+  }
+}
+
 * {
   font-family: Roboto, sans-serif;
   letter-spacing: normal;
@@ -84,6 +102,38 @@ app-root {
   margin: 0;
   overflow: hidden;
   resize: both;
+
+  // 标题 / 内容 / 底部操作栏三段式 flex，避免内容被操作栏压住
+  .mat-mdc-dialog-surface,
+  .mdc-dialog__surface {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+}
+
+#downloadsDialog {
+  position: relative;
+  width: 80vw;
+  min-width: 350px;
+  height: 86vh;
+  min-height: 500px;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+  resize: both;
+}
+
+#notificationDialog {
+  position: relative;
+  width: 80vw;
+  min-width: 350px;
+  height: 86vh;
+  min-height: 500px;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+  resize: both;
 }
 
 #preferencesDialog {
@@ -105,4 +155,153 @@ $d-height: 550px;
   max-height: $d-height !important;
   overflow: hidden;
   resize: none;
+}
+
+// AOI 上传弹窗
+// 注意：dialog 内容挂在 CDK overlay（document.body）下，组件内的 :deep()/::ng-deep 不可靠，
+// 所以所有布局修复统一放在这里覆盖。
+.aoi-filter-dialog {
+  // 1) 限制弹窗总高度，避免超出视口导致标题被裁掉
+  .mat-mdc-dialog-surface,
+  .mdc-dialog__surface {
+    max-height: 90vh !important;
+    overflow: hidden !important;
+  }
+
+  .mat-mdc-dialog-container,
+  .mat-dialog-container {
+    max-height: 90vh !important;
+    height: auto !important;
+  }
+
+  // 内容超长时只让内部滚动，标题和底部按钮始终可见
+  .mat-mdc-dialog-content,
+  .mat-dialog-content {
+    max-height: calc(90vh - 150px) !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+  }
+
+  // 2) app-aoi-filter 是自定义元素（header 里被设成 flex），必须按块级参与布局
+  app-aoi-filter {
+    display: block !important;
+    width: 100% !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  // header.component.scss 把 .breadcrumb-filter 写成了下拉浮层（absolute + 60vh + 滚动），
+  // 在弹窗里必须还原成普通文档流元素，否则不占高度、内容被压扁
+  .breadcrumb-filter {
+    position: static !important;
+    inset: auto !important;
+    width: auto !important;
+    max-height: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: visible !important;
+    border: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+  }
+
+  // 弹窗内选项卡已直接展开，隐藏下拉箭头
+  .additional-aoi-toggle {
+    display: none !important;
+  }
+
+  // 3) 上传文件区铺满弹窗宽度
+  app-file-upload-dialog {
+    display: block !important;
+    width: 100% !important;
+  }
+
+  .dialog-inner {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+  }
+
+  // 原 .file-upload-target--layout 是 grid + place-content: center，
+  // 在弹窗里会把拖放框收缩成 160px 宽，这里改成块级铺满
+  .file-upload--layout,
+  .container {
+    width: 100% !important;
+    height: auto !important;
+  }
+
+  .file-upload-target--layout {
+    display: block !important;
+    width: 100% !important;
+    height: auto !important;
+    margin-top: 0 !important;
+  }
+
+  .drop-file-area {
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+}
+
+// 右上角用户菜单：紧凑、圆角、图标与文字贴合
+.account-menu {
+  min-width: 168px;
+  padding: 6px !important;
+  border-radius: 10px !important;
+  box-shadow: 0 8px 24px rgba(16, 24, 40, 0.12) !important;
+
+  .mat-mdc-menu-content {
+    display: flex !important;
+    flex-direction: column !important;
+    padding: 0 !important;
+  }
+
+  .mat-mdc-menu-item {
+    display: flex !important;
+    width: 100%;
+    height: 38px;
+    min-height: 38px;
+    padding: 0 12px;
+    font-size: 13px;
+    color: #3a4252;
+    border-radius: 6px;
+
+    .mat-icon {
+      width: 18px;
+      height: 18px;
+      margin-right: 10px;
+      font-size: 18px;
+      color: #6b7484;
+    }
+
+    &:hover {
+      color: #2f54eb;
+      background: #f3f6fc;
+
+      .mat-icon {
+        color: #2f54eb;
+      }
+    }
+  }
+}
+
+// 坐标输入弹窗：内容固定铺开，不出现滚动条
+.coordinate-dialog {
+  .mat-mdc-dialog-surface,
+  .mdc-dialog__surface {
+    max-height: 90vh !important;
+    overflow: hidden !important;
+  }
+
+  .mat-mdc-dialog-container,
+  .mat-dialog-container {
+    max-height: 90vh !important;
+    height: auto !important;
+  }
+
+  .mat-mdc-dialog-content,
+  .mat-dialog-content {
+    max-height: calc(90vh - 140px) !important;
+    overflow: hidden !important;
+  }
 }

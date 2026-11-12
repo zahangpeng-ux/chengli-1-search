@@ -168,4 +168,76 @@ $panel-shadow-padding: 6px; // Accommodates drawer-tab box-shadow
 
 .header-buttons-container {
   overflow-x: clip;
+  align-items: center;
+  gap: 4px;
+  padding-right: 6px;
+
+  /* 右上角工具栏：纯线性图标、等距、圆形悬停 */
+  .nav-icon-buttons {
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    min-width: 42px;
+    padding: 0;
+    top: 0;
+    border-radius: 50%;
+    transition: background-color 0.15s ease;
+
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.06);
+    }
+
+    .text-under {
+      display: none;
+    }
+
+    .large-icon {
+      font-family: 'Material Icons Outlined', 'Material Icons', sans-serif !important;
+      font-size: 24px;
+      width: 24px;
+      height: 24px;
+      min-height: unset;
+      line-height: 24px;
+      margin: 0;
+      top: 0;
+    }
+  }
+}
+
+/* 下载记录下拉 */
+.downloads-empty {
+  min-width: 240px;
+  padding: 24px 20px;
+  text-align: center;
+  font-size: 13px;
+  color: #8c8c8c;
+}
+
+.downloads-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 8px 16px;
+  font-size: 13px;
+  color: #3a4252;
+
+  & + .downloads-item {
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+  }
+
+  .downloads-name {
+    max-width: 240px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .downloads-state {
+    flex: 0 0 auto;
+    font-size: 11px;
+    color: #2f54eb;
+  }
 }

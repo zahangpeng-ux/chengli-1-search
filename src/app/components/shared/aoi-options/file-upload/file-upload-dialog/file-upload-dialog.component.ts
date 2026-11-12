@@ -1,8 +1,10 @@
 import { AsyncPipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, ViewChild, OnInit, OnDestroy, inject } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { MatButton } from '@angular/material/button';
 import { MatButtonToggle } from '@angular/material/button-toggle';
+import { MatFormField, MatInputModule, MatLabel } from '@angular/material/input';
 import { MatIcon } from '@angular/material/icon';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { MatTooltip } from '@angular/material/tooltip';
@@ -34,12 +36,16 @@ enum FileErrors {
   templateUrl: 'file-upload-dialog.component.html',
   styleUrls: ['./file-upload-dialog.component.scss'],
   imports: [
-    MatButton,
-    MatProgressSpinner,
-    MatButtonToggle,
-    MatTooltip,
-    MatIcon,
     AsyncPipe,
+    FormsModule,
+    MatButton,
+    MatButtonToggle,
+    MatFormField,
+    MatIcon,
+    MatInputModule,
+    MatLabel,
+    MatProgressSpinner,
+    MatTooltip,
     TranslateModule,
   ],
 })
@@ -64,6 +70,11 @@ export class FileUploadDialogComponent implements OnInit, OnDestroy {
 
   public breakpoints = models.Breakpoints;
   public breakpoint$ = this.screenSize.breakpoint$;
+
+  /** Tab mode: file upload or WKT paste */
+  public mode: 'file' | 'wkt' = 'file';
+  public wktText = '';
+  public wktError = '';
 
   public ngOnInit(): void {
     this.subs.add(
@@ -90,6 +101,11 @@ export class FileUploadDialogComponent implements OnInit, OnDestroy {
         )
         .subscribe((_) => _),
     );
+  }
+
+  public setMode(m: 'file' | 'wkt'): void {
+    this.mode = m;
+    this.wktError = '';
   }
 
   public onFileDrop(ev): void {
@@ -177,14 +193,12 @@ export class FileUploadDialogComponent implements OnInit, OnDestroy {
             this.reset();
 
             if (resp.wkt) {
-              // set wkt (resp.wkt.unwrapped)
               this.setAOI(resp.wkt.unwrapped);
               this.zoomToAOI(resp.wkt.unwrapped);
               this.store$.dispatch(new DrawNewPolygon());
             } else if (resp.errors && resp.errors.length > 0) {
               const { report, type } = resp.errors[0];
               this.notificationService.error(report, type, { timeOut: 5000 });
-              // return
             }
           },
           (_) => {
@@ -193,12 +207,35 @@ export class FileUploadDialogComponent implements OnInit, OnDestroy {
               this.language.translate.instant('FILE_ERROR'),
               { timeOut: 3000 },
             );
-            // return
           },
         ),
     );
 
     this.canBeClosed = false;
+  }
+
+  /** Validate and apply pasted WKT */
+  public onApplyWkt(): void {
+    this.wktError = '';
+    const wkt = this.wktText.trim();
+    if (!wkt) {
+      this.wktError = this.language.translate.instant('COORDINATES_REQUIRED');
+      return;
+    }
+    const ok = this.mapService.loadPolygonFrom(wkt);
+    if (!ok) {
+      this.wktError = this.language.translate.instant('INVALID_WKT');
+      return;
+    }
+    const feature = this.wktService.wktToFeature(wkt, this.mapService.epsg());
+    if (feature) {
+      this.mapService.zoomToFeature(feature);
+    }
+    this.store$.dispatch(new DrawNewPolygon());
+    this.notificationService.info(
+      this.language.translate.instant('COORDINATE_IMPORTED'),
+    );
+    this.wktText = '';
   }
 
   private reset() {

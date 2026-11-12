@@ -1,0 +1,13 @@
+<h2 mat-dialog-title class="aoi-title">
+  {{ 'AREA_OF_INTEREST' | translate }}
+</h2>
+
+<mat-dialog-content class="aoi-content">
+  <app-aoi-options [showHeader]="false" (close)="onClose()"></app-aoi-options>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="aoi-actions">
+  <button mat-button type="button" (click)="onClose()">
+    {{ 'CLOSE' | translate }}
+  </button>
+</mat-dialog-actions>

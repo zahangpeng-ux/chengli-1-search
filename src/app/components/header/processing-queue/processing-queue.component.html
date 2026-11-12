@@ -7,78 +7,23 @@
   cdkDragRootElement=".cdk-overlay-pane"
   cdkDragBoundary=".cdk-global-overlay-wrapper"
 >
-  <div class="pq-card-title-group">
-    <div style="display: flex; margin: 5px">
-      <div class="on-demand-branding">
-        <mat-icon
-          class="on-demand-icon"
-          svgIcon="hyp3"
-          matBadgePosition="above after"
-          matBadgeOverlap="true"
-          matBadgeSize="small"
-        >
-        </mat-icon>
-      </div>
-
-      @if (breakpoint !== breakpoints.MOBILE) {
-        <div class="branding-block">
-          <div (click)="onOpenPreferences()" class="hyp3-url clickable">
-            <app-hyp3-url></app-hyp3-url>
-          </div>
-          <div class="on-demand-text">
-            {{ 'ON_DEMAND' | translate }}
-          </div>
-          <div class="on-demand-subtitle">
-            @if (!isHyp3PlusMode()) {
-              {{ 'POWERED_BY_HYP3' | translate }}
-            } @else {
-              {{ 'POWERED_BY_HYP3_PLUS' | translate }}
-            }
-          </div>
-        </div>
-      }
-
-      @if (breakpoint === breakpoints.MOBILE) {
-        <div class="branding-block">
-          <div
-            (click)="onOpenPreferences()"
-            class="clickable hyp3-url hyp3-url-mobile"
-          >
-            <app-hyp3-url></app-hyp3-url>
-          </div>
-        </div>
+  <div class="dl-title-group">
+    <h1>{{ 'ORDERS' | translate }}</h1>
+    <div class="dl-subtitle">
+      {{ allJobs.length }}
+      @if (allJobs.length === 1) {
+        {{ 'JOB' | translate }}
+      } @else {
+        {{ 'JOBS' | translate }}
       }
     </div>
+  </div>
 
-    <div
-      class="doc-feedback-div"
-      [class.doc-feedback-div-mobile]="breakpoint === breakpoints.MOBILE"
-    >
-      <div class="docs-div header-link">
-        <a
-          href="https://hyp3-docs.asf.alaska.edu/using/credits"
-          target="_blank"
-        >
-          {{ 'CREDITS' | titlecase | translate }}</a
-        >
-      </div>
+  <div class="dl-close-x" (click)="onCloseDialog()">
+    <mat-icon>close</mat-icon>
+  </div>
 
-      <div class="docs-div header-link">
-        <app-docs-modal
-          class="text-link"
-          [text]="'DOCS' | translate"
-          url="https://hyp3-docs.asf.alaska.edu/#asf-hyp3"
-        >
-        </app-docs-modal>
-      </div>
-
-      <div class="feedback-div header-link">
-        <a href="javascript:feedback.showForm();" onfocus="this.blur()">
-          <mat-icon>comment</mat-icon> {{ 'FEEDBACK' | translate }}</a
-        >
-      </div>
-    </div>
-
+  <div class="pq-job-buttons">
     @if (breakpoint !== breakpoints.MOBILE) {
       @if (
         userStatus === 'NOT_STARTED' ||
@@ -159,14 +104,6 @@
         }
       </mat-menu>
     }
-  </div>
-
-  <div
-    class="close-x"
-    (click)="onCloseDialog()"
-    [class.close-x-mobile]="breakpoint === breakpoints.MOBILE"
-  >
-    <mat-icon>close</mat-icon>
   </div>
 </div>
 
@@ -316,11 +253,6 @@
       >
         <div style="display: flex; flex-direction: column; align-items: center">
           <h3>{{ 'REQUEST_ACCESS_REJECTED' | translate }}</h3>
-          <a
-            href="https://hyp3-docs.asf.alaska.edu/using/requesting_access"
-            target="_blank"
-            >{{ 'LEARN_MORE' | translate }}</a
-          >
         </div>
       </div>
     } @else {
@@ -391,28 +323,19 @@
     <div class="footer-job-notification">
       @switch (userStatus) {
         @case ('NOT_STARTED') {
-          <a
-            href="https://hyp3-docs.asf.alaska.edu/using/requesting_access"
-            target="_blank"
-          >
+          <span>
             {{ 'MUST_REGISTER_WITH_ON_DEMAND' | translate }}
-          </a>
+          </span>
         }
         @case ('PENDING') {
-          <a
-            href="https://hyp3-docs.asf.alaska.edu/using/requesting_access"
-            target="_blank"
-          >
+          <span>
             {{ 'CURRENTLY_AWAITING_APPROVAL' | translate }}
-          </a>
+          </span>
         }
         @case ('REJECTED') {
-          <a
-            href="https://hyp3-docs.asf.alaska.edu/using/requesting_access"
-            target="_blank"
-          >
+          <span>
             {{ 'REQUEST_ACCESS_REJECTED' | translate }}
-          </a>
+          </span>
         }
         @default {
           @if (isUserLoggedIn && !isUserLoading() && user !== '') {
@@ -429,30 +352,21 @@
               @if (breakpoint === breakpoints.MOBILE) {
                 <span class="footer-mini-text">
                   <br />
-                  <a
-                    href="https://hyp3-docs.asf.alaska.edu/using/credits"
-                    target="_blank"
-                    >{{ 'CREDIT_MAX' | translate }}</a
-                  >
+                  <span>{{ 'CREDIT_MAX' | translate }}</span>
                 </span>
               }
               @if (breakpoint !== breakpoints.MOBILE) {
                 <span>
-                  <a
-                    href="https://hyp3-docs.asf.alaska.edu/using/credits"
-                    target="_blank"
-                  >
-                    @if (hyp3.isDefaultApi()) {
-                      <span>
-                        {{ 'CREDITS_LEFT_THIS_MONTH' | translate }}
-                      </span>
-                    }
-                    @if (!hyp3.isDefaultApi()) {
-                      <span>
-                        {{ 'CREDITS_LEFT' | translate }}
-                      </span>
-                    }
-                  </a>
+                  @if (hyp3.isDefaultApi()) {
+                    <span>
+                      {{ 'CREDITS_LEFT_THIS_MONTH' | translate }}
+                    </span>
+                  }
+                  @if (!hyp3.isDefaultApi()) {
+                    <span>
+                      {{ 'CREDITS_LEFT' | translate }}
+                    </span>
+                  }
                 </span>
               }
             </div>
@@ -545,13 +459,9 @@
         }
       </button>
       @if (isHyp3PlusMode()) {
-        <a
-          href="https://hyp3-docs.asf.alaska.edu/about/hyp3_plus/#purchasing-credits"
-          target="_blank"
-          mat-flat-button
-        >
+        <button mat-flat-button>
           {{ 'PURCHASE_CREDITS' | translate }}
-        </a>
+        </button>
       }
     </div>
   </div>

@@ -19,7 +19,9 @@ import {
   NativeDateAdapter,
 } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
+import { MatBadge } from '@angular/material/badge';
 import { MatIcon, MatIconRegistry } from '@angular/material/icon';
+import { MatMenu, MatMenuTrigger } from '@angular/material/menu';
 import {
   MatSidenav,
   MatSidenavContainer,
@@ -67,6 +69,9 @@ import {
   LOCAL_ACCOUNT,
 } from './components/login/auth.constants';
 import { LoginComponent } from './components/login/login.component';
+import { NotificationCenterComponent } from './components/header/notification-center/notification-center.component';
+import { DownloadsDialogComponent } from './components/header/downloads-dialog/downloads-dialog.component';
+import { UserCenterComponent } from './components/user-center/user-center.component';
 import { MapComponent } from './components/map/map.component';
 import { ResultsMenuComponent } from './components/results-menu/results-menu.component';
 import { EventSearchDeprecationComponent } from './components/shared/event-search-deprecation/event-search-deprecation.component';
@@ -96,7 +101,11 @@ import { SearchType } from './models';
     MapComponent,
     ResultsMenuComponent,
     AsyncPipe,
+    MatBadge,
     MatIcon,
+    MatMenu,
+    MatMenuTrigger,
+    UserCenterComponent,
     TranslateModule,
     LoginComponent,
   ],
@@ -148,6 +157,41 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   public numberQueuedProducts: number;
   public queuedCustomProducts: Signal<models.QueuedHyp3Job[]> =
     this.store$.selectSignal(queueStore.getQueuedJobs);
+  public downloads = this.store$.selectSignal(queueStore.getDownloads);
+
+  public unreadCount$ = this.notificationService.notifications$.pipe(
+    map((notifications) => notifications.filter((n) => !n.read).length),
+  );
+
+  public onOpenDownloadQueue(): void {
+    this.store$.dispatch(new uiStore.SetIsDownloadQueueOpen(true));
+  }
+
+  public onOpenProcessingQueue(): void {
+    this.store$.dispatch(new uiStore.SetIsOnDemandQueueOpen(true));
+  }
+
+  public onOpenNotifications(): void {
+    this.dialog.open(NotificationCenterComponent, {
+      id: 'notificationDialog',
+      maxWidth: '100vw',
+      maxHeight: '100vh',
+    });
+  }
+
+  public onOpenDownloadsDialog(): void {
+    this.dialog.open(DownloadsDialogComponent, {
+      id: 'downloadsDialog',
+      maxWidth: '100vw',
+      maxHeight: '100vh',
+    });
+  }
+
+  public isUserCenterOpen = signal(false);
+
+  public onOpenUserInfo(): void {
+    this.isUserCenterOpen.set(true);
+  }
 
   public interactionTypes = models.MapInteractionModeType;
   public searchType: models.SearchType;
@@ -170,6 +214,19 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
 
   public ngOnInit(): void {
     console.log('To toggle kiosk mode, use "ctrl+/"');
+
+    // 成理一号独立系统：统一拦截所有跳转到 ASF 官网的外链
+    const nativeOpen = window.open.bind(window);
+    window.open = ((url?: string | URL, target?: string, features?: string) => {
+      if (String(url ?? '').includes('asf.alaska.edu')) {
+        this.notificationService.info(
+          this.translate.instant('CHENGLI_1_DOCS_BUILDING'),
+        );
+        return null;
+      }
+      return nativeOpen(url as string, target, features);
+    }) as typeof window.open;
+
     if (models.PLATFORM.features.onDemand) {
       this.store$.dispatch(new hyp3Store.LoadCosts());
     }

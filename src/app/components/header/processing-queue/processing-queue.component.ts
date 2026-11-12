@@ -5,7 +5,6 @@ import {
   NgPluralCase,
   NgStyle,
   DecimalPipe,
-  TitleCasePipe,
 } from '@angular/common';
 import {
   Component,
@@ -36,8 +35,6 @@ import moment from 'moment';
 import { of, combineLatest } from 'rxjs';
 import { delay } from 'rxjs/operators';
 
-import { DocsModalComponent } from '@components/shared/docs-modal/docs-modal.component';
-import { Hyp3UrlComponent } from '@components/shared/hyp3-url/hyp3-url.component';
 import { ApplicationStatus } from '@models';
 import * as models from '@models';
 import * as services from '@services';
@@ -70,8 +67,6 @@ enum ProcessingQueueTab {
     CdkDragHandle,
     ResizedDirective,
     MatIcon,
-    Hyp3UrlComponent,
-    DocsModalComponent,
     MatButton,
     NgPlural,
     NgPluralCase,
@@ -89,7 +84,6 @@ enum ProcessingQueueTab {
     MatSlideToggle,
     FormsModule,
     DecimalPipe,
-    TitleCasePipe,
     TranslateModule,
   ],
 })
